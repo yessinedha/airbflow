@@ -1,0 +1,179 @@
+/* ============================================================================
+ *  THEME — the only file you need to edit to rebrand the whole application.
+ * ============================================================================
+ *
+ *  Every colour, radius, shadow and font in the app resolves to one of the
+ *  custom properties below. No component references a raw hex value, so
+ *  changing a line here changes every page, on desktop and on mobile.
+ *
+ *  Layout:
+ *    1. BRAND        — the handful of knobs you will actually want to touch
+ *    2. LIGHT THEME  — the full light palette
+ *    3. DARK THEME   — the same names, dark values
+ *    4. SHAPE        — radii, shadows, spacing rhythm
+ *
+ *  The dark theme follows the operating system by default. To force one
+ *  theme, put data-theme="light" or data-theme="dark" on <html> in
+ *  src/app/layout.tsx.
+ * ------------------------------------------------------------------------- */
+
+/* ---------------------------------------------------------------------------
+ * 1. BRAND
+ * ------------------------------------------------------------------------ */
+:root {
+  /* Accent used for primary buttons, links and active navigation. */
+  --brand-h: 18;
+  --brand-s: 75%;
+  --brand-l: 43%;
+
+  /* Warmth of the paper. 0deg = neutral grey, 35deg = warm cream. */
+  --paper-h: 36;
+  --paper-s: 30%;
+
+  /* Global corner rounding. Lower it for a sharper, more editorial feel. */
+  --radius-scale: 1;
+}
+
+/* ---------------------------------------------------------------------------
+ * 2. LIGHT THEME
+ * ------------------------------------------------------------------------ */
+:root {
+  /* Paper ------------------------------------------------------------- */
+  --canvas: hsl(var(--paper-h) var(--paper-s) 94%);
+  --surface: hsl(var(--paper-h) 45% 98%);
+  --surface-2: hsl(var(--paper-h) 28% 91%);
+  --surface-3: hsl(var(--paper-h) 26% 87%);
+  --border: hsl(var(--paper-h) 22% 85%);
+  --border-strong: hsl(var(--paper-h) 18% 72%);
+
+  /* Ink --------------------------------------------------------------- */
+  --ink: hsl(24 22% 11%);
+  --ink-muted: hsl(26 12% 38%);
+  --ink-subtle: hsl(28 12% 55%);
+
+  /* Accent ------------------------------------------------------------ */
+  --brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
+  --brand-hover: hsl(var(--brand-h) var(--brand-s) 36%);
+  --brand-soft: hsl(var(--brand-h) 60% 93%);
+  --brand-ink: hsl(30 60% 98%);
+
+  /* Espresso — the dark panels: balance card, timer, VIP tile ---------- */
+  --espresso: hsl(24 26% 11%);
+  --espresso-2: hsl(24 30% 16%);
+  --espresso-ink: hsl(36 40% 94%);
+  --espresso-muted: hsl(32 14% 66%);
+  --espresso-border: hsl(26 20% 24%);
+  --espresso-accent: hsl(38 72% 58%);
+
+  /* Semantic ---------------------------------------------------------- */
+  --positive: hsl(140 34% 32%);
+  --positive-soft: hsl(140 30% 92%);
+  --negative: hsl(6 62% 42%);
+  --negative-soft: hsl(6 60% 94%);
+  --warning: hsl(34 68% 32%);
+  --warning-soft: hsl(38 70% 91%);
+  --info: hsl(196 42% 32%);
+  --info-soft: hsl(196 45% 92%);
+
+  /* Elevation --------------------------------------------------------- */
+  --shadow-card: 0 1px 2px hsl(24 24% 12% / 0.05), 0 1px 3px hsl(24 24% 12% / 0.04);
+  --shadow-panel: 0 12px 30px -12px hsl(24 30% 12% / 0.35);
+
+  color-scheme: light;
+}
+
+/* ---------------------------------------------------------------------------
+ * 3. DARK THEME
+ * ------------------------------------------------------------------------ */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme='light']) {
+    --canvas: hsl(24 16% 8%);
+    --surface: hsl(24 16% 11%);
+    --surface-2: hsl(24 14% 15%);
+    --surface-3: hsl(24 13% 19%);
+    --border: hsl(24 12% 21%);
+    --border-strong: hsl(24 11% 32%);
+
+    --ink: hsl(36 30% 93%);
+    --ink-muted: hsl(32 12% 66%);
+    --ink-subtle: hsl(30 10% 50%);
+
+    --brand: hsl(var(--brand-h) 78% 56%);
+    --brand-hover: hsl(var(--brand-h) 80% 63%);
+    --brand-soft: hsl(var(--brand-h) 40% 17%);
+    --brand-ink: hsl(24 40% 8%);
+
+    --espresso: hsl(24 18% 13%);
+    --espresso-2: hsl(24 20% 18%);
+    --espresso-ink: hsl(36 34% 94%);
+    --espresso-muted: hsl(32 12% 64%);
+    --espresso-border: hsl(26 14% 26%);
+    --espresso-accent: hsl(38 74% 60%);
+
+    --positive: hsl(140 44% 55%);
+    --positive-soft: hsl(140 28% 15%);
+    --negative: hsl(6 74% 63%);
+    --negative-soft: hsl(6 40% 17%);
+    --warning: hsl(38 70% 58%);
+    --warning-soft: hsl(38 40% 16%);
+    --info: hsl(196 55% 60%);
+    --info-soft: hsl(196 38% 16%);
+
+    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.45), 0 1px 3px hsl(0 0% 0% / 0.3);
+    --shadow-panel: 0 14px 34px -14px hsl(0 0% 0% / 0.7);
+
+    color-scheme: dark;
+  }
+}
+
+/* Explicit override wins over the media query in both directions. */
+:root[data-theme='dark'] {
+  --canvas: hsl(24 16% 8%);
+  --surface: hsl(24 16% 11%);
+  --surface-2: hsl(24 14% 15%);
+  --surface-3: hsl(24 13% 19%);
+  --border: hsl(24 12% 21%);
+  --border-strong: hsl(24 11% 32%);
+
+  --ink: hsl(36 30% 93%);
+  --ink-muted: hsl(32 12% 66%);
+  --ink-subtle: hsl(30 10% 50%);
+
+  --brand: hsl(var(--brand-h) 78% 56%);
+  --brand-hover: hsl(var(--brand-h) 80% 63%);
+  --brand-soft: hsl(var(--brand-h) 40% 17%);
+  --brand-ink: hsl(24 40% 8%);
+
+  --espresso: hsl(24 18% 13%);
+  --espresso-2: hsl(24 20% 18%);
+  --espresso-ink: hsl(36 34% 94%);
+  --espresso-muted: hsl(32 12% 64%);
+  --espresso-border: hsl(26 14% 26%);
+  --espresso-accent: hsl(38 74% 60%);
+
+  --positive: hsl(140 44% 55%);
+  --positive-soft: hsl(140 28% 15%);
+  --negative: hsl(6 74% 63%);
+  --negative-soft: hsl(6 40% 17%);
+  --warning: hsl(38 70% 58%);
+  --warning-soft: hsl(38 40% 16%);
+  --info: hsl(196 55% 60%);
+  --info-soft: hsl(196 38% 16%);
+
+  --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.45), 0 1px 3px hsl(0 0% 0% / 0.3);
+  --shadow-panel: 0 14px 34px -14px hsl(0 0% 0% / 0.7);
+
+  color-scheme: dark;
+}
+
+/* ---------------------------------------------------------------------------
+ * 4. SHAPE
+ * ------------------------------------------------------------------------ */
+:root {
+  --radius-card: calc(0.75rem * var(--radius-scale));
+  --radius-control: calc(0.625rem * var(--radius-scale));
+  --radius-pill: 999px;
+
+  /* Width of the desktop sidebar. */
+  --sidebar-w: 15rem;
+}

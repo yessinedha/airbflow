@@ -1,0 +1,9 @@
+# The working tree is Windows, the Vercel build is Linux. Normalise to LF in
+# the repository so a checkout on either platform produces identical files.
+* text=auto eol=lf
+
+# Binary; never touch line endings.
+*.jpg binary
+*.png binary
+*.ico binary
+*.woff2 binary

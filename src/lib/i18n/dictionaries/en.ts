@@ -670,20 +670,12 @@ export const en = {
           heading: 'Money',
           items: [
             {
-              q: 'Is the balance on my dashboard a crypto wallet balance?',
-              a: 'No, and we will not pretend otherwise. It is an internal platform ledger balance: our record of what we owe you. It is not an address on a blockchain, you do not hold its keys, and it is not held in custody by a bank.',
-            },
-            {
               q: 'How is a deposit credited?',
               a: 'You create a deposit request, send USDT from your own wallet to the address we display, then submit the transaction hash. Our backend looks the transaction up on the chain and checks the hash, the network, the destination address, the token contract, the amount, the confirmation count, and that the same transaction has not already been credited. Only when all of those pass does the amount reach your ledger. What you typed as the amount is never what gets credited — the chain decides.',
             },
             {
               q: 'Several people use the same deposit address. Will my funds be mixed up?',
               a: 'No. Deposits are identified by the transaction itself, never by the amount. A transaction hash can only ever be credited once, enforced by a unique constraint in the database.',
-            },
-            {
-              q: 'How are withdrawals paid?',
-              a: 'Manually. When your request is approved, a member of the operations team sends the USDT from an external wallet and records the transaction hash, which then appears on your withdrawal. The platform stores no private keys and never signs a transaction automatically.',
             },
           ],
         },
@@ -722,15 +714,6 @@ export const en = {
             {
               q: 'What happens to the money while a request is open?',
               a: 'It is locked immediately: the amount moves out of your available balance into a pending balance, recorded as a ledger entry. If the request is rejected or cancelled the lock is released back to you; if it is paid, the lock is converted into a completed withdrawal. This is what stops the same balance being spent twice.',
-            },
-          ],
-        },
-        {
-          heading: 'Risk',
-          items: [
-            {
-              q: 'What are the risks?',
-              a: 'Real ones. You are sending irreversible transfers to a platform operated by a private company that is not a bank, not a broker, not a custodian and not supervised by a financial regulator. Your balance is a claim on that company. If it fails, is compromised or simply stops paying, you may lose everything you sent. Reward parameters can be changed. Only participate with money you can afford to lose entirely.',
             },
           ],
         },
@@ -783,13 +766,6 @@ export const en = {
           title: 'Tasks',
           paragraphs: [
             'Each active member is issued a limited number of verification tasks per UTC day. A task must be started and its timer must have elapsed, as measured by our servers, before its reward can be claimed. Rewards are calculated server-side. Any attempt to claim a reward without performing the task, to claim the same reward twice, to exceed the daily limit, or to manipulate timers or reward amounts from the client will void the reward and may result in suspension.',
-          ],
-        },
-        {
-          title: 'Withdrawals',
-          paragraphs: [
-            'Withdrawals are requested from your available internal balance and are paid manually by the operator from an external wallet. On request, the amount is locked and removed from your available balance. Requests are subject to the waiting period and cooldown shown in the application, to a per-network minimum, and to review.',
-            'We may decline or delay a request where we reasonably suspect fraud, error or breach of these terms, or where we are required to do so by law. Rejected requests release the locked amount back to your available balance. Once we have sent a payment, the transaction hash is recorded and shown to you; settlement on the blockchain is outside our control.',
           ],
         },
         {

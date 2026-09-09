@@ -1,7 +1,10 @@
 'use client'
 
+import Image from 'next/image'
 import { useActionState, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
+import txidDetailsImage from '@/app/(app)/deposit/TXID1.jpeg'
+import txidEmailImage from '@/app/(app)/deposit/TXID2.jpeg'
 import { createDepositIntentAction, recheckDepositAction, submitDepositTxAction } from '@/lib/deposits/actions'
 import { Alert, Button, Field, Input, Select } from '@/components/ui'
 import { IconCopy } from '@/components/icons'
@@ -145,21 +148,51 @@ export function SubmitTxForm({ depositId }: { depositId: string }) {
       ) : null}
 
       <Field
-        label={t.deposit.form.txHash}
+        label={t.deposit.form.txId}
         htmlFor={`txHash-${depositId}`}
         errors={state && !state.ok ? state.fieldErrors?.txHash : undefined}
-        hint={t.deposit.form.txHashHint}
       >
         <Input
           id={`txHash-${depositId}`}
           name="txHash"
-          placeholder="0x… or Tron txID"
+          placeholder="Enter your TXID"
           autoComplete="off"
           spellCheck={false}
           className="font-mono text-xs"
           required
         />
       </Field>
+
+      <div className="space-y-3 rounded-lg border border-border bg-surface-2 p-3">
+        <div>
+          <p className="text-sm font-medium text-ink">{t.deposit.form.txIdGuideTitle}</p>
+          <p className="mt-1 text-xs leading-relaxed text-ink-muted">{t.deposit.form.txIdGuideBody}</p>
+        </div>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <figure className="overflow-hidden rounded-lg border border-border bg-surface">
+            <Image
+              src={txidDetailsImage}
+              alt={t.deposit.form.txIdDetailsImageAlt}
+              className="h-44 w-full object-contain object-top"
+              placeholder="blur"
+            />
+            <figcaption className="px-2 py-1.5 text-center text-[11px] text-ink-subtle">
+              {t.deposit.form.txIdDetailsCaption}
+            </figcaption>
+          </figure>
+          <figure className="overflow-hidden rounded-lg border border-border bg-surface">
+            <Image
+              src={txidEmailImage}
+              alt={t.deposit.form.txIdEmailImageAlt}
+              className="h-44 w-full object-contain object-top"
+              placeholder="blur"
+            />
+            <figcaption className="px-2 py-1.5 text-center text-[11px] text-ink-subtle">
+              {t.deposit.form.txIdEmailCaption}
+            </figcaption>
+          </figure>
+        </div>
+      </div>
 
       <Button type="submit" disabled={pending} className="w-full">
         {pending ? t.deposit.form.verifying : t.deposit.form.submitTx}

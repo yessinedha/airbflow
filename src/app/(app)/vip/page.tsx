@@ -1,7 +1,7 @@
 import type { Metadata } from 'next'
 import { requireSession } from '@/lib/auth/session'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
-import { Alert, Badge, ButtonLink, Card, CardBody, CardHeader, CardTitle, PageHeader, Table, TableWrap, Td, Th } from '@/components/ui'
+import { Badge, ButtonLink, Card, CardBody, CardHeader, CardTitle, PageHeader, Table, TableWrap, Td, Th } from '@/components/ui'
 import { VipActivateButton } from '@/components/vip-activate'
 import { formatDateTime, formatUsdt, toNumber } from '@/lib/format'
 import type { UserVipPlan, VipPlan } from '@/types/database'
@@ -49,10 +49,6 @@ export default async function VipPage() {
           </ButtonLink>
         }
       />
-
-      <Alert tone="info" title={t.vip.whatIsTitle}>
-        {t.vip.whatIsBody}
-      </Alert>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
         {(plans ?? []).map((plan) => {

@@ -298,9 +298,6 @@ export const en = {
     description:
       'Activating a plan sets your daily task allowance and the task reward parameters used to calculate what each completed task pays.',
     addFunds: 'Add funds',
-    whatIsTitle: 'What a plan is, and what it is not',
-    whatIsBody:
-      'A plan is an activation fee paid from your internal platform balance. It unlocks a daily task allowance and sets the reward parameters for the verification work you complete. It is not a deposit into an investment product, it does not accrue interest, and it does not promise any return. Reward payments require you to actually complete tasks.',
     current: 'Current',
     activationAmount: 'Activation amount',
     dailyTasks: 'Daily tasks',

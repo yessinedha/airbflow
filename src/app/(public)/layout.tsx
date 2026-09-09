@@ -2,6 +2,7 @@ import Link from 'next/link'
 import { ButtonLink } from '@/components/ui'
 import { getT } from '@/lib/i18n/server'
 import { LocaleSwitcher } from '@/components/locale-switcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default async function PublicLayout({ children }: { children: React.ReactNode }) {
   const t = await getT()
@@ -31,6 +32,7 @@ export default async function PublicLayout({ children }: { children: React.React
 
           <div className="flex items-center gap-2">
             <LocaleSwitcher />
+            <ThemeToggle />
             <ButtonLink href="/login" variant="secondary" size="sm">
               {t.publicSite.signIn}
             </ButtonLink>

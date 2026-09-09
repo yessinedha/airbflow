@@ -23,6 +23,7 @@ import {
 import { logoutAction } from '@/lib/auth/actions'
 import { useT } from '@/lib/i18n/client'
 import { LocaleSwitcher } from '@/components/locale-switcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export interface NavUser {
   username: string
@@ -163,7 +164,10 @@ export function AppSidebar({ user }: { user: NavUser }) {
       <div className="mt-auto space-y-3 pt-4">
         <VipTile vip={user.vip} />
 
-        <LocaleSwitcher className="w-full justify-center" />
+        <div className="flex items-center gap-2">
+          <LocaleSwitcher className="min-w-0 flex-1 justify-center" />
+          <ThemeToggle />
+        </div>
 
         <div className="border-t border-border pt-3">
           <div className="px-3 pb-2">
@@ -192,6 +196,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
           <Wordmark compact />
         </Link>
         <div className="flex items-center gap-1">
+          <ThemeToggle />
           <Link
             href="/notifications"
             aria-label={t.nav.notificationsAria(user.unreadCount)}

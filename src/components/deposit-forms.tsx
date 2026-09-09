@@ -237,7 +237,7 @@ export function CancelDepositButton({ depositId }: { depositId: string }) {
   return (
     <form action={action} className="flex items-center gap-2">
       <input type="hidden" name="depositId" value={depositId} />
-      <Button type="submit" variant="ghost" size="sm" disabled={pending}>
+      <Button type="submit" variant="danger" size="sm" disabled={pending}>
         {pending ? t.deposit.form.cancelling : t.deposit.form.cancelVerification}
       </Button>
       {state && !state.ok ? <p className="text-xs text-negative">{state.error}</p> : null}

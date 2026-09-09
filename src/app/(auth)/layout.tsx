@@ -1,6 +1,7 @@
 import Link from 'next/link'
 import { getT } from '@/lib/i18n/server'
 import { LocaleSwitcher } from '@/components/locale-switcher'
+import { ThemeToggle } from '@/components/theme-toggle'
 
 export default async function AuthLayout({ children }: { children: React.ReactNode }) {
   const t = await getT()
@@ -17,6 +18,7 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
           </Link>
           <div className="flex items-center gap-3">
             <LocaleSwitcher />
+            <ThemeToggle />
             <Link href="/faq" className="text-sm text-ink-muted hover:text-ink">
               {t.publicSite.howItWorks}
             </Link>

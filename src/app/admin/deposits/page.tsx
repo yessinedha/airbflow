@@ -78,7 +78,7 @@ export default async function AdminDepositsPage({
                       </p>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-end">
                       {d.user ? (
                         <Link href={`/admin/users/${d.user.id}`} className="text-sm font-medium hover:text-brand">
                           {d.user.username ?? d.user.email}

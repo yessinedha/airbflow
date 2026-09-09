@@ -95,7 +95,7 @@ export function FilterTabs({
             )}
           >
             {option.label}
-            {option.count !== undefined ? <span className="ml-1.5 opacity-60">{option.count}</span> : null}
+            {option.count !== undefined ? <span className="ms-1.5 opacity-60">{option.count}</span> : null}
           </Link>
         )
       })}

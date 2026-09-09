@@ -6,6 +6,7 @@ import { createDepositIntentAction, recheckDepositAction, submitDepositTxAction 
 import { Alert, Button, Field, Input, Select } from '@/components/ui'
 import { IconCopy } from '@/components/icons'
 import { formatUsdt } from '@/lib/format'
+import { useT } from '@/lib/i18n/client'
 
 export interface NetworkOption {
   code: string
@@ -18,6 +19,7 @@ export interface NetworkOption {
 }
 
 export function DepositIntentForm({ networks }: { networks: NetworkOption[] }) {
+  const t = useT()
   const router = useRouter()
   const [state, action, pending] = useActionState(createDepositIntentAction, null)
   const [selected, setSelected] = useState(networks[0]?.code ?? '')
@@ -31,8 +33,8 @@ export function DepositIntentForm({ networks }: { networks: NetworkOption[] }) {
 
   if (usable.length === 0) {
     return (
-      <Alert tone="warning" title="Deposits are not available yet">
-        No deposit address has been configured for any network. Contact support before sending any funds.
+      <Alert tone="warning" title={t.deposit.form.unavailableTitle}>
+        {t.deposit.form.unavailableBody}
       </Alert>
     )
   }
@@ -40,33 +42,41 @@ export function DepositIntentForm({ networks }: { networks: NetworkOption[] }) {
   return (
     <form action={action} className="space-y-4">
       {state && !state.ok ? (
-        <Alert tone="negative" title="Could not create deposit instructions">
+        <Alert tone="negative" title={t.deposit.form.errorTitle}>
           {state.error}
         </Alert>
       ) : null}
 
-      <Field label="Currency">
+      <Field label={t.deposit.form.currency}>
         <Input value="USDT" readOnly disabled />
       </Field>
 
-      <Field label="Network" htmlFor="networkCode" errors={state && !state.ok ? state.fieldErrors?.networkCode : undefined}>
+      <Field
+        label={t.deposit.form.network}
+        htmlFor="networkCode"
+        errors={state && !state.ok ? state.fieldErrors?.networkCode : undefined}
+      >
         <Select id="networkCode" name="networkCode" value={selected} onChange={(e) => setSelected(e.target.value)} required>
           {networks.map((n) => (
             <option key={n.code} value={n.code} disabled={!n.depositEnabled || !n.hasAddress}>
               {n.name}
-              {!n.hasAddress ? ' — unavailable' : !n.depositEnabled ? ' — disabled' : ''}
+              {!n.hasAddress
+                ? t.deposit.form.unavailableSuffix
+                : !n.depositEnabled
+                  ? t.deposit.form.disabledSuffix
+                  : ''}
             </option>
           ))}
         </Select>
       </Field>
 
       <Field
-        label="Amount"
+        label={t.deposit.form.amount}
         htmlFor="amount"
         errors={state && !state.ok ? state.fieldErrors?.amount : undefined}
         hint={
           network
-            ? `Minimum ${formatUsdt(network.minDeposit)}. ${network.requiredConfirmations} confirmations are required before crediting.`
+            ? t.deposit.form.amountHint(formatUsdt(network.minDeposit), network.requiredConfirmations)
             : undefined
         }
       >
@@ -83,18 +93,16 @@ export function DepositIntentForm({ networks }: { networks: NetworkOption[] }) {
       </Field>
 
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? 'Creating…' : 'Get deposit instructions'}
+        {pending ? t.deposit.form.creating : t.deposit.form.submit}
       </Button>
 
-      <p className="text-xs text-ink-subtle">
-        The amount you enter is a note for your own tracking. Your balance is credited with the amount actually received
-        on chain, which may differ if you send a different value.
-      </p>
+      <p className="text-xs text-ink-subtle">{t.deposit.form.note}</p>
     </form>
   )
 }
 
-export function CopyButton({ value, label = 'Copy' }: { value: string; label?: string }) {
+export function CopyButton({ value, label }: { value: string; label?: string }) {
+  const t = useT()
   const [copied, setCopied] = useState(false)
 
   return (
@@ -112,12 +120,13 @@ export function CopyButton({ value, label = 'Copy' }: { value: string; label?: s
       className="inline-flex shrink-0 items-center gap-1.5 rounded-lg border border-border-strong px-2.5 py-1.5 text-xs font-medium hover:bg-surface-2"
     >
       <IconCopy />
-      {copied ? 'Copied' : label}
+      {copied ? t.common.copied : (label ?? t.common.copy)}
     </button>
   )
 }
 
 export function SubmitTxForm({ depositId }: { depositId: string }) {
+  const t = useT()
   const router = useRouter()
   const [state, action, pending] = useActionState(submitDepositTxAction, null)
 
@@ -136,10 +145,10 @@ export function SubmitTxForm({ depositId }: { depositId: string }) {
       ) : null}
 
       <Field
-        label="Transaction hash"
+        label={t.deposit.form.txHash}
         htmlFor={`txHash-${depositId}`}
         errors={state && !state.ok ? state.fieldErrors?.txHash : undefined}
-        hint="Paste the hash from your wallet or from the block explorer after the transfer is broadcast."
+        hint={t.deposit.form.txHashHint}
       >
         <Input
           id={`txHash-${depositId}`}
@@ -153,13 +162,14 @@ export function SubmitTxForm({ depositId }: { depositId: string }) {
       </Field>
 
       <Button type="submit" disabled={pending} className="w-full">
-        {pending ? 'Verifying on chain…' : 'Submit and verify'}
+        {pending ? t.deposit.form.verifying : t.deposit.form.submitTx}
       </Button>
     </form>
   )
 }
 
 export function RecheckButton({ depositId }: { depositId: string }) {
+  const t = useT()
   const router = useRouter()
   const [state, action, pending] = useActionState(recheckDepositAction, null)
 
@@ -171,7 +181,7 @@ export function RecheckButton({ depositId }: { depositId: string }) {
     <form action={action} className="space-y-2">
       <input type="hidden" name="depositId" value={depositId} />
       <Button type="submit" variant="secondary" size="sm" disabled={pending}>
-        {pending ? 'Checking…' : 'Check status again'}
+        {pending ? t.deposit.form.checking : t.deposit.form.recheck}
       </Button>
       {state ? (
         <p className={`text-xs ${state.ok ? 'text-ink-muted' : 'text-negative'}`}>

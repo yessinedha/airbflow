@@ -7,6 +7,7 @@ import { Badge, Button, Card, CardBody, MonoLabel } from '@/components/ui'
 import { IconCheck, IconClock } from '@/components/icons'
 import { formatDuration, formatUsdt } from '@/lib/format'
 import type { AssignmentStatus, TaskDifficulty } from '@/types/database'
+import { useT } from '@/lib/i18n/client'
 
 export interface TaskCardData {
   assignmentId: string
@@ -36,6 +37,7 @@ const DIFFICULTY_TONE = { EASY: 'positive', MEDIUM: 'warning', HARD: 'negative' 
  * `claim_task()` anyway until `now() >= started_at + duration_seconds`.
  */
 export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; serverNowMs: number; canWork: boolean }) {
+  const t = useT()
   const router = useRouter()
   const [startState, startAction, startPending] = useActionState(startTaskAction, null)
   const [claimState, claimAction, claimPending] = useActionState(claimTaskAction, null)
@@ -103,20 +105,20 @@ export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; s
           <div className="min-w-0">
             <div className="flex flex-wrap items-center gap-1.5">
               <MonoLabel className="text-ink-subtle">
-                Task {task.slot} / {task.slot >= 3 ? task.slot : 3}
+                {t.tasks.card.counter(task.slot, Math.max(task.slot, 3))}
               </MonoLabel>
-              <Badge tone={DIFFICULTY_TONE[task.difficulty]}>{task.difficulty}</Badge>
+              <Badge tone={DIFFICULTY_TONE[task.difficulty]}>{t.tasks.card.difficulty[task.difficulty]}</Badge>
               {completed ? (
                 <Badge tone="positive">
                   <IconCheck width={11} height={11} />
-                  Completed
+                  {t.tasks.card.completed}
                 </Badge>
               ) : null}
             </div>
             <h3 className="display mt-1.5 text-lg font-semibold">{task.title}</h3>
           </div>
-          <div className="shrink-0 text-right">
-            <MonoLabel>{completed ? 'Earned' : 'Reward'}</MonoLabel>
+          <div className="shrink-0 text-end">
+            <MonoLabel>{completed ? t.tasks.card.earned : t.tasks.card.reward}</MonoLabel>
             <p className="tabular mt-1 text-sm font-semibold text-positive">{formatUsdt(reward)}</p>
           </div>
         </div>
@@ -127,13 +129,13 @@ export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; s
           <div className="overflow-hidden rounded-card border border-espresso-border bg-espresso p-4 text-center text-espresso-ink">
             <p className="label-mono flex items-center justify-center gap-1.5 text-espresso-muted">
               <IconClock width={12} height={12} />
-              {claimable ? 'Verification window complete' : 'Verification window'}
+              {claimable ? t.tasks.card.windowDone : t.tasks.card.windowOpen}
             </p>
             <p
               className="tabular mt-1.5 text-4xl font-semibold tracking-tight"
               role="timer"
               aria-live="off"
-              aria-label={`${remaining} seconds remaining`}
+              aria-label={t.tasks.card.secondsRemaining(remaining)}
             >
               {formatDuration(remaining)}
             </p>
@@ -161,34 +163,34 @@ export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; s
         <div className="mt-auto pt-1">
           {completed ? (
             <Button variant="secondary" disabled className="w-full">
-              Reward claimed
+              {t.tasks.card.claimed}
             </Button>
           ) : started ? (
             <form action={claimAction}>
               <input type="hidden" name="assignmentId" value={task.assignmentId} />
               <Button type="submit" variant="success" className="w-full" disabled={!claimable || claimPending}>
                 {claimPending
-                  ? 'Claiming…'
+                  ? t.tasks.card.claiming
                   : claimable
-                    ? `Claim ${formatUsdt(reward)}`
-                    : `Claim ${formatUsdt(reward)} · ${formatDuration(remaining)}`}
+                    ? t.tasks.card.claim(formatUsdt(reward))
+                    : t.tasks.card.claimIn(formatUsdt(reward), formatDuration(remaining))}
               </Button>
             </form>
           ) : (
             <form action={startAction}>
               <input type="hidden" name="assignmentId" value={task.assignmentId} />
               <Button type="submit" variant="dark" className="w-full" disabled={startPending || !canWork}>
-                {startPending ? 'Starting…' : 'Start verification →'}
+                {startPending ? t.tasks.card.starting : t.tasks.card.start}
               </Button>
             </form>
           )}
 
           <p className="mt-2 text-center text-xs text-ink-subtle">
             {!canWork && !completed
-              ? 'An active VIP plan is required before a reward can be claimed.'
+              ? t.tasks.card.needPlan
               : completed
-                ? 'Recorded in your ledger.'
-                : `Window of ${task.durationSeconds}s measured on the server.`}
+                ? t.tasks.card.recorded
+                : t.tasks.card.windowNote(task.durationSeconds)}
           </p>
         </div>
       </CardBody>
@@ -222,9 +224,10 @@ function ListingPlate({
   title: string
   revealed: boolean
 }) {
+  const t = useT()
   const [expanded, setExpanded] = useState(false)
   const sharp = revealed || expanded
-  const lot = `Lot #${slot.toString().padStart(4, '0')}`
+  const lot = t.tasks.card.lot(slot.toString().padStart(4, '0'))
 
   if (!imageUrl) {
     return (
@@ -236,10 +239,10 @@ function ListingPlate({
             backgroundImage: 'repeating-linear-gradient(135deg, var(--border-strong) 0 1px, transparent 1px 11px)',
           }}
         />
-        <span className="label-mono absolute left-3 top-3 rounded-full bg-surface px-2 py-1 text-ink-muted shadow-card">
+        <span className="label-mono absolute start-3 top-3 rounded-full bg-surface px-2 py-1 text-ink-muted shadow-card">
           {lot}
         </span>
-        <span className="label-mono absolute bottom-3 right-3 text-ink-subtle">No photo</span>
+        <span className="label-mono absolute bottom-3 end-3 text-ink-subtle">{t.tasks.card.noPhoto}</span>
       </div>
     )
   }
@@ -249,8 +252,8 @@ function ListingPlate({
       type="button"
       onClick={() => setExpanded((v) => !v)}
       aria-pressed={expanded}
-      aria-label={expanded ? `Collapse the photo for ${title}` : `Enlarge the photo for ${title}`}
-      className={`group relative block w-full overflow-hidden border-b border-border bg-surface-2 text-left transition-[height] duration-300 ease-out ${
+      aria-label={expanded ? t.tasks.card.collapse(title) : t.tasks.card.enlarge(title)}
+      className={`group relative block w-full overflow-hidden border-b border-border bg-surface-2 text-start transition-[height] duration-300 ease-out ${
         expanded ? 'h-56 sm:h-64' : 'h-24 sm:h-28'
       }`}
     >
@@ -272,12 +275,12 @@ function ListingPlate({
         className="pointer-events-none absolute inset-0 bg-gradient-to-b from-espresso/25 via-transparent to-espresso/35"
       />
 
-      <span className="label-mono absolute left-3 top-3 rounded-full bg-surface/90 px-2 py-1 text-ink-muted shadow-card backdrop-blur-sm">
+      <span className="label-mono absolute start-3 top-3 rounded-full bg-surface/90 px-2 py-1 text-ink-muted shadow-card backdrop-blur-sm">
         {lot}
       </span>
 
-      <span className="label-mono absolute bottom-3 right-3 rounded-full bg-surface/85 px-2 py-1 text-ink-muted opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
-        {expanded ? 'Click to shrink' : 'Click to enlarge'}
+      <span className="label-mono absolute bottom-3 end-3 rounded-full bg-surface/85 px-2 py-1 text-ink-muted opacity-0 backdrop-blur-sm transition-opacity duration-200 group-hover:opacity-100 group-focus-visible:opacity-100">
+        {expanded ? t.tasks.card.clickShrink : t.tasks.card.clickEnlarge}
       </span>
     </button>
   )

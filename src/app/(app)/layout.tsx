@@ -2,12 +2,14 @@ import { requireSession } from '@/lib/auth/session'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { AppBottomNav, AppSidebar } from '@/components/app-nav'
 import { formatUsdt } from '@/lib/format'
+import { getT } from '@/lib/i18n/server'
 
 export const dynamic = 'force-dynamic'
 
 export default async function AppLayout({ children }: { children: React.ReactNode }) {
   const session = await requireSession()
   const supabase = await createSupabaseServerClient()
+  const t = await getT()
 
   const { count } = await supabase
     .from('notifications')
@@ -39,8 +41,8 @@ export default async function AppLayout({ children }: { children: React.ReactNod
         {/* Status strip — thin dark rule that anchors the workspace. */}
         <div className="hidden items-center gap-2 bg-espresso px-6 py-1.5 text-espresso-muted lg:flex">
           <span aria-hidden className="animate-pulse-dot h-1.5 w-1.5 rounded-full bg-espresso-accent" />
-          <p className="label-mono">Session active — internal platform ledger</p>
-          <span className="label-mono ml-auto">Amounts in USDT · resets 00:00 UTC</span>
+          <p className="label-mono">{t.nav.statusStrip}</p>
+          <span className="label-mono ms-auto">{t.nav.statusStripRight}</span>
         </div>
 
         <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-7">{children}</div>

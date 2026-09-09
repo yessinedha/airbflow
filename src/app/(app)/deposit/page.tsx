@@ -22,6 +22,7 @@ import { CopyButton, DepositIntentForm, RecheckButton, SubmitTxForm, type Networ
 import { explorerUrl, formatDateTime, formatUsdt, shortHash, toNumber } from '@/lib/format'
 import { IconExternal } from '@/components/icons'
 import type { Deposit, DepositAddress, SupportedNetwork } from '@/types/database'
+import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'Deposit' }
 export const dynamic = 'force-dynamic'
@@ -64,6 +65,7 @@ export default async function DepositPage() {
     depositEnabled: n.deposit_enabled,
   }))
 
+  const t = await getT()
   const networkByCode = new Map((networks ?? []).map((n) => [n.code, n]))
   const openDeposits = (deposits ?? []).filter((d) => d.status === 'PENDING')
 
@@ -85,22 +87,22 @@ export default async function DepositPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Deposit USDT"
-        description="Send real USDT from your own wallet to the platform address below. Your internal platform balance is credited only after the transaction is verified on chain."
+        title={t.deposit.title}
+        description={t.deposit.description}
       />
 
-      <Alert tone="info" title="Read before sending">
-        <ul className="mt-1 list-disc space-y-1 pl-5">
-          <li>Send only the token shown, on the exact network shown. Anything else is unrecoverable.</li>
-          <li>Deposits are credited with the amount that actually arrives on chain, not the amount you type here.</li>
-          <li>Crediting happens after the required number of confirmations, which can take several minutes.</li>
+      <Alert tone="info" title={t.deposit.readFirstTitle}>
+        <ul className="mt-1 list-disc space-y-1 ps-5">
+          {t.deposit.readFirstItems.map((item) => (
+            <li key={item}>{item}</li>
+          ))}
         </ul>
       </Alert>
 
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.2fr)]">
         <Card className="h-fit">
           <CardHeader>
-            <CardTitle>New deposit</CardTitle>
+            <CardTitle>{t.deposit.newDeposit}</CardTitle>
           </CardHeader>
           <CardBody className="pt-0">
             <DepositIntentForm networks={options} />
@@ -112,8 +114,8 @@ export default async function DepositPage() {
             <Card>
               <CardBody>
                 <EmptyState
-                  title="No deposit in progress"
-                  description="Create a deposit on the left to see the address you should send to."
+                  title={t.deposit.noneInProgressTitle}
+                  description={t.deposit.noneInProgressBody}
                 />
               </CardBody>
             </Card>
@@ -126,15 +128,12 @@ export default async function DepositPage() {
                 <Card key={deposit.id} className="animate-rise">
                   <CardHeader>
                     <div>
-                      <CardTitle>
-                        Send {formatUsdt(deposit.amount)} on {deposit.network_code}
-                      </CardTitle>
+                      <CardTitle>{t.deposit.sendOn(formatUsdt(deposit.amount), deposit.network_code)}</CardTitle>
                       <p className="mt-1 text-sm text-ink-muted">
-                        Reference <span className="font-mono">{deposit.reference_code}</span> · created{' '}
-                        {formatDateTime(deposit.created_at)}
+                        {t.deposit.reference(deposit.reference_code, formatDateTime(deposit.created_at))}
                       </p>
                     </div>
-                    <DepositStatusBadge status={deposit.status} />
+                    <DepositStatusBadge status={deposit.status} label={t.statuses.deposit[deposit.status]} />
                   </CardHeader>
 
                   <CardBody className="space-y-4 pt-0">
@@ -144,7 +143,7 @@ export default async function DepositPage() {
                           <div className="mx-auto shrink-0 rounded-lg bg-white p-2 sm:mx-0">
                             <Image
                               src={qr}
-                              alt={`QR code for the ${deposit.network_code} deposit address`}
+                              alt={t.deposit.qrAlt(deposit.network_code)}
                               width={132}
                               height={132}
                               unoptimized
@@ -154,7 +153,7 @@ export default async function DepositPage() {
 
                         <div className="min-w-0 flex-1 space-y-3">
                           <div>
-                            <p className="text-xs uppercase tracking-wide text-ink-subtle">Platform deposit address</p>
+                            <p className="label-mono text-ink-subtle">{t.deposit.platformAddress}</p>
                             <div className="mt-1 flex items-start gap-2">
                               <code className="min-w-0 flex-1 break-all rounded-lg bg-surface-2 px-2.5 py-2 font-mono text-xs">
                                 {deposit.to_address}
@@ -165,45 +164,44 @@ export default async function DepositPage() {
 
                           <dl className="grid grid-cols-2 gap-3 text-xs">
                             <div>
-                              <dt className="text-ink-subtle">Network</dt>
+                              <dt className="text-ink-subtle">{t.deposit.network}</dt>
                               <dd className="font-medium">{network?.name ?? deposit.network_code}</dd>
                             </div>
                             <div>
-                              <dt className="text-ink-subtle">Token</dt>
+                              <dt className="text-ink-subtle">{t.deposit.token}</dt>
                               <dd className="font-medium">{deposit.currency}</dd>
                             </div>
                             <div className="col-span-2">
-                              <dt className="text-ink-subtle">Token contract</dt>
-                              <dd className="break-all font-mono">{deposit.token_contract ?? '—'}</dd>
+                              <dt className="text-ink-subtle">{t.deposit.tokenContract}</dt>
+                              <dd className="break-all font-mono">{deposit.token_contract ?? t.common.dash}</dd>
                             </div>
                             <div>
-                              <dt className="text-ink-subtle">Confirmations required</dt>
+                              <dt className="text-ink-subtle">{t.deposit.confirmationsRequired}</dt>
                               <dd className="font-medium">{deposit.required_confirmations}</dd>
                             </div>
                             <div>
-                              <dt className="text-ink-subtle">Current confirmations</dt>
+                              <dt className="text-ink-subtle">{t.deposit.confirmationsCurrent}</dt>
                               <dd className="font-medium">{deposit.confirmations}</dd>
                             </div>
                           </dl>
                         </div>
                       </div>
                     ) : (
-                      <Alert tone="warning">No active deposit address is configured for this network.</Alert>
+                      <Alert tone="warning">{t.deposit.noAddress}</Alert>
                     )}
 
                     {deposit.tx_hash ? (
                       <div className="space-y-2 rounded-lg border border-border bg-surface-2 p-3">
-                        <p className="text-xs uppercase tracking-wide text-ink-subtle">Submitted transaction</p>
+                        <p className="label-mono text-ink-subtle">{t.deposit.submittedTx}</p>
                         <p className="break-all font-mono text-xs">{deposit.tx_hash}</p>
                         <p className="text-xs text-ink-muted">
-                          Waiting for verification. {deposit.confirmations}/{deposit.required_confirmations}{' '}
-                          confirmations seen.
+                          {t.deposit.waitingVerification(deposit.confirmations, deposit.required_confirmations)}
                         </p>
                         <RecheckButton depositId={deposit.id} />
                       </div>
                     ) : (
                       <div className="rounded-lg border border-border p-3">
-                        <p className="mb-3 text-sm font-medium">Already sent the funds?</p>
+                        <p className="mb-3 text-sm font-medium">{t.deposit.alreadySent}</p>
                         <SubmitTxForm depositId={deposit.id} />
                       </div>
                     )}
@@ -217,22 +215,22 @@ export default async function DepositPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Deposit history</CardTitle>
+          <CardTitle>{t.deposit.historyTitle}</CardTitle>
         </CardHeader>
         <CardBody className="pt-0">
           {!deposits?.length ? (
-            <p className="py-6 text-center text-sm text-ink-muted">No deposits yet.</p>
+            <p className="py-6 text-center text-sm text-ink-muted">{t.deposit.noDeposits}</p>
           ) : (
             <TableWrap>
               <Table>
                 <thead>
                   <tr>
-                    <Th>Date</Th>
-                    <Th>Network</Th>
-                    <Th className="text-right">Declared</Th>
-                    <Th className="text-right">Credited</Th>
-                    <Th>Transaction</Th>
-                    <Th>Status</Th>
+                    <Th>{t.common.date}</Th>
+                    <Th>{t.deposit.network}</Th>
+                    <Th className="text-end">{t.deposit.declared}</Th>
+                    <Th className="text-end">{t.deposit.credited}</Th>
+                    <Th>{t.deposit.transaction}</Th>
+                    <Th>{t.common.status}</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -244,9 +242,9 @@ export default async function DepositPage() {
                         <Td>
                           <Badge>{d.network_code}</Badge>
                         </Td>
-                        <Td className="tabular text-right text-ink-muted">{formatUsdt(d.amount)}</Td>
-                        <Td className="tabular text-right font-medium">
-                          {d.verified_amount ? formatUsdt(d.verified_amount) : '—'}
+                        <Td className="tabular text-end text-ink-muted">{formatUsdt(d.amount)}</Td>
+                        <Td className="tabular text-end font-medium">
+                          {d.verified_amount ? formatUsdt(d.verified_amount) : t.common.dash}
                         </Td>
                         <Td>
                           {d.tx_hash ? (
@@ -264,11 +262,11 @@ export default async function DepositPage() {
                               <span className="font-mono text-xs">{shortHash(d.tx_hash)}</span>
                             )
                           ) : (
-                            <span className="text-xs text-ink-subtle">Not submitted</span>
+                            <span className="text-xs text-ink-subtle">{t.deposit.notSubmitted}</span>
                           )}
                         </Td>
                         <Td>
-                          <DepositStatusBadge status={d.status} />
+                          <DepositStatusBadge status={d.status} label={t.statuses.deposit[d.status]} />
                           {d.rejection_reason ? (
                             <p className="mt-0.5 max-w-48 text-xs text-negative">{d.rejection_reason}</p>
                           ) : null}

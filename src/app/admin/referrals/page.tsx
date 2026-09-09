@@ -53,9 +53,9 @@ export default async function AdminReferralsPage({
                 <thead>
                   <tr>
                     <Th>Member</Th>
-                    <Th className="text-right">Direct</Th>
-                    <Th className="text-right">Team (3 levels)</Th>
-                    <Th className="text-right">Commission earned</Th>
+                    <Th className="text-end">Direct</Th>
+                    <Th className="text-end">Team (3 levels)</Th>
+                    <Th className="text-end">Commission earned</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -71,9 +71,9 @@ export default async function AdminReferralsPage({
                         )}
                         {row.user ? <p className="font-mono text-xs text-ink-subtle">{row.user.referral_code}</p> : null}
                       </Td>
-                      <Td className="tabular text-right">{row.directCount}</Td>
-                      <Td className="tabular text-right">{row.teamCount}</Td>
-                      <Td className="tabular text-right">{formatUsdt(row.commission)}</Td>
+                      <Td className="tabular text-end">{row.directCount}</Td>
+                      <Td className="tabular text-end">{row.teamCount}</Td>
+                      <Td className="tabular text-end">{formatUsdt(row.commission)}</Td>
                     </tr>
                   ))}
                 </tbody>

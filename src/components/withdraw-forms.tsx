@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { cancelWithdrawalAction, requestWithdrawalAction } from '@/lib/withdrawals/actions'
 import { Alert, Button, Field, Input, Select } from '@/components/ui'
 import { formatUsdt } from '@/lib/format'
+import { useT } from '@/lib/i18n/client'
 
 export interface WithdrawNetworkOption {
   code: string
@@ -24,6 +25,7 @@ export function WithdrawForm({
   available: number
   disabledReason?: string | null
 }) {
+  const t = useT()
   const router = useRouter()
   const [state, action, pending] = useActionState(requestWithdrawalAction, null)
   const [code, setCode] = useState(networks.find((n) => n.enabled)?.code ?? networks[0]?.code ?? '')
@@ -43,24 +45,33 @@ export function WithdrawForm({
   }, [network, numericAmount])
 
   if (disabledReason) {
-    return <Alert tone="warning" title="Withdrawal not available">{disabledReason}</Alert>
+    return (
+      <Alert tone="warning" title={t.withdraw.form.notAvailableTitle}>
+        {disabledReason}
+      </Alert>
+    )
   }
 
   return (
     <form action={action} className="space-y-4">
       {state ? (
-        <Alert tone={state.ok ? 'positive' : 'negative'} title={state.ok ? 'Request received' : 'Request rejected'}>
+        <Alert
+          tone={state.ok ? 'positive' : 'negative'}
+          title={state.ok ? t.withdraw.form.requestReceived : t.withdraw.form.requestRejected}
+        >
           {state.ok ? state.message : state.error}
         </Alert>
       ) : null}
 
       <Field
-        label="Amount"
+        label={t.withdraw.form.amount}
         htmlFor="amount"
         errors={state && !state.ok ? state.fieldErrors?.amount : undefined}
-        hint={`Available: ${formatUsdt(available)}${
-          network ? ` · Minimum: ${formatUsdt(network.minWithdrawal)} · Network fee: ${formatUsdt(network.fee)}` : ''
-        }`}
+        hint={t.withdraw.form.amountHint(
+          formatUsdt(available),
+          network ? formatUsdt(network.minWithdrawal) : undefined,
+          network ? formatUsdt(network.fee) : undefined,
+        )}
       >
         <Input
           id="amount"
@@ -77,22 +88,26 @@ export function WithdrawForm({
         />
       </Field>
 
-      <Field label="Network" htmlFor="networkCode" errors={state && !state.ok ? state.fieldErrors?.networkCode : undefined}>
+      <Field
+        label={t.withdraw.form.network}
+        htmlFor="networkCode"
+        errors={state && !state.ok ? state.fieldErrors?.networkCode : undefined}
+      >
         <Select id="networkCode" name="networkCode" value={code} onChange={(e) => setCode(e.target.value)} required>
           {networks.map((n) => (
             <option key={n.code} value={n.code} disabled={!n.enabled}>
               {n.name}
-              {!n.enabled ? ' — disabled' : ''}
+              {!n.enabled ? t.withdraw.form.disabledSuffix : ''}
             </option>
           ))}
         </Select>
       </Field>
 
       <Field
-        label="Destination wallet address"
+        label={t.withdraw.form.destination}
         htmlFor="address"
         errors={state && !state.ok ? state.fieldErrors?.address : undefined}
-        hint={network ? `Must be a valid ${network.name} address. ${network.addressHint}` : undefined}
+        hint={network ? `${network.name} · ${t.withdraw.form.destinationHint}` : undefined}
       >
         <Input
           id="address"
@@ -108,29 +123,27 @@ export function WithdrawForm({
       {net !== null && Number.isFinite(net) && net > 0 ? (
         <div className="rounded-lg bg-surface-2 px-3 py-2.5 text-sm">
           <div className="flex justify-between">
-            <span className="text-ink-muted">You receive</span>
+            <span className="text-ink-muted">{t.withdraw.form.youReceive}</span>
             <span className="tabular font-semibold">{formatUsdt(net)}</span>
           </div>
           <div className="mt-0.5 flex justify-between text-xs text-ink-subtle">
-            <span>Deducted from balance</span>
+            <span>{t.withdraw.form.deducted}</span>
             <span className="tabular">{formatUsdt(numericAmount)}</span>
           </div>
         </div>
       ) : null}
 
       <Button type="submit" className="w-full" disabled={pending}>
-        {pending ? 'Submitting…' : 'Request withdrawal'}
+        {pending ? t.withdraw.form.submitting : t.withdraw.form.submit}
       </Button>
 
-      <p className="text-xs text-ink-subtle">
-        On submission the amount is locked immediately and removed from your available balance. Payment is executed
-        manually by the operations team from an external wallet; the transaction hash appears here once it has been sent.
-      </p>
+      <p className="text-xs text-ink-subtle">{t.withdraw.form.note}</p>
     </form>
   )
 }
 
 export function CancelWithdrawalButton({ withdrawalId }: { withdrawalId: string }) {
+  const t = useT()
   const router = useRouter()
   const [state, action, pending] = useActionState(cancelWithdrawalAction, null)
   const [confirming, setConfirming] = useState(false)
@@ -143,7 +156,7 @@ export function CancelWithdrawalButton({ withdrawalId }: { withdrawalId: string 
     return (
       <div className="space-y-1">
         <Button size="sm" variant="secondary" onClick={() => setConfirming(true)}>
-          Cancel request
+          {t.withdraw.form.cancelRequest}
         </Button>
         {state && !state.ok ? <p className="text-xs text-negative">{state.error}</p> : null}
       </div>
@@ -153,12 +166,12 @@ export function CancelWithdrawalButton({ withdrawalId }: { withdrawalId: string 
   return (
     <form action={action} className="flex flex-wrap items-center gap-2">
       <input type="hidden" name="withdrawalId" value={withdrawalId} />
-      <span className="text-xs text-ink-muted">Cancel and unlock the funds?</span>
+      <span className="text-xs text-ink-muted">{t.withdraw.form.confirmCancel}</span>
       <Button size="sm" variant="danger" type="submit" disabled={pending}>
-        {pending ? 'Cancelling…' : 'Yes, cancel'}
+        {pending ? t.withdraw.form.cancelling : t.withdraw.form.yesCancel}
       </Button>
       <Button size="sm" variant="ghost" type="button" onClick={() => setConfirming(false)} disabled={pending}>
-        Keep
+        {t.withdraw.form.keep}
       </Button>
     </form>
   )

@@ -86,7 +86,7 @@ export default async function AdminAssignmentsPage({
                     <Th>Status</Th>
                     <Th>Started</Th>
                     <Th>Completed</Th>
-                    <Th className="text-right">Reward</Th>
+                    <Th className="text-end">Reward</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -113,7 +113,7 @@ export default async function AdminAssignmentsPage({
                       <Td className="whitespace-nowrap text-xs text-ink-subtle">
                         {a.completed_at ? formatDateTime(a.completed_at) : '—'}
                       </Td>
-                      <Td className="tabular text-right">{formatUsdt(a.reward_amount)}</Td>
+                      <Td className="tabular text-end">{formatUsdt(a.reward_amount)}</Td>
                     </tr>
                   ))}
                 </tbody>

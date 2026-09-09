@@ -66,9 +66,9 @@ export default async function AdminUsersPage({
                     <Th>Status</Th>
                     <Th>Role</Th>
                     <Th>Code</Th>
-                    <Th className="text-right">Available</Th>
-                    <Th className="text-right">Locked</Th>
-                    <Th className="text-right">Rewards</Th>
+                    <Th className="text-end">Available</Th>
+                    <Th className="text-end">Locked</Th>
+                    <Th className="text-end">Rewards</Th>
                     <Th>Joined</Th>
                   </tr>
                 </thead>
@@ -92,11 +92,11 @@ export default async function AdminUsersPage({
                         )}
                       </Td>
                       <Td className="font-mono text-xs">{u.referral_code}</Td>
-                      <Td className="tabular text-right">{formatUsdt(u.balance_available)}</Td>
-                      <Td className="tabular text-right text-ink-muted">
+                      <Td className="tabular text-end">{formatUsdt(u.balance_available)}</Td>
+                      <Td className="tabular text-end text-ink-muted">
                         {formatUsdt(u.balance_pending_withdrawal)}
                       </Td>
-                      <Td className="tabular text-right text-ink-muted">{formatUsdt(u.total_rewards)}</Td>
+                      <Td className="tabular text-end text-ink-muted">{formatUsdt(u.total_rewards)}</Td>
                       <Td className="whitespace-nowrap text-xs text-ink-subtle">{formatDate(u.created_at)}</Td>
                     </tr>
                   ))}

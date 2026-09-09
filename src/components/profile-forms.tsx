@@ -4,8 +4,10 @@ import { useActionState, useEffect } from 'react'
 import { useRouter } from 'next/navigation'
 import { changePasswordAction, updateUsernameAction } from '@/lib/profile/actions'
 import { Alert, Button, Field, Input } from '@/components/ui'
+import { useT } from '@/lib/i18n/client'
 
 export function UsernameForm({ current }: { current: string }) {
+  const t = useT()
   const router = useRouter()
   const [state, action, pending] = useActionState(updateUsernameAction, null)
 
@@ -20,22 +22,23 @@ export function UsernameForm({ current }: { current: string }) {
       ) : null}
 
       <Field
-        label="Username"
+        label={t.profile.username}
         htmlFor="username"
         errors={state && !state.ok ? state.fieldErrors?.username : undefined}
-        hint="Shown to your team members. 3 to 24 characters."
+        hint={t.profile.usernameHint}
       >
         <Input id="username" name="username" defaultValue={current} minLength={3} maxLength={24} required />
       </Field>
 
       <Button type="submit" variant="secondary" disabled={pending}>
-        {pending ? 'Saving…' : 'Save username'}
+        {pending ? t.profile.saving : t.profile.saveUsername}
       </Button>
     </form>
   )
 }
 
 export function ChangePasswordForm() {
+  const t = useT()
   const [state, action, pending] = useActionState(changePasswordAction, null)
 
   return (
@@ -45,7 +48,7 @@ export function ChangePasswordForm() {
       ) : null}
 
       <Field
-        label="Current password"
+        label={t.profile.currentPassword}
         htmlFor="currentPassword"
         errors={state && !state.ok ? state.fieldErrors?.currentPassword : undefined}
       >
@@ -53,16 +56,16 @@ export function ChangePasswordForm() {
       </Field>
 
       <Field
-        label="New password"
+        label={t.profile.newPassword}
         htmlFor="newPassword"
         errors={state && !state.ok ? state.fieldErrors?.newPassword : undefined}
-        hint="At least 10 characters, with an uppercase letter, a lowercase letter and a number."
+        hint={t.profile.passwordHint}
       >
         <Input id="newPassword" name="newPassword" type="password" autoComplete="new-password" required />
       </Field>
 
       <Field
-        label="Confirm new password"
+        label={t.profile.confirmNewPassword}
         htmlFor="confirmPassword"
         errors={state && !state.ok ? state.fieldErrors?.confirmPassword : undefined}
       >
@@ -70,7 +73,7 @@ export function ChangePasswordForm() {
       </Field>
 
       <Button type="submit" variant="secondary" disabled={pending}>
-        {pending ? 'Updating…' : 'Update password'}
+        {pending ? t.profile.updating : t.profile.updatePassword}
       </Button>
     </form>
   )

@@ -21,7 +21,11 @@ export default async function AdminLayout({ children }: { children: React.ReactN
   ])
 
   return (
-    <div className="min-h-dvh">
+    // The operations console is English-only, so it keeps a left-to-right
+    // context regardless of the language the member-facing site is set to.
+    // Without this, English admin text would render right-aligned whenever
+    // a bilingual operator has chosen Arabic.
+    <div className="min-h-dvh" dir="ltr">
       <AdminSidebar
         user={{
           username: session.profile.username ?? session.profile.email.split('@')[0]!,
@@ -32,7 +36,7 @@ export default async function AdminLayout({ children }: { children: React.ReactN
         }}
       />
 
-      <main className="lg:ml-60">
+      <main className="lg:ms-60">
         <div className="mx-auto w-full max-w-6xl px-4 py-5 sm:px-6 sm:py-7">{children}</div>
       </main>
     </div>

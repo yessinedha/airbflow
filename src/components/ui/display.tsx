@@ -40,7 +40,7 @@ export function PanelGlow({ className }: { className?: string }) {
     <div
       aria-hidden
       className={cn(
-        'pointer-events-none absolute -right-16 -top-24 h-64 w-64 rounded-full opacity-60 blur-3xl',
+        'pointer-events-none absolute -end-16 -top-24 h-64 w-64 rounded-full opacity-60 blur-3xl',
         className,
       )}
       style={{

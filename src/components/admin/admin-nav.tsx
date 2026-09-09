@@ -160,7 +160,7 @@ export function AdminSidebar({ user }: { user: AdminNavUser }) {
         </button>
       </div>
 
-      <aside className="fixed inset-y-0 left-0 z-30 hidden w-60 border-r border-border bg-surface lg:block">{nav}</aside>
+      <aside className="fixed inset-y-0 start-0 z-30 hidden w-60 border-e border-border bg-surface lg:block">{nav}</aside>
 
       {open ? (
         <div className="fixed inset-0 z-50 lg:hidden">
@@ -170,12 +170,12 @@ export function AdminSidebar({ user }: { user: AdminNavUser }) {
             className="absolute inset-0 bg-black/50"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute inset-y-0 left-0 w-72 max-w-[85vw] overflow-y-auto border-r border-border bg-surface">
+          <div className="absolute inset-y-0 start-0 w-72 max-w-[85vw] overflow-y-auto border-e border-border bg-surface">
             <button
               type="button"
               onClick={() => setOpen(false)}
               aria-label="Close menu"
-              className="absolute right-3 top-3 rounded-lg p-1.5 text-ink-muted hover:bg-surface-2"
+              className="absolute end-3 top-3 rounded-lg p-1.5 text-ink-muted hover:bg-surface-2"
             >
               <IconClose />
             </button>

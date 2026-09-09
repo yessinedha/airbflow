@@ -61,7 +61,7 @@ export default async function AdminNotificationsPage({
                       </div>
                       <p className="mt-0.5 text-sm text-ink-muted">{n.message}</p>
                     </div>
-                    <div className="text-right text-xs text-ink-subtle">
+                    <div className="text-end text-xs text-ink-subtle">
                       {n.user ? (
                         <Link href={`/admin/users/${n.user.id}`} className="hover:text-brand">
                           {n.user.email}

@@ -5,6 +5,7 @@ import { markAllNotificationsReadAction, markNotificationReadAction } from '@/li
 import { Badge, Button, Card, CardBody, EmptyState, PageHeader } from '@/components/ui'
 import { formatDateTime, formatRelative } from '@/lib/format'
 import type { Notification, NotificationType } from '@/types/database'
+import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'Notifications' }
 export const dynamic = 'force-dynamic'
@@ -30,17 +31,18 @@ export default async function NotificationsPage() {
 
   const rows = notifications ?? []
   const unread = rows.filter((n) => !n.read).length
+  const t = await getT()
 
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Notifications"
-        description={unread > 0 ? `${unread} unread` : 'You are all caught up.'}
+        title={t.notifications.title}
+        description={unread > 0 ? t.notifications.unreadCount(unread) : t.notifications.allCaughtUp}
         actions={
           unread > 0 ? (
             <form action={markAllNotificationsReadAction}>
               <Button type="submit" variant="secondary" size="sm">
-                Mark all as read
+                {t.notifications.markAllRead}
               </Button>
             </form>
           ) : undefined
@@ -51,8 +53,8 @@ export default async function NotificationsPage() {
         <Card>
           <CardBody>
             <EmptyState
-              title="Nothing here yet"
-              description="Deposits, task rewards, referral activity and withdrawal updates all show up on this page."
+              title={t.notifications.emptyTitle}
+              description={t.notifications.emptyBody}
             />
           </CardBody>
         </Card>
@@ -64,9 +66,9 @@ export default async function NotificationsPage() {
                 <CardBody className="flex flex-wrap items-start justify-between gap-3 py-3.5">
                   <div className="min-w-0 flex-1">
                     <div className="flex flex-wrap items-center gap-2">
-                      <Badge tone={TONES[n.type]}>{n.type}</Badge>
+                      <Badge tone={TONES[n.type]}>{t.statuses.notification[n.type]}</Badge>
                       <p className="font-medium">{n.title}</p>
-                      {!n.read ? <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-label="Unread" /> : null}
+                      {!n.read ? <span className="h-1.5 w-1.5 rounded-full bg-brand" aria-label={t.common.unread} /> : null}
                     </div>
                     <p className="mt-1 text-sm text-ink-muted">{n.message}</p>
                     <p className="mt-1 text-xs text-ink-subtle" title={formatDateTime(n.created_at)}>
@@ -78,7 +80,7 @@ export default async function NotificationsPage() {
                     <form action={markNotificationReadAction}>
                       <input type="hidden" name="notificationId" value={n.id} />
                       <Button type="submit" variant="ghost" size="sm">
-                        Mark read
+                        {t.notifications.markRead}
                       </Button>
                     </form>
                   ) : null}

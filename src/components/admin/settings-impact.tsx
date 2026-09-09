@@ -56,12 +56,12 @@ export function ReferralImpact({
             <thead>
               <tr>
                 <Th>Plan activated</Th>
-                <Th className="text-right">Charge</Th>
-                <Th className="text-right">Level 1</Th>
-                <Th className="text-right">Level 2</Th>
-                <Th className="text-right">Level 3</Th>
-                <Th className="text-right">Total out</Th>
-                <Th className="text-right">Net kept</Th>
+                <Th className="text-end">Charge</Th>
+                <Th className="text-end">Level 1</Th>
+                <Th className="text-end">Level 2</Th>
+                <Th className="text-end">Level 3</Th>
+                <Th className="text-end">Total out</Th>
+                <Th className="text-end">Net kept</Th>
               </tr>
             </thead>
             <tbody>
@@ -72,14 +72,14 @@ export function ReferralImpact({
                 return (
                   <tr key={plan.id}>
                     <Td className="font-medium">{plan.name}</Td>
-                    <Td className="tabular text-right">{formatUsdt(charge)}</Td>
+                    <Td className="tabular text-end">{formatUsdt(charge)}</Td>
                     {paid.map((amount, index) => (
-                      <Td key={index} className="tabular text-right text-ink-muted">
+                      <Td key={index} className="tabular text-end text-ink-muted">
                         {amount.toFixed(2)}
                       </Td>
                     ))}
-                    <Td className="tabular text-right font-semibold text-negative">−{total.toFixed(2)}</Td>
-                    <Td className="tabular text-right font-semibold text-positive">
+                    <Td className="tabular text-end font-semibold text-negative">−{total.toFixed(2)}</Td>
+                    <Td className="tabular text-end font-semibold text-positive">
                       {(charge - total).toFixed(2)}
                     </Td>
                   </tr>
@@ -186,11 +186,11 @@ export function TaskRewardImpact({ plans }: { plans: VipPlan[] }) {
           <thead>
             <tr>
               <Th>Plan</Th>
-              <Th className="text-right">Capital</Th>
-              <Th className="text-right">Rate / day</Th>
-              <Th className="text-right">Per task</Th>
-              <Th className="text-right">Per day</Th>
-              <Th className="text-right">Capital returned in</Th>
+              <Th className="text-end">Capital</Th>
+              <Th className="text-end">Rate / day</Th>
+              <Th className="text-end">Per task</Th>
+              <Th className="text-end">Per day</Th>
+              <Th className="text-end">Capital returned in</Th>
             </tr>
           </thead>
           <tbody>
@@ -204,11 +204,11 @@ export function TaskRewardImpact({ plans }: { plans: VipPlan[] }) {
               return (
                 <tr key={plan.id}>
                   <Td className="font-medium">{plan.name}</Td>
-                  <Td className="tabular text-right">{formatUsdt(capital)}</Td>
-                  <Td className="tabular text-right">{(rate * 100).toFixed(3)} %</Td>
-                  <Td className="tabular text-right">{perTask.toFixed(2)}</Td>
-                  <Td className="tabular text-right font-semibold">{perDay.toFixed(2)}</Td>
-                  <Td className="tabular text-right text-ink-muted">{days === null ? '—' : `${days} days`}</Td>
+                  <Td className="tabular text-end">{formatUsdt(capital)}</Td>
+                  <Td className="tabular text-end">{(rate * 100).toFixed(3)} %</Td>
+                  <Td className="tabular text-end">{perTask.toFixed(2)}</Td>
+                  <Td className="tabular text-end font-semibold">{perDay.toFixed(2)}</Td>
+                  <Td className="tabular text-end text-ink-muted">{days === null ? '—' : `${days} days`}</Td>
                 </tr>
               )
             })}

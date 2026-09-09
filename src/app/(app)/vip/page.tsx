@@ -5,6 +5,7 @@ import { Alert, Badge, ButtonLink, Card, CardBody, CardHeader, CardTitle, PageHe
 import { VipActivateButton } from '@/components/vip-activate'
 import { formatDateTime, formatUsdt, toNumber } from '@/lib/format'
 import type { UserVipPlan, VipPlan } from '@/types/database'
+import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'VIP plans' }
 export const dynamic = 'force-dynamic'
@@ -33,26 +34,24 @@ export default async function VipPage() {
       .returns<HistoryRow[]>(),
   ])
 
+  const t = await getT()
   const balance = toNumber(session.profile.balance_available)
   const currentLevel = session.vipPlan?.level ?? 0
 
   return (
     <div className="space-y-6">
       <PageHeader
-        title="VIP plans"
-        description="Activating a plan sets your daily task allowance and the task reward parameters used to calculate what each completed task pays."
+        title={t.vip.title}
+        description={t.vip.description}
         actions={
           <ButtonLink href="/deposit" variant="secondary" size="sm">
-            Add funds
+            {t.vip.addFunds}
           </ButtonLink>
         }
       />
 
-      <Alert tone="info" title="What a plan is, and what it is not">
-        A plan is an activation fee paid from your internal platform balance. It unlocks a daily task allowance and sets
-        the reward parameters for the verification work you complete. It is not a deposit into an investment product, it
-        does not accrue interest, and it does not promise any return. Reward payments require you to actually complete
-        tasks.
+      <Alert tone="info" title={t.vip.whatIsTitle}>
+        {t.vip.whatIsBody}
       </Alert>
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
@@ -69,19 +68,19 @@ export default async function VipPage() {
                   <CardTitle>{plan.name}</CardTitle>
                   {plan.description ? <p className="mt-1 text-sm text-ink-muted">{plan.description}</p> : null}
                 </div>
-                {isCurrent ? <Badge tone="brand">Current</Badge> : null}
+                {isCurrent ? <Badge tone="brand">{t.vip.current}</Badge> : null}
               </CardHeader>
 
               <CardBody className="space-y-4">
                 <div>
-                  <p className="text-xs uppercase tracking-wide text-ink-subtle">Activation amount</p>
+                  <p className="label-mono text-ink-subtle">{t.vip.activationAmount}</p>
                   <p className="tabular text-2xl font-semibold tracking-tight">{formatUsdt(amount)}</p>
                 </div>
 
                 <dl className="space-y-1.5 text-sm">
-                  <Row label="Daily tasks" value={String(plan.daily_task_limit)} />
-                  <Row label="Reward per task" value={formatUsdt(perTask)} />
-                  <Row label="Daily task reward budget" value={formatUsdt(dailyPool)} />
+                  <Row label={t.vip.dailyTasks} value={String(plan.daily_task_limit)} />
+                  <Row label={t.vip.rewardPerTask} value={formatUsdt(perTask)} />
+                  <Row label={t.vip.dailyBudget} value={formatUsdt(dailyPool)} />
                 </dl>
 
                 <VipActivateButton
@@ -101,39 +100,36 @@ export default async function VipPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Your activation history</CardTitle>
+          <CardTitle>{t.vip.historyTitle}</CardTitle>
         </CardHeader>
         <CardBody className="pt-0">
           {!history?.length ? (
-            <p className="py-6 text-center text-sm text-ink-muted">You have not activated a plan yet.</p>
+            <p className="py-6 text-center text-sm text-ink-muted">{t.vip.noHistory}</p>
           ) : (
             <TableWrap>
               <Table>
                 <thead>
                   <tr>
-                    <Th>Date</Th>
-                    <Th>From</Th>
-                    <Th>To</Th>
-                    <Th className="text-right">Charged</Th>
+                    <Th>{t.common.date}</Th>
+                    <Th>{t.vip.from}</Th>
+                    <Th>{t.vip.to}</Th>
+                    <Th className="text-end">{t.vip.charged}</Th>
                   </tr>
                 </thead>
                 <tbody>
                   {history.map((row) => (
                     <tr key={row.id}>
                       <Td className="whitespace-nowrap text-ink-muted">{formatDateTime(row.activated_at)}</Td>
-                      <Td>{row.previous_plan?.name ?? '—'}</Td>
-                      <Td className="font-medium">{row.new_plan?.name ?? '—'}</Td>
-                      <Td className="tabular text-right">{formatUsdt(row.amount_charged)}</Td>
+                      <Td>{row.previous_plan?.name ?? t.common.dash}</Td>
+                      <Td className="font-medium">{row.new_plan?.name ?? t.common.dash}</Td>
+                      <Td className="tabular text-end">{formatUsdt(row.amount_charged)}</Td>
                     </tr>
                   ))}
                 </tbody>
               </Table>
             </TableWrap>
           )}
-          <p className="mt-3 text-xs text-ink-subtle">
-            Rewards already claimed under a previous plan are never recalculated. Each task assignment keeps the reward
-            it was paid, and every ledger entry is immutable.
-          </p>
+          <p className="mt-3 text-xs text-ink-subtle">{t.vip.historyNote}</p>
         </CardBody>
       </Card>
     </div>

@@ -18,3 +18,4 @@ supabase/.temp
 
 # Local scratch output.
 verify.log
+_to_delete/

@@ -19,6 +19,7 @@ import {
   Tile,
 } from '@/components/ui'
 import { LedgerTypeBadge } from '@/components/status'
+import { getI18n } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 export const dynamic = 'force-dynamic'
@@ -28,6 +29,7 @@ export default async function DashboardPage() {
   const data = await loadDashboard(session.userId)
   const { profile, vipPlan } = session
 
+  const { locale, t } = await getI18n()
   const displayName = profile.username ?? profile.email.split('@')[0]
   const dailyLimit = data.tasksTotal || vipPlan?.daily_task_limit || 3
 
@@ -35,7 +37,7 @@ export default async function DashboardPage() {
   // activity list — oldest first, absolute amounts. No extra query.
   const movement = [...data.recentLedger].reverse().map((entry) => Math.abs(Number(entry.amount)))
 
-  const today = new Date().toLocaleDateString('en-GB', {
+  const today = new Date().toLocaleDateString(locale === 'ar' ? 'ar' : 'en-GB', {
     weekday: 'long',
     day: 'numeric',
     month: 'long',
@@ -46,15 +48,13 @@ export default async function DashboardPage() {
     <div className="space-y-7">
       <header>
         <MonoLabel>{today} · UTC</MonoLabel>
-        <h1 className="display mt-1.5 text-3xl font-semibold sm:text-4xl">Welcome back, {displayName}</h1>
-        <p className="mt-2 max-w-2xl text-sm text-ink-muted">
-          Here is the current state of your account. Every figure below is an internal platform ledger balance.
-        </p>
+        <h1 className="display mt-1.5 text-3xl font-semibold sm:text-4xl">{t.dashboard.welcome(displayName)}</h1>
+        <p className="mt-2 max-w-2xl text-sm text-ink-muted">{t.dashboard.intro}</p>
       </header>
 
       {profile.status !== 'ACTIVE' ? (
-        <Alert tone="negative" title={`Your account is ${profile.status.toLowerCase()}`}>
-          Tasks, deposits and withdrawals are disabled while your account is in this state. Contact support for details.
+        <Alert tone="negative" title={t.dashboard.accountSuspended(t.statuses.user[profile.status])}>
+          {t.dashboard.accountSuspendedBody}
         </Alert>
       ) : null}
 
@@ -63,19 +63,16 @@ export default async function DashboardPage() {
         <Panel className="animate-rise lg:col-span-3">
           <PanelGlow />
           <div className="relative p-5 sm:p-6">
-            <MonoLabel className="text-espresso-muted">Internal platform balance · ledger</MonoLabel>
+            <MonoLabel className="text-espresso-muted">{t.dashboard.balanceLabel}</MonoLabel>
             <p className="tabular mt-2 text-4xl font-semibold tracking-tight sm:text-5xl">
               {formatUsdt(profile.balance_available).replace(' USDT', '')}
-              <span className="ml-2 font-mono text-base font-normal text-espresso-muted">USDT</span>
+              <span className="ms-2 font-mono text-base font-normal text-espresso-muted">USDT</span>
             </p>
-            <p className="mt-3 max-w-lg text-xs leading-relaxed text-espresso-muted">
-              This is not an on-chain balance. It is a figure held in the platform&apos;s internal ledger, backed by your
-              verified deposits and the rewards recorded against your account. Every movement is auditable.
-            </p>
+            <p className="mt-3 max-w-lg text-xs leading-relaxed text-espresso-muted">{t.dashboard.balanceNote}</p>
 
             <div className="mt-5 flex flex-wrap gap-2">
               <ButtonLink href="/deposit" size="sm">
-                Deposit
+                {t.nav.deposit}
               </ButtonLink>
               <ButtonLink
                 href="/withdraw"
@@ -83,7 +80,7 @@ export default async function DashboardPage() {
                 variant="secondary"
                 className="border-espresso-border bg-transparent text-espresso-ink hover:bg-espresso-2"
               >
-                Withdraw
+                {t.nav.withdraw}
               </ButtonLink>
               <ButtonLink
                 href="/history"
@@ -91,7 +88,7 @@ export default async function DashboardPage() {
                 variant="ghost"
                 className="text-espresso-muted hover:bg-espresso-2 hover:text-espresso-ink"
               >
-                View ledger →
+                {t.dashboard.viewLedger}
               </ButtonLink>
             </div>
 
@@ -99,8 +96,8 @@ export default async function DashboardPage() {
               <div className="mt-6 border-t border-espresso-border pt-4">
                 <Sparkline values={movement} />
                 <div className="mt-2 flex items-center justify-between">
-                  <MonoLabel className="text-espresso-muted">Recent ledger movement</MonoLabel>
-                  <MonoLabel className="text-espresso-muted">{movement.length} entries</MonoLabel>
+                  <MonoLabel className="text-espresso-muted">{t.dashboard.movementLabel}</MonoLabel>
+                  <MonoLabel className="text-espresso-muted">{t.dashboard.movementCount(movement.length)}</MonoLabel>
                 </div>
               </div>
             ) : null}
@@ -111,20 +108,20 @@ export default async function DashboardPage() {
           <CardBody className="flex flex-1 flex-col gap-5">
             <div className="flex items-center justify-between gap-3">
               <div>
-                <MonoLabel>Today</MonoLabel>
-                <p className="display mt-1 text-lg font-semibold">Task progress</p>
+                <MonoLabel>{t.dashboard.today}</MonoLabel>
+                <p className="display mt-1 text-lg font-semibold">{t.dashboard.taskProgress}</p>
               </div>
-              <ProgressRing value={data.tasksCompleted} max={dailyLimit} label="tasks" />
+              <ProgressRing value={data.tasksCompleted} max={dailyLimit} label={t.dashboard.tasksUnit} />
             </div>
 
             <div className="grid grid-cols-2 gap-3 border-t border-border pt-4">
               <div>
-                <MonoLabel>Earned today</MonoLabel>
+                <MonoLabel>{t.dashboard.earnedToday}</MonoLabel>
                 <p className="tabular mt-1 text-lg font-semibold text-positive">{formatUsdt(data.todaysRewards)}</p>
               </div>
               <div>
-                <MonoLabel>Current tier</MonoLabel>
-                <p className="display mt-1 text-lg font-semibold">{vipPlan ? vipPlan.name : 'None'}</p>
+                <MonoLabel>{t.dashboard.currentTier}</MonoLabel>
+                <p className="display mt-1 text-lg font-semibold">{vipPlan ? vipPlan.name : t.common.none}</p>
               </div>
             </div>
 
@@ -134,7 +131,7 @@ export default async function DashboardPage() {
               variant={data.tasksCompleted >= dailyLimit ? 'secondary' : 'dark'}
               className="mt-auto w-full"
             >
-              {data.tasksCompleted >= dailyLimit ? 'All tasks completed' : 'Open daily tasks'}
+              {data.tasksCompleted >= dailyLimit ? t.dashboard.allTasksDone : t.dashboard.openTasks}
             </ButtonLink>
           </CardBody>
         </Card>
@@ -142,41 +139,39 @@ export default async function DashboardPage() {
 
       {/* Key figures -------------------------------------------------- */}
       <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-4">
-        <Stat label="Total rewards" value={formatUsdt(profile.total_rewards)} sub="Credited to your ledger" />
-        <Stat label="Total deposited" value={formatUsdt(profile.total_deposited)} sub="Verified on chain" />
-        <Stat label="Total withdrawn" value={formatUsdt(profile.total_withdrawn)} sub="Settled manually" />
+        <Stat label={t.dashboard.totalRewards} value={formatUsdt(profile.total_rewards)} sub={t.dashboard.totalRewardsSub} />
+        <Stat label={t.dashboard.totalDeposited} value={formatUsdt(profile.total_deposited)} sub={t.dashboard.totalDepositedSub} />
+        <Stat label={t.dashboard.totalWithdrawn} value={formatUsdt(profile.total_withdrawn)} sub={t.dashboard.totalWithdrawnSub} />
         <Stat
-          label="Pending withdrawal"
+          label={t.dashboard.pendingWithdrawal}
           value={formatUsdt(profile.balance_pending_withdrawal)}
-          sub="Held while under review"
+          sub={t.dashboard.pendingWithdrawalSub}
           tone={Number(profile.balance_pending_withdrawal) > 0 ? 'brand' : undefined}
         />
       </div>
 
       {/* Next steps --------------------------------------------------- */}
       {!vipPlan ? (
-        <Alert tone="info" title="Activate a plan to start earning task rewards">
-          <p>
-            Task rewards are only paid to accounts with an active VIP plan. Activation is charged from your internal
-            platform balance.
-          </p>
+        <Alert tone="info" title={t.dashboard.activatePlanTitle}>
+          <p>{t.dashboard.activatePlanBody}</p>
           <div className="mt-3 flex flex-wrap gap-2">
             <ButtonLink href="/vip" size="sm">
-              View plans
+              {t.dashboard.viewPlans}
             </ButtonLink>
             <ButtonLink href="/deposit" size="sm" variant="secondary">
-              Deposit USDT
+              {t.dashboard.depositUsdt}
             </ButtonLink>
           </div>
         </Alert>
       ) : null}
 
       {data.eligibility && !data.eligibility.eligible && data.eligibility.reason === 'FIRST_WITHDRAWAL_WAITING_PERIOD' ? (
-        <Alert tone="warning" title="First withdrawal not available yet">
-          Your first withdrawal unlocks {data.eligibility.days_remaining} day
-          {data.eligibility.days_remaining === 1 ? '' : 's'} from now, {data.eligibility.first_withdrawal_wait_days} days
-          after your plan activation. After that you may withdraw once every {data.eligibility.withdrawal_cooldown_days}{' '}
-          days.
+        <Alert tone="warning" title={t.dashboard.firstWithdrawalTitle}>
+          {t.dashboard.firstWithdrawalBody(
+            data.eligibility.days_remaining ?? 0,
+            data.eligibility.first_withdrawal_wait_days ?? 0,
+            data.eligibility.withdrawal_cooldown_days ?? 0,
+          )}
         </Alert>
       ) : null}
 
@@ -186,11 +181,11 @@ export default async function DashboardPage() {
           <SectionTitle
             action={
               <Link href="/notifications" className="text-brand hover:underline">
-                View all
+                {t.common.viewAll}
               </Link>
             }
           >
-            Unread notifications
+            {t.dashboard.unreadNotifications}
           </SectionTitle>
           <div className="grid gap-2 sm:grid-cols-2">
             {data.unreadNotifications.map((n) => (
@@ -214,11 +209,11 @@ export default async function DashboardPage() {
           <SectionTitle
             action={
               <Link href="/history" className="text-brand hover:underline">
-                Full history
+                {t.dashboard.fullHistory}
               </Link>
             }
           >
-            Recent ledger
+            {t.dashboard.recentLedger}
           </SectionTitle>
 
           <Card>
@@ -226,11 +221,11 @@ export default async function DashboardPage() {
               {data.recentLedger.length === 0 ? (
                 <div className="py-6">
                   <EmptyState
-                    title="No activity yet"
-                    description="Your ledger will show every deposit, reward and withdrawal as soon as they happen."
+                    title={t.dashboard.noActivityTitle}
+                    description={t.dashboard.noActivityBody}
                     action={
                       <ButtonLink href="/deposit" size="sm">
-                        Make your first deposit
+                        {t.dashboard.firstDeposit}
                       </ButtonLink>
                     }
                   />
@@ -240,10 +235,10 @@ export default async function DashboardPage() {
                   {data.recentLedger.map((entry) => (
                     <li key={entry.id} className="flex items-center justify-between gap-3 py-3">
                       <div className="min-w-0">
-                        <LedgerTypeBadge type={entry.type} />
+                        <LedgerTypeBadge type={entry.type} label={t.ledgerTypes[entry.type]} />
                         <p className="mt-1.5 truncate text-sm text-ink-muted">{entry.description ?? '—'}</p>
                       </div>
-                      <div className="shrink-0 text-right">
+                      <div className="shrink-0 text-end">
                         <p
                           className={`tabular text-sm font-semibold ${
                             Number(entry.amount) >= 0 ? 'text-positive' : 'text-negative'
@@ -265,25 +260,24 @@ export default async function DashboardPage() {
           <SectionTitle
             action={
               <Link href="/team" className="text-brand hover:underline">
-                Open
+                {t.dashboard.open}
               </Link>
             }
           >
-            Your team
+            {t.dashboard.yourTeam}
           </SectionTitle>
 
           <Card>
             <div className="grid grid-cols-2 divide-x divide-border border-b border-border">
-              <Tile label="Total members" value={data.team?.total ?? 0} />
-              <Tile label="Direct" value={data.team?.level1 ?? 0} />
+              <Tile label={t.dashboard.totalMembers} value={data.team?.total ?? 0} />
+              <Tile label={t.dashboard.direct} value={data.team?.level1 ?? 0} />
             </div>
             <CardBody className="space-y-2 text-sm">
-              <Row label="Level 1" value={data.team?.level1 ?? 0} />
-              <Row label="Level 2" value={data.team?.level2 ?? 0} />
-              <Row label="Level 3" value={data.team?.level3 ?? 0} />
+              <Row label={t.dashboard.level(1)} value={data.team?.level1 ?? 0} />
+              <Row label={t.dashboard.level(2)} value={data.team?.level2 ?? 0} />
+              <Row label={t.dashboard.level(3)} value={data.team?.level3 ?? 0} />
               <p className="border-t border-border pt-3 text-xs leading-relaxed text-ink-subtle">
-                Commission is paid from VIP activation fees collected by the platform, at rates the operator configures.
-                It is not a share of another member&apos;s deposit.
+                {t.dashboard.commissionNote}
               </p>
             </CardBody>
           </Card>

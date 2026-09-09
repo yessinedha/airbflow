@@ -36,20 +36,28 @@ const USER_TONES: Record<UserStatus, BadgeTone> = {
   BANNED: 'negative',
 }
 
-export function DepositStatusBadge({ status }: { status: DepositStatus }) {
-  return <Badge tone={DEPOSIT_TONES[status]}>{status}</Badge>
+/*
+ * Each badge takes an optional `label`.
+ *
+ * Member-facing pages pass the translated string from the dictionary; the
+ * operations console, which stays in English, passes nothing and keeps the
+ * raw enum value. That avoids a client boundary on these tiny components
+ * and stops an Arabic label from leaking into an English admin table.
+ */
+export function DepositStatusBadge({ status, label }: { status: DepositStatus; label?: string }) {
+  return <Badge tone={DEPOSIT_TONES[status]}>{label ?? status}</Badge>
 }
 
-export function WithdrawalStatusBadge({ status }: { status: WithdrawalStatus }) {
-  return <Badge tone={WITHDRAWAL_TONES[status]}>{status}</Badge>
+export function WithdrawalStatusBadge({ status, label }: { status: WithdrawalStatus; label?: string }) {
+  return <Badge tone={WITHDRAWAL_TONES[status]}>{label ?? status}</Badge>
 }
 
-export function AssignmentStatusBadge({ status }: { status: AssignmentStatus }) {
-  return <Badge tone={ASSIGNMENT_TONES[status]}>{status}</Badge>
+export function AssignmentStatusBadge({ status, label }: { status: AssignmentStatus; label?: string }) {
+  return <Badge tone={ASSIGNMENT_TONES[status]}>{label ?? status}</Badge>
 }
 
-export function UserStatusBadge({ status }: { status: UserStatus }) {
-  return <Badge tone={USER_TONES[status]}>{status}</Badge>
+export function UserStatusBadge({ status, label }: { status: UserStatus; label?: string }) {
+  return <Badge tone={USER_TONES[status]}>{label ?? status}</Badge>
 }
 
 /** Human labels for ledger movement types. */
@@ -65,7 +73,7 @@ export const LEDGER_LABELS: Record<LedgerType, string> = {
   REFUND: 'Refund',
 }
 
-export function LedgerTypeBadge({ type }: { type: LedgerType }) {
+export function LedgerTypeBadge({ type, label }: { type: LedgerType; label?: string }) {
   const tone: BadgeTone =
     type === 'DEPOSIT' || type === 'TASK_REWARD' || type === 'REFERRAL_REWARD' || type === 'REFUND'
       ? 'positive'
@@ -73,5 +81,5 @@ export function LedgerTypeBadge({ type }: { type: LedgerType }) {
         ? 'negative'
         : 'neutral'
 
-  return <Badge tone={tone}>{LEDGER_LABELS[type]}</Badge>
+  return <Badge tone={tone}>{label ?? LEDGER_LABELS[type]}</Badge>
 }

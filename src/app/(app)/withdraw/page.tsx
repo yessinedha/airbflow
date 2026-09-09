@@ -20,18 +20,11 @@ import { CancelWithdrawalButton, WithdrawForm, type WithdrawNetworkOption } from
 import { explorerUrl, formatDate, formatDateTime, formatUsdt, maskAddress, shortHash, toNumber } from '@/lib/format'
 import { IconExternal } from '@/components/icons'
 import type { SupportedNetwork, Withdrawal, WithdrawalEligibility } from '@/types/database'
+import { getT } from '@/lib/i18n/server'
+import type { Dictionary } from '@/lib/i18n/dictionaries'
 
 export const metadata: Metadata = { title: 'Withdraw' }
 export const dynamic = 'force-dynamic'
-
-const REASON_COPY: Record<string, string> = {
-  NO_ACTIVATION:
-    'The waiting period is measured from your first VIP activation. Activate a plan to start the clock.',
-  ACCOUNT_NOT_ACTIVE: 'Your account is not active. Contact support for details.',
-  WITHDRAWAL_ALREADY_PENDING: 'You already have a withdrawal in progress. Only one can be open at a time.',
-  COOLDOWN_ACTIVE: 'Your cooldown after the previous paid withdrawal has not finished yet.',
-  FIRST_WITHDRAWAL_WAITING_PERIOD: 'Your first withdrawal has not unlocked yet.',
-}
 
 export default async function WithdrawPage() {
   const session = await requireSession('/withdraw')
@@ -54,6 +47,8 @@ export default async function WithdrawPage() {
       .returns<Withdrawal[]>(),
   ])
 
+  const t = await getT()
+  const reasonCopy = t.withdraw.reasons as Record<string, string>
   const eligibility = eligibilityRaw as WithdrawalEligibility | null
   const networkByCode = new Map((networks ?? []).map((n) => [n.code, n]))
 
@@ -63,7 +58,7 @@ export default async function WithdrawPage() {
     minWithdrawal: toNumber(n.min_withdrawal),
     fee: toNumber(n.withdrawal_fee),
     enabled: n.withdrawal_enabled,
-    addressHint: 'Double-check it: manual payments cannot be reversed.',
+    addressHint: t.withdraw.form.destinationHint,
   }))
 
   const openWithdrawal = (withdrawals ?? []).find((w) => w.status === 'PENDING' || w.status === 'PROCESSING')
@@ -73,57 +68,57 @@ export default async function WithdrawPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        title="Withdraw"
-        description="Withdrawals are paid manually by the operations team from an external wallet. The platform never holds a private key and never signs a transaction automatically."
+        title={t.withdraw.title}
+        description={t.withdraw.description}
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Available" value={formatUsdt(session.profile.balance_available)} />
+        <Stat label={t.withdraw.available} value={formatUsdt(session.profile.balance_available)} />
         <Stat
-          label="Locked in requests"
+          label={t.withdraw.lockedInRequests}
           value={formatUsdt(session.profile.balance_pending_withdrawal)}
           tone={toNumber(session.profile.balance_pending_withdrawal) > 0 ? 'negative' : undefined}
         />
-        <Stat label="Total withdrawn" value={formatUsdt(session.profile.total_withdrawn)} />
+        <Stat label={t.withdraw.totalWithdrawn} value={formatUsdt(session.profile.total_withdrawn)} />
       </div>
 
       {eligibility ? (
         <Card>
           <CardHeader>
-            <CardTitle>Withdrawal schedule</CardTitle>
+            <CardTitle>{t.withdraw.scheduleTitle}</CardTitle>
             <Badge tone={eligibility.eligible ? 'positive' : 'warning'}>
-              {eligibility.eligible ? 'Eligible now' : 'Not eligible yet'}
+              {eligibility.eligible ? t.withdraw.eligibleNow : t.withdraw.notEligible}
             </Badge>
           </CardHeader>
           <CardBody className="space-y-3 pt-0 text-sm">
             <dl className="grid gap-3 sm:grid-cols-3">
               <div>
-                <dt className="text-xs uppercase tracking-wide text-ink-subtle">First withdrawal</dt>
-                <dd className="mt-0.5">{eligibility.first_withdrawal_wait_days} days after activation</dd>
+                <dt className="label-mono text-ink-subtle">{t.withdraw.firstWithdrawal}</dt>
+                <dd className="mt-0.5">
+                  {t.withdraw.daysAfterActivation(eligibility.first_withdrawal_wait_days ?? 0)}
+                </dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-ink-subtle">Then</dt>
-                <dd className="mt-0.5">once every {eligibility.withdrawal_cooldown_days} days</dd>
+                <dt className="label-mono text-ink-subtle">{t.withdraw.then}</dt>
+                <dd className="mt-0.5">{t.withdraw.onceEvery(eligibility.withdrawal_cooldown_days ?? 0)}</dd>
               </div>
               <div>
-                <dt className="text-xs uppercase tracking-wide text-ink-subtle">
-                  {eligibility.is_first_withdrawal ? 'Unlocks on' : 'Next window'}
+                <dt className="label-mono text-ink-subtle">
+                  {eligibility.is_first_withdrawal ? t.withdraw.unlocksOn : t.withdraw.nextWindow}
                 </dt>
                 <dd className="mt-0.5 font-medium">
-                  {eligibility.eligible_at ? formatDate(eligibility.eligible_at) : 'Not started'}
+                  {eligibility.eligible_at ? formatDate(eligibility.eligible_at) : t.withdraw.notStarted}
                 </dd>
               </div>
             </dl>
 
             {blocked && reason ? (
-              <Alert tone="warning" title={reasonTitle(reason, eligibility)}>
-                {REASON_COPY[reason] ?? 'You are not eligible to withdraw right now.'}
+              <Alert tone="warning" title={reasonTitle(reason, eligibility, t)}>
+                {reasonCopy[reason] ?? t.withdraw.reasons.GENERIC}
               </Alert>
             ) : null}
 
-            <p className="text-xs text-ink-subtle">
-              These rules are enforced by the server using its own clock. Changing your device time has no effect.
-            </p>
+            <p className="text-xs text-ink-subtle">{t.withdraw.serverClockNote}</p>
           </CardBody>
         </Card>
       ) : null}
@@ -131,7 +126,7 @@ export default async function WithdrawPage() {
       <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.15fr)]">
         <Card className="h-fit">
           <CardHeader>
-            <CardTitle>New withdrawal request</CardTitle>
+            <CardTitle>{t.withdraw.newRequest}</CardTitle>
           </CardHeader>
           <CardBody className="pt-0">
             <WithdrawForm
@@ -139,7 +134,7 @@ export default async function WithdrawPage() {
               available={toNumber(session.profile.balance_available)}
               disabledReason={
                 blocked && reason
-                  ? `${reasonTitle(reason, eligibility!)} ${REASON_COPY[reason] ?? ''}`.trim()
+                  ? `${reasonTitle(reason, eligibility!, t)} ${reasonCopy[reason] ?? ''}`.trim()
                   : null
               }
             />
@@ -148,23 +143,14 @@ export default async function WithdrawPage() {
 
         <Card className="h-fit">
           <CardHeader>
-            <CardTitle>How settlement works</CardTitle>
+            <CardTitle>{t.withdraw.settlementTitle}</CardTitle>
           </CardHeader>
           <CardBody className="space-y-3 pt-0 text-sm text-ink-muted">
-            <Step n={1} title="Request">
-              The amount leaves your available balance immediately and is held as a pending withdrawal, so it cannot be
-              spent twice.
-            </Step>
-            <Step n={2} title="Review">
-              An operator reviews the request. If it is rejected, the full amount is returned to your available balance.
-            </Step>
-            <Step n={3} title="Manual payment">
-              The operator sends the USDT from an external wallet, outside this application.
-            </Step>
-            <Step n={4} title="Recorded">
-              The resulting transaction hash is recorded against your withdrawal and shown to you here, and the ledger is
-              closed with a WITHDRAWAL_COMPLETED entry.
-            </Step>
+            {t.withdraw.settlementSteps.map((step, index) => (
+              <Step key={step.title} n={index + 1} title={step.title}>
+                {step.body}
+              </Step>
+            ))}
           </CardBody>
         </Card>
       </div>
@@ -172,18 +158,21 @@ export default async function WithdrawPage() {
       {openWithdrawal ? (
         <Card className="border-warning/40">
           <CardHeader>
-            <CardTitle>Open request</CardTitle>
-            <WithdrawalStatusBadge status={openWithdrawal.status} />
+            <CardTitle>{t.withdraw.openRequest}</CardTitle>
+            <WithdrawalStatusBadge
+              status={openWithdrawal.status}
+              label={t.statuses.withdrawal[openWithdrawal.status]}
+            />
           </CardHeader>
           <CardBody className="space-y-3 pt-0 text-sm">
             <dl className="grid gap-3 sm:grid-cols-4">
-              <Detail label="Amount" value={formatUsdt(openWithdrawal.amount)} />
-              <Detail label="Fee" value={formatUsdt(openWithdrawal.fee)} />
-              <Detail label="You receive" value={formatUsdt(openWithdrawal.net_amount)} />
-              <Detail label="Requested" value={formatDateTime(openWithdrawal.requested_at)} />
-              <Detail label="Network" value={openWithdrawal.network_code} />
+              <Detail label={t.common.amount} value={formatUsdt(openWithdrawal.amount)} />
+              <Detail label={t.withdraw.fee} value={formatUsdt(openWithdrawal.fee)} />
+              <Detail label={t.withdraw.form.youReceive} value={formatUsdt(openWithdrawal.net_amount)} />
+              <Detail label={t.withdraw.requested} value={formatDateTime(openWithdrawal.requested_at)} />
+              <Detail label={t.withdraw.form.network} value={openWithdrawal.network_code} />
               <Detail
-                label="Destination"
+                label={t.withdraw.destination}
                 value={<span className="font-mono text-xs">{maskAddress(openWithdrawal.destination_address)}</span>}
                 className="sm:col-span-3"
               />
@@ -195,22 +184,22 @@ export default async function WithdrawPage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Withdrawal history</CardTitle>
+          <CardTitle>{t.withdraw.historyTitle}</CardTitle>
         </CardHeader>
         <CardBody className="pt-0">
           {!withdrawals?.length ? (
-            <p className="py-6 text-center text-sm text-ink-muted">No withdrawals yet.</p>
+            <p className="py-6 text-center text-sm text-ink-muted">{t.withdraw.noWithdrawals}</p>
           ) : (
             <TableWrap>
               <Table>
                 <thead>
                   <tr>
-                    <Th>Requested</Th>
-                    <Th className="text-right">Amount</Th>
-                    <Th>Network</Th>
-                    <Th>Destination</Th>
-                    <Th>Transaction</Th>
-                    <Th>Status</Th>
+                    <Th>{t.withdraw.requested}</Th>
+                    <Th className="text-end">{t.common.amount}</Th>
+                    <Th>{t.withdraw.form.network}</Th>
+                    <Th>{t.withdraw.destination}</Th>
+                    <Th>{t.deposit.transaction}</Th>
+                    <Th>{t.common.status}</Th>
                   </tr>
                 </thead>
                 <tbody>
@@ -219,7 +208,7 @@ export default async function WithdrawPage() {
                     return (
                       <tr key={w.id}>
                         <Td className="whitespace-nowrap text-ink-muted">{formatDateTime(w.requested_at)}</Td>
-                        <Td className="tabular text-right font-medium">{formatUsdt(w.amount)}</Td>
+                        <Td className="tabular text-end font-medium">{formatUsdt(w.amount)}</Td>
                         <Td>
                           <Badge>{w.network_code}</Badge>
                         </Td>
@@ -240,11 +229,11 @@ export default async function WithdrawPage() {
                               <span className="font-mono text-xs">{shortHash(w.tx_hash)}</span>
                             )
                           ) : (
-                            <span className="text-xs text-ink-subtle">—</span>
+                            <span className="text-xs text-ink-subtle">{t.common.dash}</span>
                           )}
                         </Td>
                         <Td>
-                          <WithdrawalStatusBadge status={w.status} />
+                          <WithdrawalStatusBadge status={w.status} label={t.statuses.withdrawal[w.status]} />
                           {w.rejection_reason ? (
                             <p className="mt-0.5 max-w-48 text-xs text-negative">{w.rejection_reason}</p>
                           ) : null}
@@ -262,12 +251,11 @@ export default async function WithdrawPage() {
   )
 }
 
-function reasonTitle(reason: string, eligibility: WithdrawalEligibility): string {
+function reasonTitle(reason: string, eligibility: WithdrawalEligibility, t: Dictionary): string {
   if (reason === 'FIRST_WITHDRAWAL_WAITING_PERIOD' || reason === 'COOLDOWN_ACTIVE') {
-    const days = eligibility.days_remaining ?? 0
-    return `Available in ${days} day${days === 1 ? '' : 's'}.`
+    return t.withdraw.availableInDays(eligibility.days_remaining ?? 0)
   }
-  return 'Withdrawal unavailable.'
+  return t.withdraw.unavailable
 }
 
 function Step({ n, title, children }: { n: number; title: string; children: React.ReactNode }) {

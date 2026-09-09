@@ -7,6 +7,7 @@ import { LedgerTable } from '@/components/ledger-table'
 import { LEDGER_LABELS } from '@/components/status'
 import { cn } from '@/utils/cn'
 import type { LedgerType } from '@/types/database'
+import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'History' }
 export const dynamic = 'force-dynamic'
@@ -27,6 +28,7 @@ export default async function HistoryPage({
 
   const { entries, sources, total } = await loadLedgerPage(session.userId, { page, pageSize: PAGE_SIZE, type })
   const totalPages = Math.max(1, Math.ceil(total / PAGE_SIZE))
+  const t = await getT()
 
   const buildHref = (nextPage: number, nextType?: string) => {
     const search = new URLSearchParams()
@@ -39,37 +41,47 @@ export default async function HistoryPage({
   return (
     <div className="space-y-5">
       <PageHeader
-        title="Ledger history"
-        description={`${total} entr${total === 1 ? 'y' : 'ies'}. The ledger is append-only: corrections appear as new entries, never as edits.`}
+        title={t.history.title}
+        description={t.history.description(total)}
       />
 
       <div className="scrollbar-thin -mx-4 flex gap-2 overflow-x-auto px-4 pb-1 sm:mx-0 sm:px-0">
         <FilterChip href={buildHref(1)} active={!type}>
-          All
+          {t.common.all}
         </FilterChip>
-        {TYPES.map((t) => (
-          <FilterChip key={t} href={buildHref(1, t)} active={type === t}>
-            {LEDGER_LABELS[t]}
+        {TYPES.map((entryType) => (
+          <FilterChip key={entryType} href={buildHref(1, entryType)} active={type === entryType}>
+            {t.ledgerTypes[entryType]}
           </FilterChip>
         ))}
       </div>
 
       <Card>
         <CardBody>
-          <LedgerTable entries={entries} sources={sources} />
+          <LedgerTable
+            entries={entries}
+            sources={sources}
+            labels={{
+              date: t.common.date,
+              type: t.common.type,
+              details: t.common.details,
+              amount: t.common.amount,
+              balanceAfter: t.ledgerTable.balanceAfter,
+              empty: t.ledgerTable.empty,
+              types: t.ledgerTypes,
+            }}
+          />
         </CardBody>
       </Card>
 
       {totalPages > 1 ? (
-        <nav className="flex items-center justify-between gap-3" aria-label="Pagination">
+        <nav className="flex items-center justify-between gap-3" aria-label={t.history.pagination}>
           <PageLink href={buildHref(page - 1, type)} disabled={page <= 1}>
-            Previous
+            {t.common.previous}
           </PageLink>
-          <span className="text-sm text-ink-muted">
-            Page {page} of {totalPages}
-          </span>
+          <span className="text-sm text-ink-muted">{t.common.pageOf(page, totalPages)}</span>
           <PageLink href={buildHref(page + 1, type)} disabled={page >= totalPages}>
-            Next
+            {t.common.next}
           </PageLink>
         </nav>
       ) : null}

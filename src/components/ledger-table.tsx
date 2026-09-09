@@ -1,9 +1,20 @@
 import Link from 'next/link'
 import { Table, TableWrap, Td, Th } from '@/components/ui'
-import { LedgerTypeBadge } from '@/components/status'
+import { LEDGER_LABELS, LedgerTypeBadge } from '@/components/status'
 import { formatDateTime, formatSignedUsdt, formatUsdt, shortHash } from '@/lib/format'
 import { IconExternal } from '@/components/icons'
-import type { LedgerEntry } from '@/types/database'
+import type { LedgerEntry, LedgerType } from '@/types/database'
+
+/** Column headings and type names, translated by the caller when needed. */
+export interface LedgerTableLabels {
+  date: string
+  type: string
+  details: string
+  amount: string
+  balanceAfter: string
+  empty: string
+  types: Record<LedgerType, string>
+}
 
 export interface LedgerSourceLink {
   href: string
@@ -21,13 +32,26 @@ export function LedgerTable({
   entries,
   sources,
   showBalance = true,
+  labels,
 }: {
   entries: LedgerEntry[]
   sources?: Record<string, LedgerSourceLink>
   showBalance?: boolean
+  /** Omitted by the English-only operations console. */
+  labels?: LedgerTableLabels
 }) {
+  const text: LedgerTableLabels = labels ?? {
+    date: 'Date',
+    type: 'Type',
+    details: 'Details',
+    amount: 'Amount',
+    balanceAfter: 'Balance after',
+    empty: 'No ledger entries yet.',
+    types: LEDGER_LABELS,
+  }
+
   if (entries.length === 0) {
-    return <p className="py-8 text-center text-sm text-ink-muted">No ledger entries yet.</p>
+    return <p className="py-8 text-center text-sm text-ink-muted">{text.empty}</p>
   }
 
   return (
@@ -35,11 +59,11 @@ export function LedgerTable({
       <Table>
         <thead>
           <tr>
-            <Th>Date</Th>
-            <Th>Type</Th>
-            <Th>Details</Th>
-            <Th className="text-right">Amount</Th>
-            {showBalance ? <Th className="text-right">Balance after</Th> : null}
+            <Th>{text.date}</Th>
+            <Th>{text.type}</Th>
+            <Th>{text.details}</Th>
+            <Th className="text-end">{text.amount}</Th>
+            {showBalance ? <Th className="text-end">{text.balanceAfter}</Th> : null}
           </tr>
         </thead>
         <tbody>
@@ -51,7 +75,7 @@ export function LedgerTable({
               <tr key={entry.id}>
                 <Td className="whitespace-nowrap text-ink-muted">{formatDateTime(entry.created_at)}</Td>
                 <Td>
-                  <LedgerTypeBadge type={entry.type} />
+                  <LedgerTypeBadge type={entry.type} label={text.types[entry.type]} />
                 </Td>
                 <Td className="max-w-xs">
                   <p className="truncate text-ink-muted">{entry.description ?? '—'}</p>
@@ -78,10 +102,10 @@ export function LedgerTable({
                     </div>
                   ) : null}
                 </Td>
-                <Td className={`tabular text-right font-semibold ${positive ? 'text-positive' : 'text-negative'}`}>
+                <Td className={`tabular text-end font-semibold ${positive ? 'text-positive' : 'text-negative'}`}>
                   {formatSignedUsdt(entry.amount)}
                 </Td>
-                {showBalance ? <Td className="tabular text-right text-ink-muted">{formatUsdt(entry.balance_after)}</Td> : null}
+                {showBalance ? <Td className="tabular text-end text-ink-muted">{formatUsdt(entry.balance_after)}</Td> : null}
               </tr>
             )
           })}

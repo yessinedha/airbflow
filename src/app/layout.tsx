@@ -1,5 +1,8 @@
 import type { Metadata, Viewport } from 'next'
 import './globals.css'
+import { dirOf } from '@/lib/i18n/config'
+import { getLocale } from '@/lib/i18n/server'
+import { LocaleProvider } from '@/lib/i18n/client'
 
 export const metadata: Metadata = {
   title: {
@@ -23,35 +26,39 @@ export const viewport: Viewport = {
 /*
  * Typography.
  *
- * Three roles, three faces: an editorial serif for headings and hero lines,
- * a neutral grotesque for running text and controls, and a monospace for
- * captions, figures and hashes.
+ * Four faces across two scripts: an editorial serif and a grotesque for
+ * Latin, and their Arabic counterparts. Each stack lists the Latin face
+ * first and the Arabic face straight after, so the browser resolves per
+ * glyph — Latin words keep Fraunces and Inter, Arabic words fall through
+ * to Noto Kufi Arabic and IBM Plex Sans Arabic, inside the same sentence.
+ * No direction-specific font rule is needed.
  *
  * The faces are linked at runtime rather than pulled in by next/font, so a
- * build never depends on reaching Google. Each one is only the *first* entry
- * in a stack declared in globals.css — if the CDN is blocked the page falls
- * back to the system serif / sans / mono and still reads correctly.
- *
- * To self-host instead: drop the two <link> tags below, put the .woff2 files
- * in src/app/fonts, switch to next/font/local, and remove the Google hosts
- * from the CSP in next.config.ts.
+ * build never depends on reaching Google. If the CDN is blocked the page
+ * falls back to the system serif / sans / mono and still reads correctly.
  */
 const FONT_HREF =
   'https://fonts.googleapis.com/css2' +
   '?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700' +
   '&family=Inter:wght@400;500;600' +
   '&family=JetBrains+Mono:wght@400;500' +
+  '&family=IBM+Plex+Sans+Arabic:wght@400;500;600' +
+  '&family=Noto+Kufi+Arabic:wght@500;600;700' +
   '&display=swap'
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const locale = await getLocale()
+
   return (
-    <html lang="en">
+    <html lang={locale} dir={dirOf(locale)}>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
         <link rel="stylesheet" href={FONT_HREF} />
       </head>
-      <body className="min-h-dvh antialiased">{children}</body>
+      <body className="min-h-dvh antialiased">
+        <LocaleProvider locale={locale}>{children}</LocaleProvider>
+      </body>
     </html>
   )
 }

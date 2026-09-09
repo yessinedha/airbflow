@@ -58,9 +58,10 @@
  * blocked or slow. Swap a family name here to change the whole application.
  */
 :root {
-  --font-sans-stack: 'Inter', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
-  --font-display-stack: 'Fraunces', ui-serif, Georgia, 'Times New Roman', serif;
-  --font-mono-stack: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  --font-sans-stack: 'Inter', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
+    sans-serif;
+  --font-display-stack: 'Fraunces', 'Noto Kufi Arabic', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-mono-stack: 'JetBrains Mono', 'IBM Plex Sans Arabic', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
 @layer base {
@@ -165,13 +166,63 @@
  * so changing --sidebar-w in theme.css moves both together.
  */
 .app-main {
-  margin-left: 0;
+  margin-inline-start: 0;
 }
 
 @media (min-width: 1024px) {
   .app-main {
-    margin-left: var(--sidebar-w);
+    margin-inline-start: var(--sidebar-w);
   }
+}
+
+/* --------------------------------------------------------------------------
+ * Right-to-left
+ *
+ * Layout direction is handled by logical properties in the components
+ * (ms-/me-, ps-/pe-, start-/end-, text-start/text-end), so almost nothing
+ * needs a direction-specific rule. What remains are the few places where a
+ * Latin typographic convention does not transfer to Arabic.
+ * ----------------------------------------------------------------------- */
+
+/*
+ * Arabic is a joined script: letter-spacing pulls the glyphs apart and
+ * breaks the connections, so the tracking used on Latin small-caps labels
+ * is removed. Uppercasing is a no-op in Arabic but is dropped too, since
+ * it would still affect any Latin word inside an Arabic label.
+ */
+[dir='rtl'] .label-mono {
+  letter-spacing: 0;
+  text-transform: none;
+  font-size: 0.6875rem;
+}
+
+/* Arabic headlines do not want the negative tracking Latin display type uses. */
+[dir='rtl'] .display,
+[dir='rtl'] h1,
+[dir='rtl'] h2,
+[dir='rtl'] h3 {
+  letter-spacing: 0;
+}
+
+/*
+ * Amounts, hashes and timers stay left-to-right even inside Arabic text,
+ * so a figure like "-80.00 USDT" keeps its sign on the correct side.
+ */
+[dir='rtl'] .tabular,
+[dir='rtl'] .font-mono,
+[dir='rtl'] code {
+  direction: ltr;
+  unicode-bidi: isolate;
+}
+
+/* Keep those isolated runs aligned with the surrounding right-to-left text. */
+[dir='rtl'] .tabular {
+  text-align: inherit;
+}
+
+/* A gradient has no logical direction, so the fading rule is mirrored here. */
+[dir='rtl'] .rule-fade {
+  background-image: linear-gradient(to left, var(--border), transparent);
 }
 
 /* --------------------------------------------------------------------------

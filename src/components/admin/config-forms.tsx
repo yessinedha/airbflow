@@ -218,7 +218,7 @@ export function TaskImageManager({ task }: { task: Task }) {
                 const f = e.target.files?.[0]
                 setPicked(f ? { name: f.name, size: f.size } : null)
               }}
-              className="max-w-full text-xs file:mr-2 file:rounded-control file:border file:border-border-strong file:bg-surface file:px-2.5 file:py-1.5 file:text-xs file:text-ink hover:file:bg-surface-2"
+              className="max-w-full text-xs file:me-2 file:rounded-control file:border file:border-border-strong file:bg-surface file:px-2.5 file:py-1.5 file:text-xs file:text-ink hover:file:bg-surface-2"
               aria-label="Choose an image to upload"
             />
             <SubmitButton
@@ -631,7 +631,7 @@ export function SettingRowForm({ setting }: { setting: PlatformSetting }) {
             max={control.max ?? 100}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            className="w-24 text-right font-mono text-xs"
+            className="w-24 text-end font-mono text-xs"
             aria-label={`Value for ${setting.key}, in percent`}
           />
           <span className="text-xs text-ink-subtle">%</span>
@@ -646,7 +646,7 @@ export function SettingRowForm({ setting }: { setting: PlatformSetting }) {
             max={control.max}
             value={draft}
             onChange={(e) => setDraft(e.target.value)}
-            className="w-24 text-right font-mono text-xs"
+            className="w-24 text-end font-mono text-xs"
             aria-label={`Value for ${setting.key}`}
           />
           {control.unit ? <span className="text-xs text-ink-subtle">{control.unit}</span> : null}

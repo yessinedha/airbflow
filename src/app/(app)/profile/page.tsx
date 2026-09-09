@@ -4,6 +4,7 @@ import { Badge, Card, CardBody, CardHeader, CardTitle, PageHeader } from '@/comp
 import { UserStatusBadge } from '@/components/status'
 import { ChangePasswordForm, UsernameForm } from '@/components/profile-forms'
 import { formatDateTime } from '@/lib/format'
+import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'Profile' }
 export const dynamic = 'force-dynamic'
@@ -11,44 +12,47 @@ export const dynamic = 'force-dynamic'
 export default async function ProfilePage() {
   const session = await requireSession('/profile')
   const { profile, vipPlan } = session
+  const t = await getT()
 
   return (
     <div className="space-y-6">
-      <PageHeader title="Profile" description="Your account details and security settings." />
+      <PageHeader title={t.profile.title} description={t.profile.description} />
 
       <div className="grid gap-5 lg:grid-cols-2">
         <Card>
           <CardHeader>
-            <CardTitle>Account</CardTitle>
+            <CardTitle>{t.profile.account}</CardTitle>
             <UserStatusBadge status={profile.status} />
           </CardHeader>
           <CardBody className="space-y-3 pt-0 text-sm">
-            <Row label="Email" value={profile.email} />
-            <Row label="Username" value={profile.username ?? '—'} />
+            <Row label={t.profile.email} value={profile.email} />
+            <Row label={t.profile.username} value={profile.username ?? t.common.dash} />
             <Row
-              label="Role"
+              label={t.profile.role}
               value={
                 profile.role === 'USER' ? (
-                  'Member'
+                  t.profile.roleMember
                 ) : (
                   <Badge tone="brand">{profile.role.replace('_', ' ')}</Badge>
                 )
               }
             />
-            <Row label="Invitation code" value={<code className="font-mono">{profile.referral_code}</code>} />
-            <Row label="Current plan" value={vipPlan?.name ?? 'None'} />
-            <Row label="Member since" value={formatDateTime(profile.created_at)} />
+            <Row label={t.profile.invitationCode} value={<code className="font-mono">{profile.referral_code}</code>} />
+            <Row label={t.profile.currentPlan} value={vipPlan?.name ?? t.common.none} />
+            <Row label={t.profile.memberSince} value={formatDateTime(profile.created_at)} />
             <Row
-              label="First activation"
-              value={profile.first_activation_at ? formatDateTime(profile.first_activation_at) : 'Not activated yet'}
+              label={t.profile.firstActivation}
+              value={
+                profile.first_activation_at ? formatDateTime(profile.first_activation_at) : t.profile.notActivated
+              }
             />
             <Row
-              label="Two-factor authentication"
+              label={t.profile.twoFactor}
               value={
                 profile.two_factor_enabled ? (
-                  <Badge tone="positive">Enabled</Badge>
+                  <Badge tone="positive">{t.profile.enabled}</Badge>
                 ) : (
-                  <Badge tone="neutral">Not enabled</Badge>
+                  <Badge tone="neutral">{t.profile.notEnabled}</Badge>
                 )
               }
             />
@@ -58,7 +62,7 @@ export default async function ProfilePage() {
         <div className="space-y-5">
           <Card>
             <CardHeader>
-              <CardTitle>Change username</CardTitle>
+              <CardTitle>{t.profile.changeUsername}</CardTitle>
             </CardHeader>
             <CardBody className="pt-0">
               <UsernameForm current={profile.username ?? ''} />
@@ -67,7 +71,7 @@ export default async function ProfilePage() {
 
           <Card>
             <CardHeader>
-              <CardTitle>Change password</CardTitle>
+              <CardTitle>{t.profile.changePassword}</CardTitle>
             </CardHeader>
             <CardBody className="pt-0">
               <ChangePasswordForm />
@@ -78,13 +82,13 @@ export default async function ProfilePage() {
 
       <Card>
         <CardHeader>
-          <CardTitle>Things that cannot be changed</CardTitle>
+          <CardTitle>{t.profile.immutableTitle}</CardTitle>
         </CardHeader>
         <CardBody className="pt-0 text-sm text-ink-muted">
-          <ul className="list-disc space-y-1 pl-5">
-            <li>Your invitation code, so existing invitation links keep working.</li>
-            <li>Who invited you. The referral relationship is fixed at registration and enforced by the database.</li>
-            <li>Your ledger entries. Every balance change is permanent; corrections are added as new entries.</li>
+          <ul className="list-disc space-y-1 ps-5">
+            {t.profile.immutableItems.map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </CardBody>
       </Card>

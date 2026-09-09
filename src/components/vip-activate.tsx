@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation'
 import { activateVipAction } from '@/lib/vip/actions'
 import { Button } from '@/components/ui'
 import { formatUsdt } from '@/lib/format'
+import { useT } from '@/lib/i18n/client'
 
 /**
  * Activation spends real balance, so it always goes through an explicit
@@ -27,6 +28,7 @@ export function VipActivateButton({
   isDowngrade: boolean
   disabled?: boolean
 }) {
+  const t = useT()
   const router = useRouter()
   const [state, action, pending] = useActionState(activateVipAction, null)
   const [confirming, setConfirming] = useState(false)
@@ -43,7 +45,7 @@ export function VipActivateButton({
   if (isCurrent) {
     return (
       <Button variant="secondary" className="w-full" disabled>
-        Active plan
+        {t.vip.activePlan}
       </Button>
     )
   }
@@ -53,7 +55,7 @@ export function VipActivateButton({
   if (isDowngrade) {
     return (
       <Button variant="secondary" className="w-full" disabled>
-        Lower than your current plan
+        {t.vip.lowerThanCurrent}
       </Button>
     )
   }
@@ -70,15 +72,14 @@ export function VipActivateButton({
         <form action={action} className="space-y-2">
           <input type="hidden" name="planId" value={planId} />
           <p className="rounded-lg bg-surface-2 px-3 py-2 text-xs text-ink-muted">
-            {formatUsdt(amount)} will be deducted from your internal platform balance to activate {planName}. This is
-            recorded as a VIP_ACTIVATION entry in your ledger and cannot be reversed automatically.
+            {t.vip.confirmBody(formatUsdt(amount), planName)}
           </p>
           <div className="flex gap-2">
             <Button type="submit" className="flex-1" disabled={pending}>
-              {pending ? 'Activating…' : 'Confirm'}
+              {pending ? t.vip.activating : t.common.confirm}
             </Button>
             <Button type="button" variant="secondary" onClick={() => setConfirming(false)} disabled={pending}>
-              Cancel
+              {t.common.cancel}
             </Button>
           </div>
         </form>
@@ -87,9 +88,9 @@ export function VipActivateButton({
           className="w-full"
           onClick={() => setConfirming(true)}
           disabled={disabled || insufficient}
-          title={insufficient ? 'Insufficient internal platform balance' : undefined}
+          title={insufficient ? t.vip.insufficient : undefined}
         >
-          {insufficient ? `Need ${formatUsdt(amount - balance)} more` : `Activate for ${formatUsdt(amount)}`}
+          {insufficient ? t.vip.needMore(formatUsdt(amount - balance)) : t.vip.activateFor(formatUsdt(amount))}
         </Button>
       )}
     </div>

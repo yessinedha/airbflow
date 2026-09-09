@@ -1,6 +1,10 @@
 import Link from 'next/link'
+import { getT } from '@/lib/i18n/server'
+import { LocaleSwitcher } from '@/components/locale-switcher'
 
-export default function AuthLayout({ children }: { children: React.ReactNode }) {
+export default async function AuthLayout({ children }: { children: React.ReactNode }) {
+  const t = await getT()
+
   return (
     <div className="flex min-h-dvh flex-col">
       <header className="border-b border-border bg-surface">
@@ -11,9 +15,12 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
             </span>
             <span className="display font-semibold tracking-tight">PropVerify</span>
           </Link>
-          <Link href="/faq" className="text-sm text-ink-muted hover:text-ink">
-            How it works
-          </Link>
+          <div className="flex items-center gap-3">
+            <LocaleSwitcher />
+            <Link href="/faq" className="text-sm text-ink-muted hover:text-ink">
+              {t.publicSite.howItWorks}
+            </Link>
+          </div>
         </div>
       </header>
 
@@ -23,15 +30,15 @@ export default function AuthLayout({ children }: { children: React.ReactNode }) 
 
       <footer className="border-t border-border px-4 py-4 text-center text-xs text-ink-subtle">
         <Link href="/terms" className="hover:text-ink">
-          Terms
+          {t.publicSite.terms}
         </Link>
         <span className="mx-2">·</span>
         <Link href="/privacy" className="hover:text-ink">
-          Privacy
+          {t.publicSite.privacy}
         </Link>
         <span className="mx-2">·</span>
         <Link href="/faq" className="hover:text-ink">
-          FAQ
+          {t.home.ctaFaq}
         </Link>
       </footer>
     </div>

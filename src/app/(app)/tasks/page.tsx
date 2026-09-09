@@ -6,6 +6,7 @@ import { Alert, ButtonLink, Card, CardBody, EmptyState, PageHeader, Stat } from 
 import { TaskCard, type TaskCardData } from '@/components/task-card'
 import { formatUsdt } from '@/lib/format'
 import type { AssignmentStatus, TaskAssignment, TaskDifficulty } from '@/types/database'
+import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'Daily tasks' }
 export const dynamic = 'force-dynamic'
@@ -60,11 +61,12 @@ export default async function TasksPage() {
   const earnedToday = completed.reduce((sum, r) => sum + Number(r.reward_amount), 0)
   const potentialToday = previews.reduce((sum, p) => sum + p, 0)
   const canWork = session.profile.status === 'ACTIVE' && Boolean(session.vipPlan)
+  const t = await getT()
 
   const cards: TaskCardData[] = rows.map((row, index) => ({
     assignmentId: row.id,
     slot: row.slot,
-    title: row.task?.title ?? 'Verification task',
+    title: row.task?.title ?? t.tasks.titlePlain,
     description: row.task?.description ?? '',
     taskType: row.task?.task_type ?? '',
     difficulty: row.task?.difficulty ?? 'EASY',
@@ -80,40 +82,35 @@ export default async function TasksPage() {
   return (
     <div className="space-y-6">
       <PageHeader
-        eyebrow={`${rows.length} listing${rows.length === 1 ? '' : 's'} in today's batch`}
-        title={
-          rows.length > 0
-            ? `${rows.length} listing${rows.length === 1 ? '' : 's'} waiting for you`
-            : 'Daily tasks'
-        }
-        description={`Your task set resets every day at 00:00 UTC. Each task runs a ${
-          rows[0]?.duration_seconds ?? 180
-        }-second verification window measured on the server — the countdown on screen is only an indication.`}
+        eyebrow={t.tasks.eyebrow(rows.length)}
+        title={rows.length > 0 ? t.tasks.titleWaiting(rows.length) : t.tasks.titlePlain}
+        description={t.tasks.description(rows[0]?.duration_seconds ?? 180)}
       />
 
       <div className="grid gap-3 sm:grid-cols-3">
-        <Stat label="Completed today" value={`${completed.length} / ${dailyLimit}`} tone={completed.length ? 'positive' : undefined} />
-        <Stat label="Earned today" value={formatUsdt(earnedToday)} tone="positive" />
         <Stat
-          label="Available today"
+          label={t.tasks.completedToday}
+          value={`${completed.length} / ${dailyLimit}`}
+          tone={completed.length ? 'positive' : undefined}
+        />
+        <Stat label={t.tasks.earnedToday} value={formatUsdt(earnedToday)} tone="positive" />
+        <Stat
+          label={t.tasks.availableToday}
           value={formatUsdt(Math.max(potentialToday - earnedToday, 0))}
-          sub={session.vipPlan ? `Based on ${session.vipPlan.name}` : 'Requires an active plan'}
+          sub={session.vipPlan ? t.tasks.basedOn(session.vipPlan.name) : t.tasks.requiresPlan}
         />
       </div>
 
       {session.profile.status !== 'ACTIVE' ? (
-        <Alert tone="negative" title="Tasks are disabled">
-          Your account is {session.profile.status.toLowerCase()}. Contact support for details.
+        <Alert tone="negative" title={t.tasks.disabledTitle}>
+          {t.tasks.disabledBody(t.statuses.user[session.profile.status])}
         </Alert>
       ) : !session.vipPlan ? (
-        <Alert tone="info" title="Activate a VIP plan to claim rewards">
-          <p>
-            You can view today&apos;s tasks, but rewards can only be claimed with an active plan. The reward amount is
-            derived from your plan&apos;s configured task reward parameters.
-          </p>
+        <Alert tone="info" title={t.tasks.needPlanTitle}>
+          <p>{t.tasks.needPlanBody}</p>
           <div className="mt-3">
             <ButtonLink href="/vip" size="sm">
-              View plans
+              {t.dashboard.viewPlans}
             </ButtonLink>
           </div>
         </Alert>
@@ -121,8 +118,8 @@ export default async function TasksPage() {
 
       {cards.length === 0 ? (
         <EmptyState
-          title="No tasks available"
-          description="No active tasks are configured right now. Please check back later."
+          title={t.tasks.noTasksTitle}
+          description={t.tasks.noTasksBody}
         />
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
@@ -134,15 +131,11 @@ export default async function TasksPage() {
 
       <Card>
         <CardBody className="text-sm text-ink-muted">
-          <p className="font-medium text-ink">How task rewards work</p>
-          <ul className="mt-2 list-disc space-y-1 pl-5">
-            <li>Rewards are internal platform rewards credited to your platform ledger balance, not on-chain payments.</li>
-            <li>The reward amount is calculated on the server from your active plan when you claim, never from your browser.</li>
-            <li>
-              The timer is enforced by the database. Claiming before the window has elapsed is rejected regardless of what
-              your screen shows.
-            </li>
-            <li>You can complete at most {dailyLimit} tasks per day, and each task can be rewarded only once per day.</li>
+          <p className="font-medium text-ink">{t.tasks.howTitle}</p>
+          <ul className="mt-2 list-disc space-y-1 ps-5">
+            {t.tasks.howItems(dailyLimit).map((item) => (
+              <li key={item}>{item}</li>
+            ))}
           </ul>
         </CardBody>
       </Card>

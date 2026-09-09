@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { Alert, Card, CardBody, CardHeader, CardTitle } from '@/components/ui'
 import { RegisterForm } from '@/components/auth-forms'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'Register' }
 export const dynamic = 'force-dynamic'
@@ -21,37 +22,34 @@ export default async function RegisterPage({ searchParams }: { searchParams: Pro
     refValid = data === true
   }
 
+  const t = await getT()
+
   return (
     <Card>
       <CardHeader>
         <div>
-          <CardTitle>Create your account</CardTitle>
-          <p className="mt-1 text-sm text-ink-muted">
-            PropVerify is invitation-only. You need a code from an existing member.
-          </p>
+          <CardTitle>{t.auth.registerTitle}</CardTitle>
+          <p className="mt-1 text-sm text-ink-muted">{t.auth.registerSubtitle}</p>
         </div>
       </CardHeader>
 
       <CardBody className="space-y-5 pt-0">
         {candidate && refValid === false ? (
-          <Alert tone="negative" title="That invitation link is not valid">
-            The code <code className="font-mono">{candidate}</code> does not belong to an active member. Ask your
-            inviter for a current link, or enter a different code below.
+          <Alert tone="negative" title={t.auth.invalidInviteTitle}>
+            {t.auth.invalidInviteBody(candidate)}
           </Alert>
         ) : null}
 
         {candidate && refValid ? (
-          <Alert tone="positive">
-            Invitation code <code className="font-mono font-semibold">{candidate}</code> accepted.
-          </Alert>
+          <Alert tone="positive">{t.auth.inviteAccepted(candidate)}</Alert>
         ) : null}
 
         <RegisterForm defaultRef={refValid ? candidate : ''} />
 
         <p className="text-center text-sm text-ink-muted">
-          Already have an account?{' '}
+          {t.auth.haveAccount}{' '}
           <Link href="/login" className="text-brand hover:underline">
-            Sign in
+            {t.auth.signInLink}
           </Link>
         </p>
       </CardBody>

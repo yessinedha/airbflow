@@ -107,7 +107,7 @@ export function Textarea({ className, ...props }: React.ComponentProps<'textarea
 }
 
 export function Select({ className, ...props }: React.ComponentProps<'select'>) {
-  return <select className={cn(FIELD_BASE, 'h-10 pr-8', className)} {...props} />
+  return <select className={cn(FIELD_BASE, 'h-10 pe-8', className)} {...props} />
 }
 
 export function Label({ className, ...props }: React.ComponentProps<'label'>) {
@@ -217,10 +217,10 @@ export function Alert({
 }) {
   return (
     <div
-      className={cn('relative overflow-hidden rounded-card border py-3 pl-4 pr-3.5 text-sm text-ink', ALERT_TONES[tone], className)}
+      className={cn('relative overflow-hidden rounded-card border py-3 ps-4 pe-3.5 text-sm text-ink', ALERT_TONES[tone], className)}
       role={tone === 'negative' ? 'alert' : 'status'}
     >
-      <span aria-hidden className={cn('absolute inset-y-0 left-0 w-1', ALERT_ACCENT[tone])} />
+      <span aria-hidden className={cn('absolute inset-y-0 start-0 w-1', ALERT_ACCENT[tone])} />
       {title ? <p className="font-semibold">{title}</p> : null}
       {children ? <div className={cn(title && 'mt-1', 'text-ink-muted')}>{children}</div> : null}
     </div>
@@ -275,7 +275,7 @@ export function Table({ className, ...props }: React.ComponentProps<'table'>) {
 export function Th({ className, ...props }: React.ComponentProps<'th'>) {
   return (
     <th
-      className={cn('label-mono border-b border-border px-3 py-2.5 text-left text-ink-subtle', className)}
+      className={cn('label-mono border-b border-border px-3 py-2.5 text-start text-ink-subtle', className)}
       {...props}
     />
   )

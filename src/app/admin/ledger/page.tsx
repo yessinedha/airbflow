@@ -105,8 +105,8 @@ export default async function AdminLedgerPage({
                     <Th>User</Th>
                     <Th>Type</Th>
                     <Th>Description</Th>
-                    <Th className="text-right">Amount</Th>
-                    <Th className="text-right">Balance after</Th>
+                    <Th className="text-end">Amount</Th>
+                    <Th className="text-end">Balance after</Th>
                     <Th>By</Th>
                   </tr>
                 </thead>
@@ -136,13 +136,13 @@ export default async function AdminLedgerPage({
                         ) : null}
                       </Td>
                       <Td
-                        className={`tabular text-right font-semibold ${
+                        className={`tabular text-end font-semibold ${
                           Number(e.amount) >= 0 ? 'text-positive' : 'text-negative'
                         }`}
                       >
                         {formatSignedUsdt(e.amount)}
                       </Td>
-                      <Td className="tabular text-right text-ink-muted">{formatUsdt(e.balance_after)}</Td>
+                      <Td className="tabular text-end text-ink-muted">{formatUsdt(e.balance_after)}</Td>
                       <Td className="text-xs text-ink-subtle">{e.createdByUser?.email ?? 'system'}</Td>
                     </tr>
                   ))}

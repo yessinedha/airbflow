@@ -80,7 +80,7 @@ export default async function AdminWithdrawalsPage({
                       </p>
                     </div>
 
-                    <div className="text-right">
+                    <div className="text-end">
                       {w.user ? (
                         <Link href={`/admin/users/${w.user.id}`} className="text-sm font-medium hover:text-brand">
                           {w.user.username ?? w.user.email}

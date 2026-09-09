@@ -367,7 +367,7 @@ export const en = {
   },
 
   statuses: {
-    deposit: { PENDING: 'Pending', CONFIRMED: 'Confirmed', REJECTED: 'Rejected' },
+    deposit: { PENDING: 'Pending', CONFIRMED: 'Confirmed', REJECTED: 'Rejected', CANCELLED: 'Cancelled' },
     withdrawal: {
       PENDING: 'Pending',
       PROCESSING: 'Processing',
@@ -526,6 +526,8 @@ export const en = {
       submitTx: 'Submit and verify',
       checking: 'Checking…',
       recheck: 'Check status again',
+      cancelVerification: 'Cancel verification',
+      cancelling: 'Cancelling…',
     },
   },
 

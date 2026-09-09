@@ -123,6 +123,31 @@ export async function recheckDepositAction(
   return actionOk(report, describeReport(report))
 }
 
+/** Cancels an unpaid deposit intent before a transaction hash is submitted. */
+export async function cancelDepositAction(
+  _prev: ActionResult<{ cancelled: boolean }> | null,
+  formData: FormData,
+): Promise<ActionResult<{ cancelled: boolean }>> {
+  const parsed = uuidSchema.safeParse(formData.get('depositId'))
+  if (!parsed.success) return actionError('Invalid deposit.')
+
+  const auth = await getActionSession()
+  if (!auth.ok) return actionError(auth.error)
+
+  if (!(await guard(RATE_LIMITS.depositVerify, auth.session.userId))) {
+    return actionError(RATE_LIMIT_MESSAGE)
+  }
+
+  const supabase = await createSupabaseServerClient()
+  const { error } = await supabase.rpc('cancel_deposit_intent', {
+    p_deposit_id: parsed.data,
+  })
+  if (error) return actionError(mapDbError(error))
+
+  revalidatePath('/deposit')
+  return actionOk({ cancelled: true }, 'Deposit verification cancelled.')
+}
+
 function describeReport(report: VerificationReport): string {
   switch (report.outcome) {
     case 'CREDITED':

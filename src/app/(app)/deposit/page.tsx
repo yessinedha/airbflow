@@ -18,7 +18,7 @@ import {
   Th,
 } from '@/components/ui'
 import { DepositStatusBadge } from '@/components/status'
-import { CopyButton, DepositIntentForm, RecheckButton, SubmitTxForm, type NetworkOption } from '@/components/deposit-forms'
+import { CancelDepositButton, CopyButton, DepositIntentForm, RecheckButton, SubmitTxForm, type NetworkOption } from '@/components/deposit-forms'
 import { explorerUrl, formatDateTime, formatUsdt, shortHash, toNumber } from '@/lib/format'
 import { IconExternal } from '@/components/icons'
 import type { Deposit, DepositAddress, SupportedNetwork } from '@/types/database'
@@ -133,7 +133,10 @@ export default async function DepositPage() {
                         {t.deposit.reference(deposit.reference_code, formatDateTime(deposit.created_at))}
                       </p>
                     </div>
-                    <DepositStatusBadge status={deposit.status} label={t.statuses.deposit[deposit.status]} />
+                    <div className="flex items-center gap-2">
+                      <DepositStatusBadge status={deposit.status} label={t.statuses.deposit[deposit.status]} />
+                      {!deposit.tx_hash ? <CancelDepositButton depositId={deposit.id} /> : null}
+                    </div>
                   </CardHeader>
 
                   <CardBody className="space-y-4 pt-0">

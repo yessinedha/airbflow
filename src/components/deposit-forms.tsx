@@ -5,7 +5,7 @@ import { useActionState, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
 import txidDetailsImage from '@/app/(app)/deposit/TXID1.jpeg'
 import txidEmailImage from '@/app/(app)/deposit/TXID2.jpeg'
-import { createDepositIntentAction, recheckDepositAction, submitDepositTxAction } from '@/lib/deposits/actions'
+import { cancelDepositAction, createDepositIntentAction, recheckDepositAction, submitDepositTxAction } from '@/lib/deposits/actions'
 import { Alert, Button, Field, Input, Select } from '@/components/ui'
 import { IconCopy } from '@/components/icons'
 import { formatUsdt } from '@/lib/format'
@@ -221,6 +221,26 @@ export function RecheckButton({ depositId }: { depositId: string }) {
           {state.ok ? state.message : state.error}
         </p>
       ) : null}
+    </form>
+  )
+}
+
+export function CancelDepositButton({ depositId }: { depositId: string }) {
+  const t = useT()
+  const router = useRouter()
+  const [state, action, pending] = useActionState(cancelDepositAction, null)
+
+  useEffect(() => {
+    if (state?.ok) router.refresh()
+  }, [state, router])
+
+  return (
+    <form action={action} className="flex items-center gap-2">
+      <input type="hidden" name="depositId" value={depositId} />
+      <Button type="submit" variant="ghost" size="sm" disabled={pending}>
+        {pending ? t.deposit.form.cancelling : t.deposit.form.cancelVerification}
+      </Button>
+      {state && !state.ok ? <p className="text-xs text-negative">{state.error}</p> : null}
     </form>
   )
 }

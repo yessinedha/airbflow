@@ -20,7 +20,7 @@ export type LedgerType =
   | 'ADMIN_ADJUSTMENT'
   | 'REFUND'
 
-export type DepositStatus = 'PENDING' | 'CONFIRMED' | 'REJECTED'
+export type DepositStatus = 'PENDING' | 'CONFIRMED' | 'REJECTED' | 'CANCELLED'
 export type WithdrawalStatus = 'PENDING' | 'PROCESSING' | 'PAID' | 'REJECTED' | 'CANCELLED'
 export type AssignmentStatus = 'AVAILABLE' | 'STARTED' | 'SUBMITTED' | 'COMPLETED' | 'REJECTED' | 'EXPIRED'
 export type NotificationType = 'INFO' | 'SUCCESS' | 'WARNING' | 'ERROR'

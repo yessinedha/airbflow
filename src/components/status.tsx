@@ -11,6 +11,7 @@ const DEPOSIT_TONES: Record<DepositStatus, BadgeTone> = {
   PENDING: 'warning',
   CONFIRMED: 'positive',
   REJECTED: 'negative',
+  CANCELLED: 'neutral',
 }
 
 const WITHDRAWAL_TONES: Record<WithdrawalStatus, BadgeTone> = {

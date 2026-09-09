@@ -370,7 +370,7 @@ export const ar: Dictionary = {
   },
 
   statuses: {
-    deposit: { PENDING: 'قيد الانتظار', CONFIRMED: 'مؤكَّد', REJECTED: 'مرفوض' },
+    deposit: { PENDING: 'قيد الانتظار', CONFIRMED: 'مؤكَّد', REJECTED: 'مرفوض', CANCELLED: 'ملغى' },
     withdrawal: {
       PENDING: 'قيد الانتظار',
       PROCESSING: 'قيد المعالجة',
@@ -529,6 +529,8 @@ export const ar: Dictionary = {
       submitTx: 'إرسال وتحقّق',
       checking: 'جارٍ الفحص…',
       recheck: 'إعادة فحص الحالة',
+      cancelVerification: 'إلغاء التحقّق',
+      cancelling: 'جارٍ الإلغاء…',
     },
   },
 

@@ -44,6 +44,7 @@ const MESSAGES: Record<string, string> = {
   TOO_MANY_OPEN_DEPOSITS: 'You have too many unfinished deposit requests. Complete or cancel them first.',
   DEPOSIT_NOT_FOUND: 'Deposit not found.',
   DEPOSIT_NOT_PENDING: 'This deposit is no longer pending.',
+  DEPOSIT_TX_ALREADY_SUBMITTED: 'This deposit already has a TXID and cannot be cancelled.',
   DEPOSIT_HAS_NO_TX_HASH: 'Submit the transaction hash before verification can run.',
   INVALID_TX_HASH: 'That does not look like a valid transaction hash.',
   TX_HASH_ALREADY_SUBMITTED: 'That transaction hash has already been submitted.',

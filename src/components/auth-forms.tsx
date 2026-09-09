@@ -2,7 +2,7 @@
 
 import Link from 'next/link'
 import { useRouter } from 'next/navigation'
-import { useActionState, useEffect } from 'react'
+import { useActionState, useEffect, useState } from 'react'
 import { loginAction, registerAction, resendConfirmationAction } from '@/lib/auth/actions'
 import { Alert, Button, Field, Input } from '@/components/ui'
 import { EMAIL_NOT_CONFIRMED_MESSAGE } from '@/lib/security/errors'
@@ -93,6 +93,10 @@ export function LoginForm({ next }: { next?: string }) {
 export function RegisterForm({ defaultRef }: { defaultRef: string }) {
   const t = useT()
   const [state, action, pending] = useActionState(registerAction, null)
+  const [email, setEmail] = useState('')
+  const [username, setUsername] = useState('')
+  const [password, setPassword] = useState('')
+  const [confirmPassword, setConfirmPassword] = useState('')
 
   if (state?.ok) {
     // When confirmation is pending, sending the user to /login would only
@@ -169,19 +173,54 @@ export function RegisterForm({ defaultRef }: { defaultRef: string }) {
       </Field>
 
       <Field label={t.auth.email} htmlFor="email" errors={errors?.email}>
-        <Input id="email" name="email" type="email" autoComplete="email" required />
+        <Input
+          id="email"
+          name="email"
+          type="email"
+          autoComplete="email"
+          value={email}
+          onChange={(event) => setEmail(event.target.value)}
+          required
+        />
       </Field>
 
-      <Field label={t.auth.username} htmlFor="username" errors={errors?.username} hint={t.authForms.usernameHint}>
-        <Input id="username" name="username" autoComplete="username" minLength={3} maxLength={24} required />
+      <Field label={t.auth.username} htmlFor="username" errors={errors?.username}>
+        <p className="mb-1.5 text-xs text-ink-subtle">{t.authForms.usernameHint}</p>
+        <Input
+          id="username"
+          name="username"
+          autoComplete="username"
+          value={username}
+          onChange={(event) => setUsername(event.target.value)}
+          minLength={3}
+          maxLength={24}
+          required
+        />
       </Field>
 
-      <Field label={t.auth.password} htmlFor="password" errors={errors?.password} hint={t.authForms.passwordHint}>
-        <Input id="password" name="password" type="password" autoComplete="new-password" required />
+      <Field label={t.auth.password} htmlFor="password" errors={errors?.password}>
+        <p className="mb-1.5 text-xs text-ink-subtle">{t.authForms.passwordHint}</p>
+        <Input
+          id="password"
+          name="password"
+          type="password"
+          autoComplete="new-password"
+          value={password}
+          onChange={(event) => setPassword(event.target.value)}
+          required
+        />
       </Field>
 
       <Field label={t.auth.confirmPassword} htmlFor="confirmPassword" errors={errors?.confirmPassword}>
-        <Input id="confirmPassword" name="confirmPassword" type="password" autoComplete="new-password" required />
+        <Input
+          id="confirmPassword"
+          name="confirmPassword"
+          type="password"
+          autoComplete="new-password"
+          value={confirmPassword}
+          onChange={(event) => setConfirmPassword(event.target.value)}
+          required
+        />
       </Field>
 
       <label className="flex items-start gap-2.5 text-sm">

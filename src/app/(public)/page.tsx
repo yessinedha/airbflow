@@ -117,17 +117,6 @@ export default async function HomePage() {
               </ul>
             </CardBody>
           </Card>
-
-          <Card>
-            <CardBody>
-              <p className="flex items-center gap-2 font-semibold text-negative">{t.home.falseTitle}</p>
-              <ul className="mt-3 space-y-2 text-sm text-ink-muted">
-                {t.home.falseItems.map((item) => (
-                  <li key={item}>{item}</li>
-                ))}
-              </ul>
-            </CardBody>
-          </Card>
         </div>
 
         <Alert tone="warning" className="mt-4" title={t.home.warningTitle}>

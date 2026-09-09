@@ -78,7 +78,7 @@ export const en = {
     signIn: 'Sign in',
     register: 'Register',
     footerBlurb:
-      'An invitation-only platform for property listing verification tasks. Balances shown in the application are internal platform ledger balances.',
+      'An invitation-only platform for property listing verification tasks.',
     disclaimer:
       'PropVerify is not a bank, a broker, a custodian or a licensed financial institution, and it is not supervised by a financial regulator. It does not offer investment products and makes no promise of profit or return. Task rewards are discretionary platform payments for completed verification work and are set by configurable parameters that the operator can change. Digital assets are volatile and transfers on public blockchains are irreversible. Only participate with funds you can afford to lose.',
   },
@@ -128,16 +128,9 @@ export const en = {
       'The balance in your dashboard is an internal platform ledger balance. Every change to it is an immutable accounting entry you can inspect.',
       'Withdrawals are paid manually by an operator, and the real transaction hash is shown to you.',
     ],
-    falseTitle: 'What is not true',
-    falseItems: [
-      'Your dashboard balance is not an on-chain wallet balance and not held in your name on a chain.',
-      'We are not a bank, broker, custodian or regulated financial institution.',
-      'Task rewards are not interest, not a yield and not a guaranteed return. They are discretionary payments for completed work, set by parameters the operator can change at any time.',
-      'We do not trade on your behalf and we publish no trading performance.',
-    ],
-    warningTitle: 'Consider this carefully before depositing',
+    warningTitle: '🚀 Be Part of Something Bigger',
     warningBody:
-      'Funds you deposit become an internal ledger balance whose payout depends on this platform continuing to operate and honour withdrawals. Withdrawals are subject to a waiting period and a cooldown, and they are processed manually rather than automatically. Blockchain transfers cannot be reversed. Never deposit money you cannot afford to lose, and never borrow to participate.',
+      'Take the first step today, participate with confidence, and be part of our journey from the beginning, explore how you can become part of our growing business',
     howTitle: 'How it works',
     step: (n: number) => `Step ${n}`,
     steps: [
@@ -748,9 +741,6 @@ export const en = {
       title: 'Terms of service',
       templateNote:
         'These terms are a template supplied with the software. Before operating this platform commercially, have them reviewed and adapted by a qualified lawyer in your jurisdiction.',
-      warnTitle: 'What this platform is not',
-      warnBody:
-        'The operator is not a bank, an investment firm, a broker, an exchange or a custodian, holds no financial licence and is not supervised by any financial regulator. Nothing offered here is an investment product, a security, a deposit account or a promise of profit.',
       contactBefore: 'Support requests should be sent to the address published in the application. See also our ',
       contactPrivacy: 'privacy policy',
       contactMiddle: ' and ',
@@ -783,12 +773,6 @@ export const en = {
           ],
         },
         {
-          title: 'Internal balance',
-          paragraphs: [
-            'The balance shown in the application is an internal platform ledger balance: an accounting record of an obligation owed to you by the operator. It is not an on-chain wallet balance, you do not control keys to it, it is not held in segregated custody, and it is not covered by any deposit-protection scheme.',
-          ],
-        },
-        {
           title: 'VIP levels and task rewards',
           paragraphs: [
             'Activating a level charges the stated amount from your internal balance and determines the parameters used to calculate rewards for tasks you complete afterwards. Rewards already credited are never recalculated.',
@@ -818,18 +802,6 @@ export const en = {
           title: 'Prohibited conduct',
           paragraphs: [
             'Do not create multiple accounts, automate task completion, interfere with the service, attempt to access other users’ data, use the platform for money laundering or any unlawful purpose, or misrepresent the platform to others — in particular by describing it as an investment, a bank, a regulated service, or as offering guaranteed returns.',
-          ],
-        },
-        {
-          title: 'Risk',
-          paragraphs: [
-            'Use of this platform carries a real risk of total loss. Digital assets are volatile, transfers are irreversible, and your internal balance is an unsecured claim against a private operator. Never send funds you cannot afford to lose entirely.',
-          ],
-        },
-        {
-          title: 'No advice',
-          paragraphs: [
-            'Nothing on the platform is financial, investment, legal or tax advice. You are solely responsible for determining any tax obligations arising from your use of the service.',
           ],
         },
         {

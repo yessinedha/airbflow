@@ -1,6 +1,5 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
-import { Alert } from '@/components/ui'
 import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = {
@@ -28,10 +27,6 @@ export default async function TermsPage() {
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
       <h1 className="display text-2xl font-semibold tracking-tight sm:text-3xl">{terms.title}</h1>
       <p className="mt-2 text-sm text-ink-subtle">{terms.templateNote}</p>
-
-      <Alert tone="warning" className="mt-6" title={terms.warnTitle}>
-        {terms.warnBody}
-      </Alert>
 
       <div className="mt-8 space-y-6">
         {terms.sections.map((section, index) => (

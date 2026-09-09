@@ -1,7 +1,7 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { adjustBalanceAction, setUserRoleAction, setUserStatusAction } from '@/lib/admin/actions'
+import { adjustBalanceAction, deleteUserAction, setUserRoleAction, setUserStatusAction } from '@/lib/admin/actions'
 import { Field, Input, Select, Textarea } from '@/components/ui'
 import { ActionFeedback, Disclosure, SubmitButton, useRefreshOnSuccess } from '@/components/admin/base'
 import { formatUsdt } from '@/lib/format'
@@ -140,5 +140,27 @@ export function SetUserRoleForm({ userId, current }: { userId: string; current: 
         </SubmitButton>
       </form>
     </Disclosure>
+  )
+}
+
+export function DeleteUserForm({ userId }: { userId: string }) {
+  const [state, action, pending] = useActionState(deleteUserAction, null)
+
+  return (
+    <form
+      action={action}
+      onSubmit={(event) => {
+        if (!window.confirm('Permanently delete this account and all of its data? This cannot be undone.')) {
+          event.preventDefault()
+        }
+      }}
+      className="flex flex-wrap items-center gap-2"
+    >
+      <input type="hidden" name="userId" value={userId} />
+      <SubmitButton pending={pending} variant="danger" size="sm" pendingLabel="Deleting…">
+        Delete account permanently
+      </SubmitButton>
+      {state && !state.ok ? <p className="text-xs text-negative">{state.error}</p> : null}
+    </form>
   )
 }

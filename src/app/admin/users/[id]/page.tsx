@@ -26,7 +26,7 @@ import {
   WithdrawalStatusBadge,
 } from '@/components/status'
 import { DetailRow, Mono } from '@/components/admin/controls'
-import { AdjustBalanceForm, SetUserRoleForm, SetUserStatusForm } from '@/components/admin/user-forms'
+import { AdjustBalanceForm, DeleteUserForm, SetUserRoleForm, SetUserStatusForm } from '@/components/admin/user-forms'
 import { formatDate, formatDateTime, formatSignedUsdt, formatUsdt, shortHash } from '@/lib/format'
 
 export const metadata: Metadata = { title: 'User' }
@@ -167,6 +167,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
             <>
               <SetUserStatusForm userId={profile.id} current={profile.status} />
               {isSuperAdmin ? <SetUserRoleForm userId={profile.id} current={profile.role} /> : null}
+              <DeleteUserForm userId={profile.id} />
             </>
           )}
         </CardBody>

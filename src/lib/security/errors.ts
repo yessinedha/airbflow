@@ -13,6 +13,7 @@ const MESSAGES: Record<string, string> = {
   NOT_AUTHORIZED: 'You are not allowed to perform this action.',
   SERVICE_ROLE_REQUIRED: 'This operation can only run on the server.',
   USER_NOT_FOUND: 'Account not found.',
+  CANNOT_DELETE_OWN_ACCOUNT: 'You cannot permanently delete your own account.',
   ACCOUNT_NOT_ACTIVE: 'Your account is not active. Contact support for details.',
 
   INSUFFICIENT_BALANCE: 'Your available balance is not enough for this operation.',

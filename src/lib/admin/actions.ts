@@ -1,5 +1,6 @@
 'use server'
 
+import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getAdminActionSession } from '@/lib/auth/session'
@@ -281,6 +282,24 @@ export async function setUserRoleAction(
 
   revalidateAdmin('/admin/users')
   return actionOk(data, `Role set to ${role}.`)
+}
+
+export async function deleteUserAction(
+  _prev: ActionResult<unknown> | null,
+  formData: FormData,
+): Promise<ActionResult<unknown>> {
+  const parsed = uuidSchema.safeParse(formData.get('userId'))
+  if (!parsed.success) return actionError('Invalid user.')
+
+  const auth = await adminGuard()
+  if (!auth.ok) return actionError(auth.error)
+
+  const supabase = await createSupabaseServerClient()
+  const { error } = await supabase.rpc('admin_delete_user', { p_user_id: parsed.data })
+  if (error) return actionError(mapDbError(error))
+
+  revalidateAdmin('/admin/users', `/admin/users/${parsed.data}`)
+  redirect('/admin/users')
 }
 
 // ---------------------------------------------------------------------

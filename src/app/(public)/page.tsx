@@ -1,7 +1,9 @@
 import Link from 'next/link'
+import Image from 'next/image'
 import { Alert, ButtonLink, Card, CardBody } from '@/components/ui'
 import { IconCheck, IconClock, IconShield, IconTasks, IconTeam, IconWallet } from '@/components/icons'
 import { getT } from '@/lib/i18n/server'
+import investmentPropertiesImage from './Investment-Properties.jpg'
 
 const STEP_ICONS = [IconTeam, IconWallet, IconShield, IconTasks, IconClock, IconCheck]
 
@@ -64,7 +66,16 @@ export default async function HomePage() {
                     <span className="label-mono text-ink-subtle">{t.home.plateHint}</span>
                   </div>
 
-                  <div className="h-36 rounded-control border border-border bg-surface" />
+                  <div className="relative h-36 overflow-hidden rounded-control border border-border bg-surface">
+                    <Image
+                      src={investmentPropertiesImage}
+                      alt="Investment properties"
+                      fill
+                      sizes="(min-width: 1024px) 50vw, 100vw"
+                      className="object-cover"
+                      priority
+                    />
+                  </div>
 
                   <div className="rounded-control border border-border bg-surface p-4">
                     <p className="label-mono text-ink-subtle">{t.home.checklistTitle}</p>

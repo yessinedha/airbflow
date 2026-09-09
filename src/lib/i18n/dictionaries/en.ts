@@ -472,7 +472,6 @@ export const en = {
     readFirstTitle: 'Read before sending',
     readFirstItems: [
       'Send only the token shown, on the exact network shown. Anything else is unrecoverable.',
-      'Deposits are credited with the amount that actually arrives on chain, not the amount you type here.',
       'Crediting happens after the required number of confirmations, which can take several minutes.',
     ],
     newDeposit: 'New deposit',
@@ -568,10 +567,6 @@ export const en = {
       {
         title: 'Review',
         body: 'An operator reviews the request. If it is rejected, the full amount is returned to your available balance.',
-      },
-      {
-        title: 'Manual payment',
-        body: 'The operator sends the USDT from an external wallet, outside this application.',
       },
       {
         title: 'Recorded',

@@ -230,6 +230,14 @@ export const ar: Dictionary = {
     firstWithdrawalBody: (days: number, waitDays: number, cooldown: number) =>
       `يُفتَح سحبك الأول بعد ${days} يوماً من الآن، أي بعد ${waitDays} يوماً من تفعيل باقتك. بعد ذلك يمكنك السحب مرة واحدة كل ${cooldown} أيام.`,
     unreadNotifications: 'إشعارات غير مقروءة',
+    communityReviewsTitle: 'آراء المجتمع',
+    communityReviewsDescription:
+      'تُنشر الآراء بموافقة أصحابها. ولا تُذكر ادعاءات السحب أو الأرباح إلا إذا أمكن التحقق منها.',
+    communityReviewsEmpty: 'لا توجد آراء موثّقة للعرض حالياً.',
+    communityReviewVerified: 'رأي موثّق',
+    communityReviewRating: 'التقييم {rating} من 5',
+    pauseReviews: 'إيقاف العرض مؤقتاً',
+    resumeReviews: 'استئناف العرض',
     recentLedger: 'السجل الأخير',
     fullHistory: 'السجل الكامل',
     noActivityTitle: 'لا يوجد نشاط بعد',

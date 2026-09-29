@@ -227,6 +227,14 @@ export const en = {
     firstWithdrawalBody: (days: number, waitDays: number, cooldown: number) =>
       `Your first withdrawal unlocks ${days} day${days === 1 ? '' : 's'} from now, ${waitDays} days after your plan activation. After that you may withdraw once every ${cooldown} days.`,
     unreadNotifications: 'Unread notifications',
+    communityReviewsTitle: 'Community feedback',
+    communityReviewsDescription:
+      "Shared with the author's consent. Withdrawal or earnings claims are published only when they can be verified.",
+    communityReviewsEmpty: 'There are no verified reviews to show yet.',
+    communityReviewVerified: 'Verified feedback',
+    communityReviewRating: 'Rated {rating} out of 5',
+    pauseReviews: 'Pause rotation',
+    resumeReviews: 'Resume rotation',
     recentLedger: 'Recent ledger',
     fullHistory: 'Full history',
     noActivityTitle: 'No activity yet',

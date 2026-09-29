@@ -257,6 +257,17 @@
   animation: pulse-dot 1.8s ease-in-out infinite;
 }
 
+@keyframes review-roll {
+  to {
+    transform: translateY(-50%);
+  }
+}
+
+.review-roll-track {
+  animation: review-roll linear infinite;
+  will-change: transform;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -264,5 +275,19 @@
     animation-duration: 0.001ms !important;
     animation-iteration-count: 1 !important;
     transition-duration: 0.001ms !important;
+  }
+
+  .review-roll-viewport {
+    max-height: none;
+    overflow: visible;
+  }
+
+  .review-roll-track {
+    animation: none !important;
+    transform: none;
+  }
+
+  .review-roll-copy-clone {
+    display: none;
   }
 }

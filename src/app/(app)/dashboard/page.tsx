@@ -19,6 +19,8 @@ import {
   Tile,
 } from '@/components/ui'
 import { LedgerTypeBadge } from '@/components/status'
+import { ReviewCarousel } from '@/components/dashboard/review-carousel'
+import { dashboardReviews } from '@/lib/dashboard/reviews'
 import { getI18n } from '@/lib/i18n/server'
 
 export const metadata: Metadata = { title: 'Dashboard' }
@@ -283,6 +285,19 @@ export default async function DashboardPage() {
           </Card>
         </section>
       </div>
+
+      <ReviewCarousel
+        reviews={dashboardReviews.filter((review) => review.consentGiven && review.verified)}
+        labels={{
+          title: t.dashboard.communityReviewsTitle,
+          description: t.dashboard.communityReviewsDescription,
+          empty: t.dashboard.communityReviewsEmpty,
+          verified: t.dashboard.communityReviewVerified,
+          rating: t.dashboard.communityReviewRating,
+          pause: t.dashboard.pauseReviews,
+          resume: t.dashboard.resumeReviews,
+        }}
+      />
     </div>
   )
 }

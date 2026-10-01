@@ -22,16 +22,16 @@
  * ------------------------------------------------------------------------ */
 :root {
   /* Accent used for primary buttons, links and active navigation. */
-  --brand-h: 18;
-  --brand-s: 75%;
-  --brand-l: 43%;
+  --brand-h: 80;
+  --brand-s: 78%;
+  --brand-l: 38%;
 
   /* Warmth of the paper. 0deg = neutral grey, 35deg = warm cream. */
-  --paper-h: 36;
-  --paper-s: 30%;
+  --paper-h: 112;
+  --paper-s: 16%;
 
   /* Global corner rounding. Lower it for a sharper, more editorial feel. */
-  --radius-scale: 1;
+  --radius-scale: 1.16;
 }
 
 /* ---------------------------------------------------------------------------
@@ -39,35 +39,35 @@
  * ------------------------------------------------------------------------ */
 :root {
   /* Paper ------------------------------------------------------------- */
-  --canvas: hsl(var(--paper-h) var(--paper-s) 94%);
-  --surface: hsl(var(--paper-h) 45% 98%);
-  --surface-2: hsl(var(--paper-h) 28% 91%);
-  --surface-3: hsl(var(--paper-h) 26% 87%);
-  --border: hsl(var(--paper-h) 22% 85%);
-  --border-strong: hsl(var(--paper-h) 18% 72%);
+  --canvas: hsl(var(--paper-h) var(--paper-s) 95%);
+  --surface: hsl(var(--paper-h) 24% 99%);
+  --surface-2: hsl(var(--paper-h) 20% 91%);
+  --surface-3: hsl(var(--paper-h) 18% 86%);
+  --border: hsl(var(--paper-h) 16% 85%);
+  --border-strong: hsl(var(--paper-h) 14% 70%);
 
   /* Ink --------------------------------------------------------------- */
-  --ink: hsl(24 22% 11%);
-  --ink-muted: hsl(26 12% 38%);
-  --ink-subtle: hsl(28 12% 55%);
+  --ink: hsl(150 20% 10%);
+  --ink-muted: hsl(150 10% 37%);
+  --ink-subtle: hsl(150 8% 53%);
 
   /* Accent ------------------------------------------------------------ */
   --brand: hsl(var(--brand-h) var(--brand-s) var(--brand-l));
-  --brand-hover: hsl(var(--brand-h) var(--brand-s) 36%);
-  --brand-soft: hsl(var(--brand-h) 60% 93%);
-  --brand-ink: hsl(30 60% 98%);
+  --brand-hover: hsl(var(--brand-h) 80% 32%);
+  --brand-soft: hsl(var(--brand-h) 70% 91%);
+  --brand-ink: hsl(150 24% 8%);
 
   /* Espresso — the dark panels: balance card, timer, VIP tile ---------- */
-  --espresso: hsl(24 26% 11%);
-  --espresso-2: hsl(24 30% 16%);
-  --espresso-ink: hsl(36 40% 94%);
-  --espresso-muted: hsl(32 14% 66%);
-  --espresso-border: hsl(26 20% 24%);
-  --espresso-accent: hsl(38 72% 58%);
+  --espresso: hsl(150 22% 9%);
+  --espresso-2: hsl(150 20% 14%);
+  --espresso-ink: hsl(110 20% 94%);
+  --espresso-muted: hsl(125 10% 66%);
+  --espresso-border: hsl(145 14% 23%);
+  --espresso-accent: hsl(80 88% 60%);
 
   /* Semantic ---------------------------------------------------------- */
-  --positive: hsl(140 34% 32%);
-  --positive-soft: hsl(140 30% 92%);
+  --positive: hsl(145 58% 30%);
+  --positive-soft: hsl(135 48% 91%);
   --negative: hsl(6 62% 42%);
   --negative-soft: hsl(6 60% 94%);
   --warning: hsl(34 68% 32%);
@@ -76,8 +76,8 @@
   --info-soft: hsl(196 45% 92%);
 
   /* Elevation --------------------------------------------------------- */
-  --shadow-card: 0 1px 2px hsl(24 24% 12% / 0.05), 0 1px 3px hsl(24 24% 12% / 0.04);
-  --shadow-panel: 0 12px 30px -12px hsl(24 30% 12% / 0.35);
+  --shadow-card: 0 2px 4px hsl(150 24% 12% / 0.05), 0 8px 24px -16px hsl(150 24% 12% / 0.2);
+  --shadow-panel: 0 18px 40px -14px hsl(150 35% 8% / 0.42);
 
   color-scheme: light;
 }
@@ -87,31 +87,31 @@
  * ------------------------------------------------------------------------ */
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme='light']) {
-    --canvas: hsl(24 16% 8%);
-    --surface: hsl(24 16% 11%);
-    --surface-2: hsl(24 14% 15%);
-    --surface-3: hsl(24 13% 19%);
-    --border: hsl(24 12% 21%);
-    --border-strong: hsl(24 11% 32%);
+    --canvas: hsl(150 16% 6%);
+    --surface: hsl(150 14% 9%);
+    --surface-2: hsl(150 13% 13%);
+    --surface-3: hsl(150 12% 17%);
+    --border: hsl(150 10% 20%);
+    --border-strong: hsl(150 9% 31%);
 
-    --ink: hsl(36 30% 93%);
-    --ink-muted: hsl(32 12% 66%);
-    --ink-subtle: hsl(30 10% 50%);
+    --ink: hsl(105 18% 94%);
+    --ink-muted: hsl(115 9% 67%);
+    --ink-subtle: hsl(120 7% 51%);
 
-    --brand: hsl(var(--brand-h) 78% 56%);
-    --brand-hover: hsl(var(--brand-h) 80% 63%);
-    --brand-soft: hsl(var(--brand-h) 40% 17%);
-    --brand-ink: hsl(24 40% 8%);
+    --brand: hsl(var(--brand-h) 86% 62%);
+    --brand-hover: hsl(var(--brand-h) 90% 69%);
+    --brand-soft: hsl(var(--brand-h) 42% 16%);
+    --brand-ink: hsl(150 24% 7%);
 
-    --espresso: hsl(24 18% 13%);
-    --espresso-2: hsl(24 20% 18%);
-    --espresso-ink: hsl(36 34% 94%);
-    --espresso-muted: hsl(32 12% 64%);
-    --espresso-border: hsl(26 14% 26%);
-    --espresso-accent: hsl(38 74% 60%);
+    --espresso: hsl(150 20% 9%);
+    --espresso-2: hsl(150 18% 14%);
+    --espresso-ink: hsl(105 20% 95%);
+    --espresso-muted: hsl(120 9% 65%);
+    --espresso-border: hsl(145 13% 22%);
+    --espresso-accent: hsl(80 90% 63%);
 
-    --positive: hsl(140 44% 55%);
-    --positive-soft: hsl(140 28% 15%);
+    --positive: hsl(145 62% 58%);
+    --positive-soft: hsl(145 38% 14%);
     --negative: hsl(6 74% 63%);
     --negative-soft: hsl(6 40% 17%);
     --warning: hsl(38 70% 58%);
@@ -119,8 +119,8 @@
     --info: hsl(196 55% 60%);
     --info-soft: hsl(196 38% 16%);
 
-    --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.45), 0 1px 3px hsl(0 0% 0% / 0.3);
-    --shadow-panel: 0 14px 34px -14px hsl(0 0% 0% / 0.7);
+    --shadow-card: 0 2px 5px hsl(0 0% 0% / 0.3), 0 12px 30px -18px hsl(140 60% 30% / 0.24);
+    --shadow-panel: 0 20px 42px -15px hsl(0 0% 0% / 0.72);
 
     color-scheme: dark;
   }
@@ -128,31 +128,31 @@
 
 /* Explicit override wins over the media query in both directions. */
 :root[data-theme='dark'] {
-  --canvas: hsl(24 16% 8%);
-  --surface: hsl(24 16% 11%);
-  --surface-2: hsl(24 14% 15%);
-  --surface-3: hsl(24 13% 19%);
-  --border: hsl(24 12% 21%);
-  --border-strong: hsl(24 11% 32%);
+  --canvas: hsl(150 16% 6%);
+  --surface: hsl(150 14% 9%);
+  --surface-2: hsl(150 13% 13%);
+  --surface-3: hsl(150 12% 17%);
+  --border: hsl(150 10% 20%);
+  --border-strong: hsl(150 9% 31%);
 
-  --ink: hsl(36 30% 93%);
-  --ink-muted: hsl(32 12% 66%);
-  --ink-subtle: hsl(30 10% 50%);
+  --ink: hsl(105 18% 94%);
+  --ink-muted: hsl(115 9% 67%);
+  --ink-subtle: hsl(120 7% 51%);
 
-  --brand: hsl(var(--brand-h) 78% 56%);
-  --brand-hover: hsl(var(--brand-h) 80% 63%);
-  --brand-soft: hsl(var(--brand-h) 40% 17%);
-  --brand-ink: hsl(24 40% 8%);
+  --brand: hsl(var(--brand-h) 86% 62%);
+  --brand-hover: hsl(var(--brand-h) 90% 69%);
+  --brand-soft: hsl(var(--brand-h) 42% 16%);
+  --brand-ink: hsl(150 24% 7%);
 
-  --espresso: hsl(24 18% 13%);
-  --espresso-2: hsl(24 20% 18%);
-  --espresso-ink: hsl(36 34% 94%);
-  --espresso-muted: hsl(32 12% 64%);
-  --espresso-border: hsl(26 14% 26%);
-  --espresso-accent: hsl(38 74% 60%);
+  --espresso: hsl(150 20% 9%);
+  --espresso-2: hsl(150 18% 14%);
+  --espresso-ink: hsl(105 20% 95%);
+  --espresso-muted: hsl(120 9% 65%);
+  --espresso-border: hsl(145 13% 22%);
+  --espresso-accent: hsl(80 90% 63%);
 
-  --positive: hsl(140 44% 55%);
-  --positive-soft: hsl(140 28% 15%);
+  --positive: hsl(145 62% 58%);
+  --positive-soft: hsl(145 38% 14%);
   --negative: hsl(6 74% 63%);
   --negative-soft: hsl(6 40% 17%);
   --warning: hsl(38 70% 58%);
@@ -160,8 +160,8 @@
   --info: hsl(196 55% 60%);
   --info-soft: hsl(196 38% 16%);
 
-  --shadow-card: 0 1px 2px hsl(0 0% 0% / 0.45), 0 1px 3px hsl(0 0% 0% / 0.3);
-  --shadow-panel: 0 14px 34px -14px hsl(0 0% 0% / 0.7);
+  --shadow-card: 0 2px 5px hsl(0 0% 0% / 0.3), 0 12px 30px -18px hsl(140 60% 30% / 0.24);
+  --shadow-panel: 0 20px 42px -15px hsl(0 0% 0% / 0.72);
 
   color-scheme: dark;
 }

@@ -4,8 +4,10 @@ import { redirect } from 'next/navigation'
 import { revalidatePath } from 'next/cache'
 import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { getAdminActionSession } from '@/lib/auth/session'
+import { siteUrl } from '@/lib/env'
 import {
   adjustBalanceSchema,
+  createAdminUserSchema,
   depositAddressSchema,
   fieldErrorsOf,
   manualConfirmDepositSchema,
@@ -14,9 +16,11 @@ import {
   rejectDepositSchema,
   rejectWithdrawalSchema,
   setUserStatusSchema,
+  setVipReferralEligibilitySchema,
   settingSchema,
   taskImageUploadSchema,
   taskSchema,
+  updateUserUsernameSchema,
   uuidSchema,
   vipPlanSchema,
 } from '@/lib/validation/schemas'
@@ -201,6 +205,94 @@ export async function adminRejectDepositAction(
 // ---------------------------------------------------------------------
 // Users
 // ---------------------------------------------------------------------
+export async function createAdminUserAction(
+  _prev: ActionResult<unknown> | null,
+  formData: FormData,
+): Promise<ActionResult<unknown>> {
+  const parsed = createAdminUserSchema.safeParse({
+    email: formData.get('email'),
+    username: formData.get('username'),
+    referralCode: formData.get('referralCode'),
+  })
+  if (!parsed.success) {
+    return actionError('Please correct the highlighted fields.', fieldErrorsOf(parsed.error))
+  }
+
+  const auth = await adminGuard()
+  if (!auth.ok) return actionError(auth.error)
+
+  const supabase = await createSupabaseServerClient()
+  const { data: validCode, error: codeError } = await supabase.rpc('is_valid_invitation_code', {
+    p_code: parsed.data.referralCode,
+  })
+  if (codeError) return actionError(mapDbError(codeError))
+  if (validCode !== true) {
+    return actionError('That invitation code is not valid.', {
+      referralCode: ['That invitation code is not valid.'],
+    })
+  }
+
+  const { createSupabaseAdminClient } = await import('@/lib/supabase/admin')
+  const admin = createSupabaseAdminClient()
+  const { data: existingEmail, error: emailError } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('email', parsed.data.email)
+    .maybeSingle()
+  if (emailError) return actionError(mapDbError(emailError))
+  if (existingEmail) return actionError('An account with that email already exists.', { email: ['Email already registered'] })
+
+  const { data: existingUsername, error: usernameError } = await admin
+    .from('profiles')
+    .select('id')
+    .eq('username', parsed.data.username)
+    .maybeSingle()
+  if (usernameError) return actionError(mapDbError(usernameError))
+  if (existingUsername) {
+    return actionError('That username is already taken.', { username: ['That username is already taken.'] })
+  }
+
+  const { data, error } = await admin.auth.admin.inviteUserByEmail(parsed.data.email, {
+    data: { username: parsed.data.username, referral_code: parsed.data.referralCode },
+    redirectTo: `${siteUrl()}/auth/callback`,
+  })
+  if (error) return actionError(error.message || 'The invitation could not be sent.')
+
+  if (data.user) {
+    const { error: auditError } = await supabase.rpc('admin_log_user_invited', { p_user_id: data.user.id })
+    if (auditError) console.error('[admin] user invitation audit failed', auditError.message)
+  }
+
+  revalidateAdmin('/admin/users')
+  return actionOk(null, 'Invitation sent.')
+}
+
+export async function updateUserUsernameAction(
+  _prev: ActionResult<unknown> | null,
+  formData: FormData,
+): Promise<ActionResult<unknown>> {
+  const parsed = updateUserUsernameSchema.safeParse({
+    userId: formData.get('userId'),
+    username: formData.get('username'),
+  })
+  if (!parsed.success) {
+    return actionError('Please correct the highlighted fields.', fieldErrorsOf(parsed.error))
+  }
+
+  const auth = await adminGuard()
+  if (!auth.ok) return actionError(auth.error)
+
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.rpc('admin_update_user_username', {
+    p_user_id: parsed.data.userId,
+    p_username: parsed.data.username,
+  })
+  if (error) return actionError(mapDbError(error))
+
+  revalidateAdmin('/admin/users', `/admin/users/${parsed.data.userId}`)
+  return actionOk(data, 'Username updated.')
+}
+
 export async function adjustBalanceAction(
   _prev: ActionResult<unknown> | null,
   formData: FormData,
@@ -338,6 +430,30 @@ export async function saveVipPlanAction(
 
   revalidateAdmin('/admin/vip', '/vip')
   return actionOk(null, id ? 'Plan updated.' : 'Plan created.')
+}
+
+export async function setVipReferralEligibilityAction(
+  _prev: ActionResult<unknown> | null,
+  formData: FormData,
+): Promise<ActionResult<unknown>> {
+  const parsed = setVipReferralEligibilitySchema.safeParse({
+    planId: formData.get('planId'),
+    enabled: formData.get('enabled'),
+  })
+  if (!parsed.success) return actionError('Invalid referral plan setting.', fieldErrorsOf(parsed.error))
+
+  const auth = await adminGuard()
+  if (!auth.ok) return actionError(auth.error)
+
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.rpc('admin_set_vip_referral_enabled', {
+    p_plan_id: parsed.data.planId,
+    p_enabled: parsed.data.enabled,
+  })
+  if (error) return actionError(mapDbError(error))
+
+  revalidateAdmin('/admin/settings', '/admin/referrals')
+  return actionOk(data, parsed.data.enabled ? 'VIP plan added to the referral programme.' : 'VIP plan removed from the referral programme.')
 }
 
 /** Image types the storage bucket accepts, mirrored from the migration. */

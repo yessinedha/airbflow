@@ -15,6 +15,13 @@
 --   20260101000400_admin_functions.sql
 --   20260101000500_rls.sql
 --   20260101000600_bootstrap_invitation.sql
+--   20260101000700_task_images.sql
+--   20260101000800_task_images_reload.sql
+--   20260101000900_fix_task_image_check.sql
+--   20260101001000_single_pending_deposit.sql
+--   20260101001100_admin_delete_user.sql
+--   20260929000000_crypto_market_analysis_copy.sql
+--   20261001000000_admin_user_referral_controls.sql
 --   seed.sql
 -- =====================================================================
 
@@ -3105,6 +3112,629 @@ grant execute on function is_valid_invitation_code(text) to anon, authenticated;
 
 
 -- ###########################################################
+-- ## 20260101000700_task_images.sql
+-- ###########################################################
+
+-- ---------------------------------------------------------------------
+-- Task images
+--
+-- Adds an illustration to each verification task. The column holds a URL,
+-- which may point either at the Supabase Storage bucket created below or
+-- at any external image the operator prefers.
+--
+-- The image is decoration for the member's benefit. Nothing in the reward
+-- calculation, the timer or the claim path reads it.
+-- ---------------------------------------------------------------------
+
+alter table tasks
+  add column if not exists image_url text;
+
+comment on column tasks.image_url is
+  'Optional illustration shown on the task card. Decorative only: no business rule reads it.';
+
+-- Reject anything that is not an absolute https URL or a site-relative path.
+-- This keeps `javascript:` and `data:` out of an <img src> even if the admin
+-- form were bypassed.
+--
+-- Written with LIKE and length() rather than a bounded regex repetition:
+-- PostgreSQL caps a repetition count at 255, and a larger bound only fails
+-- when the expression is first evaluated, not when it is created. Migration
+-- 20260101000900 repairs databases where the earlier version was applied.
+do $$
+begin
+  if not exists (
+    select 1 from pg_constraint where conname = 'chk_tasks_image_url'
+  ) then
+    alter table tasks
+      add constraint chk_tasks_image_url check (
+        image_url is null
+        or (
+          length(image_url) between 4 and 2000
+          and (image_url like 'https://%' or image_url like '/%')
+          and image_url ~ '^[^[:space:]]+$'
+        )
+      );
+  end if;
+end $$;
+
+-- ---------------------------------------------------------------------
+-- Storage bucket
+--
+-- Public read so an <img> tag needs no signed URL; writes are restricted
+-- to admins by the policies below. The whole block is tolerant: on a
+-- Postgres role without rights over the storage schema it emits a notice
+-- instead of failing the migration, and the URL field still works.
+-- ---------------------------------------------------------------------
+do $$
+begin
+  insert into storage.buckets (id, name, public, file_size_limit, allowed_mime_types)
+  values (
+    'task-images',
+    'task-images',
+    true,
+    2097152,                                            -- 2 MB
+    array['image/jpeg', 'image/png', 'image/webp', 'image/avif']
+  )
+  on conflict (id) do update
+    set public             = excluded.public,
+        file_size_limit    = excluded.file_size_limit,
+        allowed_mime_types = excluded.allowed_mime_types;
+
+  -- Anyone may read: the bucket is public and holds nothing sensitive.
+  drop policy if exists task_images_read on storage.objects;
+  create policy task_images_read on storage.objects
+    for select to public
+    using (bucket_id = 'task-images');
+
+  -- Only admins may add, replace or delete an illustration.
+  drop policy if exists task_images_insert on storage.objects;
+  create policy task_images_insert on storage.objects
+    for insert to authenticated
+    with check (bucket_id = 'task-images' and is_admin(auth.uid()));
+
+  drop policy if exists task_images_update on storage.objects;
+  create policy task_images_update on storage.objects
+    for update to authenticated
+    using (bucket_id = 'task-images' and is_admin(auth.uid()))
+    with check (bucket_id = 'task-images' and is_admin(auth.uid()));
+
+  drop policy if exists task_images_delete on storage.objects;
+  create policy task_images_delete on storage.objects
+    for delete to authenticated
+    using (bucket_id = 'task-images' and is_admin(auth.uid()));
+
+exception
+  when insufficient_privilege or undefined_table then
+    raise notice
+      'Storage bucket task-images was not configured (%). Create it in the Supabase dashboard, or keep using external image URLs.',
+      sqlerrm;
+end $$;
+
+
+-- ###########################################################
+-- ## 20260101000800_task_images_reload.sql
+-- ###########################################################
+
+-- ---------------------------------------------------------------------
+-- Task images — safety net and PostgREST cache reload
+--
+-- After a column is added, PostgREST keeps serving its cached schema and
+-- rejects writes to the new column with:
+--
+--   PGRST204  Could not find the 'image_url' column of 'tasks'
+--             in the schema cache
+--
+-- which looks exactly like a broken feature. The NOTIFY below tells
+-- PostgREST to reload immediately.
+--
+-- The ALTER is repeated defensively: it is a no-op when 000700 already
+-- ran, and it repairs the column if that migration was skipped or only
+-- partly applied. Both statements are safe to run any number of times.
+-- ---------------------------------------------------------------------
+
+alter table tasks
+  add column if not exists image_url text;
+
+notify pgrst, 'reload schema';
+
+
+-- ###########################################################
+-- ## 20260101000900_fix_task_image_check.sql
+-- ###########################################################
+
+-- ---------------------------------------------------------------------
+-- Fix chk_tasks_image_url
+--
+-- Migration 000700 wrote the constraint as
+--
+--   image_url ~ '^https://[^\s]{3,2000}$'
+--
+-- PostgreSQL's regex engine caps a bounded repetition at 255, so {3,2000}
+-- is rejected — but only when the expression is actually evaluated. The
+-- constraint therefore created cleanly and stayed silent while image_url
+-- was null (the `is null` branch short-circuits), then failed the first
+-- time a URL was written:
+--
+--   2201B  invalid regular expression: invalid repetition count(s)
+--
+-- Rewritten with LIKE for the prefix, length() for the bound, and an
+-- unbounded character class for the whitespace rule. Same intent, no
+-- repetition count: an https:// address or a site-relative path, at most
+-- 2000 characters, containing no whitespace — so `javascript:` and `data:`
+-- can never reach an <img src>.
+-- ---------------------------------------------------------------------
+
+alter table tasks
+  drop constraint if exists chk_tasks_image_url;
+
+alter table tasks
+  add constraint chk_tasks_image_url check (
+    image_url is null
+    or (
+      length(image_url) between 4 and 2000
+      and (image_url like 'https://%' or image_url like '/%')
+      and image_url ~ '^[^[:space:]]+$'
+    )
+  );
+
+notify pgrst, 'reload schema';
+
+
+-- ###########################################################
+-- ## 20260101001000_single_pending_deposit.sql
+-- ###########################################################
+
+-- Allow users to keep at most one deposit verification open at a time.
+-- A pending deposit blocks a new intent until it is confirmed or cancelled.
+
+alter type deposit_status add value if not exists 'CANCELLED';
+
+create or replace function create_deposit_intent(
+  p_amount       numeric,
+  p_network_code text
+)
+returns deposits
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid       uuid := auth.uid();
+  v_profile   profiles%rowtype;
+  v_network   supported_networks%rowtype;
+  v_deposit   deposits%rowtype;
+  v_open      integer;
+begin
+  if v_uid is null then
+    raise exception 'NOT_AUTHENTICATED' using errcode = '28000';
+  end if;
+
+  -- Serialize intent creation per user so concurrent requests cannot both pass
+  -- the pending-deposit check.
+  perform pg_advisory_xact_lock(hashtextextended(v_uid::text, 0));
+
+  select * into v_profile from profiles where id = v_uid;
+  if not found then
+    raise exception 'USER_NOT_FOUND' using errcode = 'P0002';
+  end if;
+  if v_profile.status <> 'ACTIVE' then
+    raise exception 'ACCOUNT_NOT_ACTIVE' using errcode = 'P0001';
+  end if;
+
+  select * into v_network from supported_networks where code = upper(p_network_code) and active;
+  if not found then
+    raise exception 'NETWORK_NOT_SUPPORTED' using errcode = 'P0001';
+  end if;
+  if not v_network.deposit_enabled then
+    raise exception 'DEPOSITS_DISABLED_FOR_NETWORK' using errcode = 'P0001';
+  end if;
+  if p_amount is null or p_amount < v_network.min_deposit then
+    raise exception 'AMOUNT_BELOW_MINIMUM:%', v_network.min_deposit using errcode = 'P0001';
+  end if;
+
+  if not exists (select 1 from deposit_addresses where network_id = v_network.id and active) then
+    raise exception 'NO_DEPOSIT_ADDRESS_CONFIGURED' using errcode = 'P0001';
+  end if;
+
+  select count(*) into v_open
+  from deposits
+  where user_id = v_uid and status = 'PENDING';
+
+  if v_open > 0 then
+    raise exception 'TOO_MANY_OPEN_DEPOSITS' using errcode = 'P0001';
+  end if;
+
+  insert into deposits (
+    user_id, amount, currency, network_id, network_code, token_contract,
+    to_address, required_confirmations, status, reference_code
+  )
+  values (
+    v_uid,
+    round(p_amount, 8),
+    v_network.token_symbol,
+    v_network.id,
+    v_network.code,
+    v_network.token_contract,
+    (select address from deposit_addresses where network_id = v_network.id and active order by created_at limit 1),
+    v_network.required_confirmations,
+    'PENDING',
+    'DP-' || upper(substr(replace(gen_random_uuid()::text, '-', ''), 1, 10))
+  )
+  returning * into v_deposit;
+
+  return v_deposit;
+end;
+$$;
+
+create or replace function cancel_deposit_intent(p_deposit_id uuid)
+returns deposits
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid uuid := auth.uid();
+  v_deposit deposits%rowtype;
+begin
+  if v_uid is null then
+    raise exception 'NOT_AUTHENTICATED' using errcode = '28000';
+  end if;
+
+  select * into v_deposit
+  from deposits
+  where id = p_deposit_id and user_id = v_uid
+  for update;
+
+  if not found then
+    raise exception 'DEPOSIT_NOT_FOUND' using errcode = 'P0002';
+  end if;
+  if v_deposit.status <> 'PENDING' then
+    raise exception 'DEPOSIT_NOT_PENDING' using errcode = 'P0001';
+  end if;
+  if v_deposit.tx_hash is not null then
+    raise exception 'DEPOSIT_TX_ALREADY_SUBMITTED' using errcode = 'P0001';
+  end if;
+
+  update deposits
+  set status = 'CANCELLED'::deposit_status,
+      updated_at = now()
+  where id = p_deposit_id
+  returning * into v_deposit;
+
+  return v_deposit;
+end;
+$$;
+
+grant execute on function cancel_deposit_intent(uuid) to authenticated;
+
+
+-- ###########################################################
+-- ## 20260101001100_admin_delete_user.sql
+-- ###########################################################
+
+-- Permanently delete an account and its auth/profile-linked data.
+-- The auth.users foreign key cascades to the public profile and user-owned rows.
+
+create or replace function admin_delete_user(p_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_admin uuid := assert_admin();
+  v_target_role user_role;
+  v_target_email text;
+begin
+  if p_user_id is null then
+    raise exception 'USER_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  if p_user_id = v_admin then
+    raise exception 'CANNOT_DELETE_OWN_ACCOUNT' using errcode = '42501';
+  end if;
+
+  select role, email into v_target_role, v_target_email
+  from profiles
+  where id = p_user_id;
+
+  if not found then
+    raise exception 'USER_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  if v_target_role = 'SUPER_ADMIN' and not is_super_admin(v_admin) then
+    raise exception 'NOT_AUTHORIZED' using errcode = '42501';
+  end if;
+
+  perform log_admin_action(
+    v_admin,
+    'user.deleted_permanently',
+    'profile',
+    p_user_id,
+    jsonb_build_object('email', v_target_email, 'role', v_target_role),
+    null,
+    null
+  );
+
+  -- auth.users owns the profile row; ON DELETE CASCADE removes dependent data.
+  delete from auth.users where id = p_user_id;
+end;
+$$;
+
+grant execute on function admin_delete_user(uuid) to authenticated;
+
+
+-- ###########################################################
+-- ## 20260929000000_crypto_market_analysis_copy.sql
+-- ###########################################################
+
+-- ---------------------------------------------------------------------
+-- Crypto market-analysis task copy
+--
+-- Content-only transition from the original property-listing exercise
+-- pool. Task IDs and assignments stay intact; timing, rewards and all
+-- business functions remain unchanged.
+-- ---------------------------------------------------------------------
+
+update platform_settings
+set value = '"ArbiFlow"'::jsonb
+where key = 'platform_name'
+  and value = '"PropVerify"'::jsonb;
+
+update vip_plans
+set description = regexp_replace(
+  description,
+  'property verification tasks',
+  'crypto market-analysis exercises',
+  'gi'
+)
+where description ilike '%property verification tasks%';
+
+update tasks as task
+set title = copy.title,
+    description = copy.description,
+    task_type = copy.new_type,
+    image_url = null
+from (values
+  (
+    'PHOTO_VERIFICATION',
+    'MARKET_SPREAD_REVIEW',
+    'Market Spread Snapshot',
+    'Compare the displayed price for the same crypto asset across two market scenarios and estimate the raw spread before fees. This exercise does not place a trade.'
+  ),
+  (
+    'LOCATION_VERIFICATION',
+    'NETWORK_FEE_CHECK',
+    'Network Fee Impact',
+    'Review the network and trading fees shown in the scenario, then note whether they would reduce or erase the apparent spread. No transaction is submitted.'
+  ),
+  (
+    'INFO_VERIFICATION',
+    'LIQUIDITY_DEPTH_REVIEW',
+    'Liquidity Depth Review',
+    'Inspect the displayed order-book depth for the asset pair and identify whether limited liquidity or slippage could change the quoted spread.'
+  ),
+  (
+    'AMENITIES_VERIFICATION',
+    'VOLATILITY_WINDOW_SCAN',
+    'Volatility Window Scan',
+    'Compare the timestamps and price movement in the scenario, then flag volatility or stale quotes that could make a spread unreliable.'
+  ),
+  (
+    'DESCRIPTION_REVIEW',
+    'PAIR_PRICE_ALIGNMENT',
+    'Cross-Market Pair Alignment',
+    'Compare the same crypto pair across the displayed venues and flag mismatched quotes, symbols or timestamps before estimating any spread.'
+  ),
+  (
+    'PRICE_COMPARISON',
+    'STABLECOIN_SPREAD_REVIEW',
+    'Stablecoin Spread Monitor',
+    'Review the displayed stablecoin quotes across market scenarios and note whether the difference remains after the stated fees and slippage.'
+  ),
+  (
+    'QUALITY_CHECK',
+    'ARBITRAGE_RISK_SCORE',
+    'Arbitrage Scenario Risk Score',
+    'Assess a hypothetical spread using fees, liquidity, slippage, volatility and settlement timing. Record the key risks; this is analysis only, not a trade recommendation.'
+  )
+) as copy(old_type, new_type, title, description)
+where task.task_type = copy.old_type;
+
+
+-- ###########################################################
+-- ## 20261001000000_admin_user_referral_controls.sql
+-- ###########################################################
+
+-- ---------------------------------------------------------------------
+-- Admin user CRUD and VIP referral-programme eligibility.
+-- Existing VIP plans stay referral-eligible by default, preserving the
+-- current commission behavior until an operator explicitly removes one.
+-- ---------------------------------------------------------------------
+
+alter table vip_plans
+  add column if not exists referral_enabled boolean not null default true;
+
+create or replace function admin_update_user_username(p_user_id uuid, p_username text)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_admin uuid := assert_admin();
+  v_target profiles%rowtype;
+begin
+  if p_username is null or p_username !~ '^[A-Za-z0-9_.-]{3,24}$' then
+    raise exception 'INVALID_USERNAME' using errcode = '22023';
+  end if;
+
+  select * into v_target from profiles where id = p_user_id for update;
+  if not found then
+    raise exception 'USER_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  if v_target.role in ('ADMIN', 'SUPER_ADMIN') and not is_super_admin(v_admin) then
+    raise exception 'NOT_AUTHORIZED' using errcode = '42501';
+  end if;
+
+  update profiles set username = p_username, updated_at = now() where id = p_user_id;
+
+  perform log_admin_action(
+    v_admin,
+    'user.username_updated',
+    'profile',
+    p_user_id,
+    jsonb_build_object('from', v_target.username, 'to', p_username)
+  );
+
+  return jsonb_build_object('user_id', p_user_id, 'username', p_username);
+end;
+$$;
+
+grant execute on function admin_update_user_username(uuid, text) to authenticated;
+
+create or replace function admin_log_user_invited(p_user_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_admin uuid := assert_admin();
+  v_target profiles%rowtype;
+begin
+  select * into v_target from profiles where id = p_user_id;
+  if not found then
+    raise exception 'USER_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  perform log_admin_action(
+    v_admin,
+    'user.invited',
+    'profile',
+    p_user_id,
+    jsonb_build_object('email', v_target.email, 'username', v_target.username, 'referred_by', v_target.referred_by)
+  );
+end;
+$$;
+
+grant execute on function admin_log_user_invited(uuid) to authenticated;
+
+create or replace function admin_set_vip_referral_enabled(p_plan_id uuid, p_enabled boolean)
+returns jsonb
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_admin uuid := assert_admin();
+  v_plan vip_plans%rowtype;
+begin
+  if p_enabled is null then
+    raise exception 'INVALID_REFERRAL_SETTING' using errcode = '22023';
+  end if;
+
+  select * into v_plan from vip_plans where id = p_plan_id for update;
+  if not found then
+    raise exception 'VIP_PLAN_NOT_FOUND' using errcode = 'P0002';
+  end if;
+
+  update vip_plans set referral_enabled = p_enabled, updated_at = now() where id = p_plan_id;
+
+  perform log_admin_action(
+    v_admin,
+    'vip_plan.referral_eligibility_changed',
+    'vip_plan',
+    p_plan_id,
+    jsonb_build_object('plan', v_plan.name, 'from', v_plan.referral_enabled, 'to', p_enabled)
+  );
+
+  return jsonb_build_object('plan_id', p_plan_id, 'referral_enabled', p_enabled);
+end;
+$$;
+
+grant execute on function admin_set_vip_referral_enabled(uuid, boolean) to authenticated;
+
+-- Commission still uses the existing global enable switch and three rates,
+-- but only plans included in the operator's referral programme can trigger it.
+create or replace function pay_referral_commission(
+  p_user_id        uuid,
+  p_source_amount  numeric,
+  p_reference_type text,
+  p_reference_id   uuid
+)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_rec              record;
+  v_percent          numeric;
+  v_amount           numeric(20, 8);
+  v_plan_is_included boolean;
+  v_enabled          boolean := get_setting_text('referral_rewards_enabled', 'true') = 'true';
+begin
+  if not v_enabled or p_source_amount is null or p_source_amount <= 0 then
+    return;
+  end if;
+
+  if p_reference_type = 'vip_activation' then
+    select vp.referral_enabled into v_plan_is_included
+    from user_vip_plans history
+    join vip_plans vp on vp.id = history.new_plan_id
+    where history.id = p_reference_id
+      and history.user_id = p_user_id;
+
+    if not coalesce(v_plan_is_included, false) then
+      return;
+    end if;
+  end if;
+
+  for v_rec in
+    select r.referrer_id, r.level, p.status
+    from referrals r
+    join profiles p on p.id = r.referrer_id
+    where r.referred_user_id = p_user_id
+    order by r.level
+  loop
+    continue when v_rec.status <> 'ACTIVE';
+
+    v_percent := get_setting_numeric('referral_level' || v_rec.level || '_percent', 0);
+    if v_percent <= 0 then
+      continue;
+    end if;
+
+    v_amount := round(p_source_amount * v_percent, 2);
+    if v_amount <= 0 then
+      continue;
+    end if;
+
+    perform app_post_ledger(
+      v_rec.referrer_id,
+      'REFERRAL_REWARD',
+      v_amount,
+      p_reference_type,
+      p_reference_id,
+      format('Level %s referral commission', v_rec.level),
+      p_user_id
+    );
+
+    perform app_notify(
+      v_rec.referrer_id,
+      'Referral commission received',
+      format('You earned %s USDT from a level %s team member activation.',
+             to_char(v_amount, 'FM999999990.00'), v_rec.level),
+      'SUCCESS',
+      jsonb_build_object('event', 'referral_reward', 'level', v_rec.level, 'amount', v_amount)
+    );
+  end loop;
+end;
+$$;
+
+
+-- ###########################################################
 -- ## seed.sql
 -- ###########################################################
 
@@ -3122,7 +3752,7 @@ grant execute on function is_valid_invitation_code(text) to anon, authenticated;
 -- Platform settings
 -- ---------------------------------------------------------------------
 insert into platform_settings (key, value, description) values
-  ('platform_name',              '"PropVerify"'::jsonb,        'Display name of the platform'),
+  ('platform_name',              '"ArbiFlow"'::jsonb,          'Display name of the platform'),
   ('support_email',              '"support@example.com"'::jsonb, 'Support contact address'),
 
   ('first_withdrawal_wait_days', '30'::jsonb,                  'Days a user must wait before the first withdrawal'),
@@ -3148,48 +3778,48 @@ on conflict (key) do nothing;
 -- reward_rate is a CONFIGURABLE TASK REWARD PARAMETER: the fraction of the
 -- activation amount that funds one day's task reward pool, split across
 -- that plan's daily tasks. It is an operating budget the platform chooses
--- to pay for completed verification work. It is not interest, not a yield,
+-- to pay for completed market-analysis exercises. It is not interest, not a yield,
 -- and not a guaranteed return of any kind.
 -- ---------------------------------------------------------------------
 insert into vip_plans (name, level, activation_amount, daily_task_limit, reward_rate, description, sort_order) values
-  ('VIP 1', 1,  60.00, 3, 0.00800000, 'Entry tier. 3 property verification tasks per day.',            1),
-  ('VIP 2', 2, 100.00, 3, 0.00900000, 'Standard tier. 3 property verification tasks per day.',         2),
-  ('VIP 3', 3, 150.00, 3, 0.01000000, 'Advanced tier. 3 property verification tasks per day.',         3),
-  ('VIP 4', 4, 300.00, 3, 0.01100000, 'Professional tier. 3 property verification tasks per day.',     4),
-  ('VIP 5', 5, 500.00, 3, 0.01200000, 'Expert tier. 3 property verification tasks per day.',           5)
+  ('VIP 1', 1,  60.00, 3, 0.00800000, 'Entry tier. 3 crypto market-analysis exercises per day.',        1),
+  ('VIP 2', 2, 100.00, 3, 0.00900000, 'Standard tier. 3 crypto market-analysis exercises per day.',     2),
+  ('VIP 3', 3, 150.00, 3, 0.01000000, 'Advanced tier. 3 crypto market-analysis exercises per day.',     3),
+  ('VIP 4', 4, 300.00, 3, 0.01100000, 'Professional tier. 3 crypto market-analysis exercises per day.', 4),
+  ('VIP 5', 5, 500.00, 3, 0.01200000, 'Expert tier. 3 crypto market-analysis exercises per day.',       5)
 on conflict (name) do nothing;
 
 -- ---------------------------------------------------------------------
 -- Tasks
 -- ---------------------------------------------------------------------
 insert into tasks (title, description, task_type, duration_seconds, difficulty, sort_order) values
-  ('Property Photo Verification',
-   'Review the listing photographs and confirm they show the advertised property, are not duplicated from another listing, and are of usable quality.',
-   'PHOTO_VERIFICATION', 180, 'EASY', 1),
+  ('Market Spread Snapshot',
+   'Compare the displayed price for the same crypto asset across two market scenarios and estimate the raw spread before fees. This exercise does not place a trade.',
+   'MARKET_SPREAD_REVIEW', 180, 'EASY', 1),
 
-  ('Property Location Verification',
-   'Check that the stated address, map pin and neighbourhood description of the listing are consistent with each other.',
-   'LOCATION_VERIFICATION', 180, 'EASY', 2),
+  ('Network Fee Impact',
+   'Review the network and trading fees shown in the scenario, then note whether they would reduce or erase the apparent spread. No transaction is submitted.',
+   'NETWORK_FEE_CHECK', 180, 'EASY', 2),
 
-  ('Property Information Verification',
-   'Confirm the core listing facts: property type, number of rooms, floor area and availability window.',
-   'INFO_VERIFICATION', 180, 'EASY', 3),
+  ('Liquidity Depth Review',
+   'Inspect the displayed order-book depth for the asset pair and identify whether limited liquidity or slippage could change the quoted spread.',
+   'LIQUIDITY_DEPTH_REVIEW', 180, 'EASY', 3),
 
-  ('Amenities Verification',
-   'Verify that the listed amenities appear in the description and photographs of the property.',
-   'AMENITIES_VERIFICATION', 180, 'MEDIUM', 4),
+  ('Volatility Window Scan',
+   'Compare the timestamps and price movement in the scenario, then flag volatility or stale quotes that could make a spread unreliable.',
+   'VOLATILITY_WINDOW_SCAN', 180, 'MEDIUM', 4),
 
-  ('Description Quality Review',
-   'Read the listing description and flag missing information, contradictions or misleading wording.',
-   'DESCRIPTION_REVIEW', 180, 'MEDIUM', 5),
+  ('Cross-Market Pair Alignment',
+   'Compare the same crypto pair across the displayed venues and flag mismatched quotes, symbols or timestamps before estimating any spread.',
+   'PAIR_PRICE_ALIGNMENT', 180, 'MEDIUM', 5),
 
-  ('Price Comparison Check',
-   'Compare the listing price with similar nearby properties and flag values that look inconsistent with the local range.',
-   'PRICE_COMPARISON', 180, 'MEDIUM', 6),
+  ('Stablecoin Spread Monitor',
+   'Review the displayed stablecoin quotes across market scenarios and note whether the difference remains after the stated fees and slippage.',
+   'STABLECOIN_SPREAD_REVIEW', 180, 'MEDIUM', 6),
 
-  ('Listing Quality Check',
-   'Give the listing an overall completeness score and note the single most impactful improvement it needs.',
-   'QUALITY_CHECK', 180, 'HARD', 7)
+  ('Arbitrage Scenario Risk Score',
+   'Assess a hypothetical spread using fees, liquidity, slippage, volatility and settlement timing. Record the key risks; this is analysis only, not a trade recommendation.',
+   'ARBITRAGE_RISK_SCORE', 180, 'HARD', 7)
 on conflict do nothing;
 
 -- ---------------------------------------------------------------------

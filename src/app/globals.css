@@ -60,7 +60,7 @@
 :root {
   --font-sans-stack: 'Inter', 'IBM Plex Sans Arabic', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto,
     sans-serif;
-  --font-display-stack: 'Fraunces', 'Noto Kufi Arabic', ui-serif, Georgia, 'Times New Roman', serif;
+  --font-display-stack: 'Inter', 'Noto Kufi Arabic', ui-sans-serif, system-ui, -apple-system, 'Segoe UI', sans-serif;
   --font-mono-stack: 'JetBrains Mono', 'IBM Plex Sans Arabic', ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
 }
 
@@ -77,10 +77,57 @@
 
   body {
     background-color: var(--canvas);
+    background-image:
+      radial-gradient(ellipse 42rem 34rem at 4% 0%, color-mix(in oklab, var(--brand) 16%, transparent), transparent 74%),
+      radial-gradient(ellipse 34rem 30rem at 98% 12%, color-mix(in oklab, var(--espresso-accent) 11%, transparent), transparent 76%),
+      radial-gradient(ellipse 46rem 28rem at 52% 100%, color-mix(in oklab, var(--brand) 7%, transparent), transparent 78%),
+      linear-gradient(155deg, var(--canvas), color-mix(in oklab, var(--canvas) 90%, var(--espresso)));
+    background-attachment: fixed;
+    isolation: isolate;
+    position: relative;
     color: var(--ink);
     font-family: var(--font-sans-stack);
     -webkit-font-smoothing: antialiased;
     text-rendering: optimizeLegibility;
+  }
+
+  body::before,
+  body::after {
+    content: '';
+    inset: 0;
+    pointer-events: none;
+    position: fixed;
+    z-index: 0;
+  }
+
+  body > * {
+    position: relative;
+    z-index: 1;
+  }
+
+  body::before {
+    background: repeating-radial-gradient(
+      circle at 78% 24%,
+      transparent 0 54px,
+      color-mix(in oklab, var(--brand) 48%, transparent) 55px 56px,
+      transparent 57px 76px
+    );
+    filter: blur(1.25px);
+    opacity: 0.95;
+    animation: crypto-glow-drift 32s ease-in-out infinite alternate;
+  }
+
+  body::after {
+    inset: 42% -10% -18%;
+    background-image:
+      radial-gradient(circle, color-mix(in oklab, var(--brand) 70%, transparent) 1.2px, transparent 1.8px),
+      linear-gradient(to right, color-mix(in oklab, var(--brand) 24%, transparent) 1px, transparent 1px),
+      linear-gradient(to bottom, color-mix(in oklab, var(--brand) 24%, transparent) 1px, transparent 1px);
+    background-size: 42px 42px, 42px 42px, 42px 42px;
+    mask-image: linear-gradient(to top, #000 0%, transparent 100%);
+    opacity: 0.48;
+    transform: perspective(780px) rotateX(58deg) scale(1.5);
+    transform-origin: center bottom;
   }
 
   h1,
@@ -236,6 +283,15 @@
   to {
     opacity: 1;
     transform: none;
+  }
+}
+
+@keyframes crypto-glow-drift {
+  from {
+    transform: translate3d(-1.5%, -1%, 0) scale(1);
+  }
+  to {
+    transform: translate3d(1.5%, 1%, 0) scale(1.05);
   }
 }
 

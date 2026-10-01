@@ -35,9 +35,9 @@ export default async function AdminReferralsPage({
       />
 
       <Alert tone="info" title="Commission comes out of revenue the platform collected">
-        When a team member activates a VIP plan, a configured percentage of that activation fee is credited to their
-        upline, up to three levels. Nothing is paid out of another member&apos;s deposit and deposits alone generate no
-        commission. The percentages live in Settings.
+        When a team member activates a VIP plan included in the referral programme, a configured percentage of that
+        activation fee is credited to their upline, up to three levels. Nothing is paid out of another member&apos;s
+        deposit and deposits alone generate no commission. The eligible plans and percentages live in Settings.
       </Alert>
 
       <Card>

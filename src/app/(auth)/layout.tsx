@@ -8,13 +8,13 @@ export default async function AuthLayout({ children }: { children: React.ReactNo
 
   return (
     <div className="flex min-h-dvh flex-col">
-      <header className="border-b border-border bg-surface">
+      <header className="sticky top-0 z-30 border-b border-border bg-surface/80 shadow-card backdrop-blur-xl">
         <div className="mx-auto flex max-w-6xl items-center justify-between px-4 py-3.5 sm:px-6">
           <Link href="/" className="flex items-center gap-2">
-            <span className="grid h-8 w-8 place-items-center rounded-lg bg-espresso text-sm font-semibold text-espresso-ink">
-              P
+            <span className="grid h-8 w-8 place-items-center rounded-xl bg-brand text-sm font-semibold text-brand-ink shadow-md shadow-brand/25">
+              A
             </span>
-            <span className="display font-semibold tracking-tight">PropVerify</span>
+            <span className="font-semibold tracking-tight">ArbiFlow</span>
           </Link>
           <div className="flex items-center gap-3">
             <LocaleSwitcher />

@@ -1,9 +1,7 @@
 import Link from 'next/link'
-import Image from 'next/image'
 import { Alert, ButtonLink, Card, CardBody } from '@/components/ui'
 import { IconCheck, IconClock, IconShield, IconTasks, IconTeam, IconWallet } from '@/components/icons'
 import { getT } from '@/lib/i18n/server'
-import investmentPropertiesImage from './Investment-Properties.jpg'
 
 const STEP_ICONS = [IconTeam, IconWallet, IconShield, IconTasks, IconClock, IconCheck]
 
@@ -48,44 +46,65 @@ export default async function HomePage() {
               </dl>
             </div>
 
-            {/* Listing plate — a static illustration of the review view. */}
+            {/* Market terminal — a decorative crypto spread-analysis preview. */}
             <div className="relative hidden lg:block" aria-hidden>
-              <div className="relative overflow-hidden rounded-card border border-border bg-surface-2 p-6 shadow-panel">
+              <div className="absolute -inset-8 rounded-full bg-brand/10 blur-3xl" />
+              <div className="relative overflow-hidden rounded-[2rem] border border-brand/20 bg-gradient-to-br from-espresso via-espresso to-espresso-2 p-6 text-espresso-ink shadow-panel">
                 <div
-                  className="absolute inset-0 opacity-30"
+                  className="absolute inset-0 opacity-25"
                   style={{
                     backgroundImage:
-                      'repeating-linear-gradient(135deg, var(--border-strong) 0 1px, transparent 1px 13px)',
+                      'linear-gradient(var(--espresso-border) 1px, transparent 1px), linear-gradient(90deg, var(--espresso-border) 1px, transparent 1px)',
+                    backgroundSize: '30px 30px',
                   }}
                 />
-                <div className="relative space-y-3">
+                <div className="pointer-events-none absolute -end-16 -top-20 h-64 w-64 rounded-full bg-brand/10 blur-3xl" />
+                <div className="relative space-y-4">
                   <div className="flex items-center justify-between">
-                    <span className="label-mono rounded-full bg-surface px-2.5 py-1 text-ink-muted shadow-card">
+                    <span className="label-mono rounded-full border border-brand/25 bg-brand/10 px-2.5 py-1 text-brand">
                       {t.tasks.card.lot('4192')}
                     </span>
-                    <span className="label-mono text-ink-subtle">{t.home.plateHint}</span>
+                    <span className="label-mono text-espresso-muted">{t.home.plateHint}</span>
                   </div>
 
-                  <div className="relative h-36 overflow-hidden rounded-control border border-border bg-surface">
-                    <Image
-                      src={investmentPropertiesImage}
-                      alt="Investment properties"
-                      fill
-                      sizes="(min-width: 1024px) 50vw, 100vw"
-                      className="object-cover"
-                      priority
-                    />
+                  <div className="relative h-40 overflow-hidden rounded-2xl border border-espresso-border bg-espresso-2/80 p-4">
+                    <div className="absolute inset-x-4 top-4 flex items-center justify-between">
+                      <span className="label-mono text-espresso-muted">BTC / USDT</span>
+                      <span className="rounded-full bg-brand/15 px-2 py-1 font-mono text-xs text-brand">+2.48%</span>
+                    </div>
+                    <svg viewBox="0 0 440 130" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-28 w-full">
+                      <defs>
+                        <linearGradient id="market-fill" x1="0" x2="0" y1="0" y2="1">
+                          <stop offset="0%" stopColor="var(--brand)" stopOpacity=".28" />
+                          <stop offset="100%" stopColor="var(--brand)" stopOpacity="0" />
+                        </linearGradient>
+                      </defs>
+                      <path d="M0 112 34 98 66 103 98 79 130 86 162 60 194 68 226 44 258 56 290 25 322 39 354 19 386 28 440 5V130H0Z" fill="url(#market-fill)" />
+                      <path d="M0 112 34 98 66 103 98 79 130 86 162 60 194 68 226 44 258 56 290 25 322 39 354 19 386 28 440 5" fill="none" stroke="var(--brand)" strokeWidth="2" vectorEffect="non-scaling-stroke" />
+                      <circle cx="354" cy="19" r="4" fill="var(--brand)" />
+                    </svg>
                   </div>
 
-                  <div className="rounded-control border border-border bg-surface p-4">
-                    <p className="label-mono text-ink-subtle">{t.home.checklistTitle}</p>
-                    <ul className="mt-2.5 space-y-2 text-sm">
+                  <div className="grid grid-cols-3 gap-2">
+                    {['BTC', 'ETH', 'SOL'].map((asset, index) => (
+                      <div key={asset} className="rounded-xl border border-espresso-border bg-espresso/80 p-3">
+                        <p className="label-mono text-espresso-muted">{asset} / USDT</p>
+                        <p className={`mt-2 font-mono text-sm font-semibold ${index === 1 ? 'text-espresso-muted' : 'text-brand'}`}>
+                          {index === 1 ? '0.82%' : '+1.24%'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="rounded-2xl border border-espresso-border bg-espresso/80 p-4">
+                    <p className="label-mono text-espresso-muted">{t.home.checklistTitle}</p>
+                    <ul className="mt-3 grid grid-cols-3 gap-2 text-xs">
                       {t.home.checklist.map((line) => (
-                        <li key={line} className="flex items-center gap-2.5">
-                          <span className="grid h-4 w-4 place-items-center rounded-full bg-positive-soft text-positive">
+                        <li key={line} className="flex items-start gap-2 rounded-lg bg-espresso-2/80 p-2 text-espresso-muted">
+                          <span className="mt-0.5 grid h-4 w-4 shrink-0 place-items-center rounded-full bg-brand/15 text-brand">
                             <IconCheck width={10} height={10} />
                           </span>
-                          <span className="text-ink-muted">{line}</span>
+                          <span>{line}</span>
                         </li>
                       ))}
                     </ul>

@@ -1,8 +1,9 @@
-# PropVerify — property verification tasks platform
+# ArbiFlow — crypto market-analysis platform
 
-An invitation-only platform where members complete property listing verification
-tasks and receive platform rewards, backed by real on-chain USDT deposits and
-manually settled withdrawals.
+An invitation-only platform where members complete crypto market-arbitrage
+analysis exercises and may receive configurable platform rewards, backed by
+real on-chain USDT deposits and manually settled withdrawals. The exercises
+are analytical only: the software does not execute trades or promise returns.
 
 Next.js (App Router) + TypeScript + Tailwind CSS on Vercel, Supabase Postgres
 with Row Level Security for data and authentication. No Docker, no smart
@@ -25,10 +26,11 @@ described dishonestly elsewhere.
 - **The dashboard balance is an internal platform ledger balance.** It is the
   operator's record of what is owed to the user. It is not an on-chain wallet
   balance, it is not in custody at a bank, and the UI says so.
-- **Task rewards are configurable platform payments** for completed
-  verification work. The reward rate is an operating parameter the operator
-  sets and can change. It is not interest, not a yield and not a guaranteed
-  return, and the product copy never presents it as one.
+- **Task rewards are configurable platform payments** for completed crypto
+   market-analysis exercises. The exercises do not connect to exchanges or
+   execute trades. The reward rate is an operating parameter the operator sets
+   and can change. It is not interest, not a yield and not a guaranteed return,
+   and the product copy never presents it as one.
 - **Withdrawals are settled manually.** An operator sends the payment from an
   external wallet and records the transaction hash. This application holds no
   private key and never signs or broadcasts a transaction.

@@ -63,13 +63,13 @@ function Wordmark({ compact = false }: { compact?: boolean }) {
     <span className="flex items-center gap-2.5">
       <span
         className={cn(
-          'grid place-items-center rounded-lg bg-espresso font-semibold text-espresso-ink',
+          'grid place-items-center rounded-xl bg-brand font-semibold text-brand-ink shadow-md shadow-brand/25',
           compact ? 'h-7 w-7 text-xs' : 'h-8 w-8 text-sm',
         )}
       >
         P
       </span>
-      <span className="display font-semibold tracking-tight">PropVerify</span>
+      <span className="font-semibold tracking-tight">ArbiFlow</span>
     </span>
   )
 }
@@ -191,7 +191,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
   return (
     <>
       {/* Mobile header */}
-      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-border bg-surface/90 px-4 py-3 backdrop-blur lg:hidden">
+      <div className="sticky top-0 z-30 flex items-center justify-between border-b border-brand/15 bg-surface/80 px-4 py-3 backdrop-blur-xl shadow-card lg:hidden">
         <Link href="/dashboard">
           <Wordmark compact />
         </Link>
@@ -200,7 +200,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
           <Link
             href="/notifications"
             aria-label={t.nav.notificationsAria(user.unreadCount)}
-            className="relative rounded-control p-2 text-ink-muted hover:bg-surface-2"
+            className="relative rounded-full border border-border/70 bg-surface-2/50 p-2 text-ink-muted transition-colors hover:border-brand/30 hover:bg-brand-soft hover:text-brand"
           >
             <IconBell />
             {user.unreadCount > 0 ? (
@@ -213,7 +213,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
             type="button"
             onClick={() => setOpen(true)}
             aria-label={t.common.openMenu}
-            className="rounded-control p-2 text-ink-muted hover:bg-surface-2"
+            className="rounded-full border border-border/70 bg-surface-2/50 p-2 text-ink-muted transition-colors hover:border-brand/30 hover:bg-brand-soft hover:text-brand"
           >
             <IconMenu />
           </button>
@@ -222,7 +222,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
 
       {/* Desktop sidebar */}
       <aside
-        className="fixed inset-y-0 start-0 z-30 hidden border-e border-border bg-surface lg:block"
+        className="fixed inset-y-0 start-0 z-30 hidden border-e border-border bg-surface/90 backdrop-blur-xl lg:block"
         style={{ width: 'var(--sidebar-w)' }}
       >
         {nav}
@@ -237,7 +237,7 @@ export function AppSidebar({ user }: { user: NavUser }) {
             className="absolute inset-0 bg-espresso/60 backdrop-blur-sm"
             onClick={() => setOpen(false)}
           />
-          <div className="absolute inset-y-0 start-0 w-72 max-w-[85vw] border-e border-border bg-surface">
+          <div className="absolute inset-y-0 start-0 w-72 max-w-[85vw] border-e border-border bg-surface/95 backdrop-blur-xl">
             <button
               type="button"
               onClick={() => setOpen(false)}
@@ -277,7 +277,7 @@ function NavLink({
       className={cn(
         'relative flex items-center gap-3 rounded-control px-3 py-2 text-sm transition-colors',
         active
-          ? 'bg-surface-2 font-medium text-ink'
+          ? 'bg-brand-soft font-medium text-brand'
           : 'text-ink-muted hover:bg-surface-2/60 hover:text-ink',
       )}
     >
@@ -311,7 +311,7 @@ export function AppBottomNav() {
 
   return (
     <nav
-      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-surface/95 pb-[env(safe-area-inset-bottom)] backdrop-blur lg:hidden"
+      className="fixed inset-x-0 bottom-0 z-30 grid grid-cols-5 border-t border-border bg-surface/85 pb-[env(safe-area-inset-bottom)] shadow-panel backdrop-blur-xl lg:hidden"
       aria-label="Primary"
     >
       {items.map(({ href, label, icon: Icon }) => {

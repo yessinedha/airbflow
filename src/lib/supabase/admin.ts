@@ -8,10 +8,11 @@ let cached: SupabaseClient | null = null
 /**
  * Service-role client. Bypasses RLS entirely.
  *
- * Only three things are allowed to use it:
+ * Only these server-only tasks are allowed to use it:
  *   1. blockchain deposit verification (credit_verified_deposit)
  *   2. the scheduled verification job
  *   3. registration pre-checks that must read across users
+ *   4. admin user invitations through Supabase Auth
  *
  * It must never be imported into a Client Component. The `server-only`
  * import above turns any such attempt into a build error.

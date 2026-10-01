@@ -12,7 +12,7 @@
 -- Platform settings
 -- ---------------------------------------------------------------------
 insert into platform_settings (key, value, description) values
-  ('platform_name',              '"PropVerify"'::jsonb,        'Display name of the platform'),
+  ('platform_name',              '"ArbiFlow"'::jsonb,          'Display name of the platform'),
   ('support_email',              '"support@example.com"'::jsonb, 'Support contact address'),
 
   ('first_withdrawal_wait_days', '30'::jsonb,                  'Days a user must wait before the first withdrawal'),
@@ -38,48 +38,48 @@ on conflict (key) do nothing;
 -- reward_rate is a CONFIGURABLE TASK REWARD PARAMETER: the fraction of the
 -- activation amount that funds one day's task reward pool, split across
 -- that plan's daily tasks. It is an operating budget the platform chooses
--- to pay for completed verification work. It is not interest, not a yield,
+-- to pay for completed market-analysis exercises. It is not interest, not a yield,
 -- and not a guaranteed return of any kind.
 -- ---------------------------------------------------------------------
 insert into vip_plans (name, level, activation_amount, daily_task_limit, reward_rate, description, sort_order) values
-  ('VIP 1', 1,  60.00, 3, 0.00800000, 'Entry tier. 3 property verification tasks per day.',            1),
-  ('VIP 2', 2, 100.00, 3, 0.00900000, 'Standard tier. 3 property verification tasks per day.',         2),
-  ('VIP 3', 3, 150.00, 3, 0.01000000, 'Advanced tier. 3 property verification tasks per day.',         3),
-  ('VIP 4', 4, 300.00, 3, 0.01100000, 'Professional tier. 3 property verification tasks per day.',     4),
-  ('VIP 5', 5, 500.00, 3, 0.01200000, 'Expert tier. 3 property verification tasks per day.',           5)
+  ('VIP 1', 1,  60.00, 3, 0.00800000, 'Entry tier. 3 crypto market-analysis exercises per day.',        1),
+  ('VIP 2', 2, 100.00, 3, 0.00900000, 'Standard tier. 3 crypto market-analysis exercises per day.',     2),
+  ('VIP 3', 3, 150.00, 3, 0.01000000, 'Advanced tier. 3 crypto market-analysis exercises per day.',     3),
+  ('VIP 4', 4, 300.00, 3, 0.01100000, 'Professional tier. 3 crypto market-analysis exercises per day.', 4),
+  ('VIP 5', 5, 500.00, 3, 0.01200000, 'Expert tier. 3 crypto market-analysis exercises per day.',       5)
 on conflict (name) do nothing;
 
 -- ---------------------------------------------------------------------
 -- Tasks
 -- ---------------------------------------------------------------------
 insert into tasks (title, description, task_type, duration_seconds, difficulty, sort_order) values
-  ('Property Photo Verification',
-   'Review the listing photographs and confirm they show the advertised property, are not duplicated from another listing, and are of usable quality.',
-   'PHOTO_VERIFICATION', 180, 'EASY', 1),
+  ('Market Spread Snapshot',
+   'Compare the displayed price for the same crypto asset across two market scenarios and estimate the raw spread before fees. This exercise does not place a trade.',
+   'MARKET_SPREAD_REVIEW', 180, 'EASY', 1),
 
-  ('Property Location Verification',
-   'Check that the stated address, map pin and neighbourhood description of the listing are consistent with each other.',
-   'LOCATION_VERIFICATION', 180, 'EASY', 2),
+  ('Network Fee Impact',
+   'Review the network and trading fees shown in the scenario, then note whether they would reduce or erase the apparent spread. No transaction is submitted.',
+   'NETWORK_FEE_CHECK', 180, 'EASY', 2),
 
-  ('Property Information Verification',
-   'Confirm the core listing facts: property type, number of rooms, floor area and availability window.',
-   'INFO_VERIFICATION', 180, 'EASY', 3),
+  ('Liquidity Depth Review',
+   'Inspect the displayed order-book depth for the asset pair and identify whether limited liquidity or slippage could change the quoted spread.',
+   'LIQUIDITY_DEPTH_REVIEW', 180, 'EASY', 3),
 
-  ('Amenities Verification',
-   'Verify that the listed amenities appear in the description and photographs of the property.',
-   'AMENITIES_VERIFICATION', 180, 'MEDIUM', 4),
+  ('Volatility Window Scan',
+   'Compare the timestamps and price movement in the scenario, then flag volatility or stale quotes that could make a spread unreliable.',
+   'VOLATILITY_WINDOW_SCAN', 180, 'MEDIUM', 4),
 
-  ('Description Quality Review',
-   'Read the listing description and flag missing information, contradictions or misleading wording.',
-   'DESCRIPTION_REVIEW', 180, 'MEDIUM', 5),
+  ('Cross-Market Pair Alignment',
+   'Compare the same crypto pair across the displayed venues and flag mismatched quotes, symbols or timestamps before estimating any spread.',
+   'PAIR_PRICE_ALIGNMENT', 180, 'MEDIUM', 5),
 
-  ('Price Comparison Check',
-   'Compare the listing price with similar nearby properties and flag values that look inconsistent with the local range.',
-   'PRICE_COMPARISON', 180, 'MEDIUM', 6),
+  ('Stablecoin Spread Monitor',
+   'Review the displayed stablecoin quotes across market scenarios and note whether the difference remains after the stated fees and slippage.',
+   'STABLECOIN_SPREAD_REVIEW', 180, 'MEDIUM', 6),
 
-  ('Listing Quality Check',
-   'Give the listing an overall completeness score and note the single most impactful improvement it needs.',
-   'QUALITY_CHECK', 180, 'HARD', 7)
+  ('Arbitrage Scenario Risk Score',
+   'Assess a hypothetical spread using fees, liquidity, slippage, volatility and settlement timing. Record the key risks; this is analysis only, not a trade recommendation.',
+   'ARBITRAGE_RISK_SCORE', 180, 'HARD', 7)
 on conflict do nothing;
 
 -- ---------------------------------------------------------------------

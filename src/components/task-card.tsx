@@ -91,12 +91,12 @@ export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; s
   )
 
   return (
-    <Card className="animate-rise flex flex-col overflow-hidden">
-      <ListingPlate
+    <Card className="animate-rise flex flex-col overflow-hidden border-brand/15 bg-gradient-to-b from-surface to-surface-2/35">
+      <MarketPreview
         slot={task.slot}
         imageUrl={task.imageUrl}
         title={task.title}
-        /* Sharp for the whole review window: the member is looking at it. */
+        /* Sharp for the whole analysis window: the member is reviewing it. */
         revealed={started}
       />
 
@@ -206,14 +206,14 @@ function initialRemaining(task: TaskCardData, serverNowMs: number): number {
 }
 
 /* ------------------------------------------------------------------ */
-/* Listing plate                                                       */
+/* Market preview                                                      */
 /*                                                                     */
-/* The photo is soft by default and sharpens as the member engages:    */
-/* hovering or focusing eases the blur off, clicking opens a taller    */
-/* view, and starting the task keeps it sharp for the whole window.    */
+/* The optional image sits underneath the market-analysis overlay.     */
+/* Hovering or focusing still clears the blur; clicking expands it, and */
+/* starting the task keeps it sharp for the whole analysis window.      */
 /* Purely presentational — nothing here reaches a server action.       */
 /* ------------------------------------------------------------------ */
-function ListingPlate({
+function MarketPreview({
   slot,
   imageUrl,
   title,
@@ -231,14 +231,16 @@ function ListingPlate({
 
   if (!imageUrl) {
     return (
-      <div className="relative h-24 border-b border-border bg-surface-2 sm:h-28">
+      <div className="relative h-24 overflow-hidden border-b border-espresso-border bg-gradient-to-br from-espresso to-espresso-2 sm:h-28">
         <div
           aria-hidden
-          className="absolute inset-0 opacity-[0.35]"
+          className="absolute inset-0 opacity-20"
           style={{
-            backgroundImage: 'repeating-linear-gradient(135deg, var(--border-strong) 0 1px, transparent 1px 11px)',
+            backgroundImage: 'linear-gradient(var(--espresso-border) 1px, transparent 1px), linear-gradient(90deg, var(--espresso-border) 1px, transparent 1px)',
+            backgroundSize: '24px 24px',
           }}
         />
+        <MarketBackdrop />
         <span className="label-mono absolute start-3 top-3 rounded-full bg-surface px-2 py-1 text-ink-muted shadow-card">
           {lot}
         </span>
@@ -261,19 +263,21 @@ function ListingPlate({
           URL on an arbitrary host; next/image would need every domain listed. */}
       <img
         src={imageUrl}
-        alt={`Listing photograph for ${title}`}
+        alt={`Crypto market analysis preview for ${title}`}
         loading="lazy"
         decoding="async"
-        className={`h-full w-full object-cover transition-[filter,transform] duration-500 ease-out ${
-          sharp ? 'scale-100 blur-0' : 'scale-[1.06] blur-[3px] group-hover:scale-100 group-hover:blur-[1px]'
+        className={`h-full w-full object-cover opacity-35 transition-[filter,transform] duration-500 ease-out ${
+          sharp ? 'scale-100 blur-0 brightness-50 saturate-50' : 'scale-[1.06] blur-[3px] brightness-50 saturate-50 group-hover:scale-100 group-hover:blur-[1px]'
         }`}
       />
 
-      {/* Keeps the pills legible over any photograph. */}
+      {/* Keeps the signal labels legible over any configured image. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-b from-espresso/25 via-transparent to-espresso/35"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-espresso/90 via-espresso/75 to-espresso/45"
       />
+
+      <MarketBackdrop />
 
       <span className="label-mono absolute start-3 top-3 rounded-full bg-surface/90 px-2 py-1 text-ink-muted shadow-card backdrop-blur-sm">
         {lot}
@@ -283,5 +287,21 @@ function ListingPlate({
         {expanded ? t.tasks.card.clickShrink : t.tasks.card.clickEnlarge}
       </span>
     </button>
+  )
+}
+
+function MarketBackdrop() {
+  return (
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+      <div className="absolute end-[18%] top-1/2 aspect-square w-24 -translate-y-1/2 rounded-full border border-brand/35 bg-brand/5 shadow-[0_0_36px_color-mix(in_srgb,var(--brand)_18%,transparent)] sm:w-28">
+        <span className="absolute inset-[17%] rounded-full border border-brand/25" />
+        <span className="absolute inset-[34%] rounded-full border border-brand/20 bg-brand/10" />
+      </div>
+      <svg viewBox="0 0 220 100" preserveAspectRatio="none" className="absolute inset-x-0 bottom-0 h-[72%] w-full opacity-80">
+        <path d="M0 82 28 72 48 78 76 48 98 58 124 30 148 43 174 18 198 28 220 7" fill="none" stroke="var(--brand)" strokeWidth="1.5" vectorEffect="non-scaling-stroke" />
+        <path d="M0 95 28 86 48 90 76 62 98 70 124 45 148 55 174 34 198 42 220 22" fill="none" stroke="var(--espresso-accent)" strokeOpacity=".35" strokeWidth="1" vectorEffect="non-scaling-stroke" />
+        <circle cx="174" cy="18" r="3" fill="var(--brand)" />
+      </svg>
+    </div>
   )
 }

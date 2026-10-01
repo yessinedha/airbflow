@@ -46,10 +46,10 @@ export function ReferralImpact({
   return (
     <Panel
       title="What one activation pays out"
-      note={`With the rates stored right now, ${(totalRate * 100).toFixed(2)} % of every activation charge is credited back up the tree, split across three levels. Charging mode is ${chargeMode}.`}
+      note={`With the rates stored right now, ${(totalRate * 100).toFixed(2)} % of an included plan's activation charge is credited back up the tree, split across three levels. Charging mode is ${chargeMode}.`}
     >
       {plans.length === 0 ? (
-        <p className="text-sm text-ink-muted">No active VIP plan to simulate against.</p>
+        <p className="text-sm text-ink-muted">No active VIP plan is included in the referral programme.</p>
       ) : (
         <TableWrap>
           <Table className="min-w-[32rem]">

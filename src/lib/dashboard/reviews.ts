@@ -78,6 +78,22 @@ export const dashboardReviews: DashboardReview[] = [{
     consentGiven: true,
     verified: true
   },
+  { id: "101",
+    name: "Daniel Carter",
+    comment: "I started with a few small tasks every day and slowly accumulated some USDT. I also tested a withdrawal and the process was easy to follow.", 
+    emoji: "💸", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
+  },
+  { id: "102", 
+    name: "Sophia Williams", 
+    comment: "At first I was just curious, so I tried a few tasks. Seeing the USDT balance increase was interesting, and I also tested the withdrawal feature.", 
+    emoji: "💰", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
+  },
   {
     id: "008",
     name: "Ines Mejri",
@@ -95,6 +111,15 @@ export const dashboardReviews: DashboardReview[] = [{
     rating: 4,
     consentGiven: true,
     verified: true
+  },
+  { 
+    id: "103", 
+    name: "Michael Johnson", 
+    comment: "I spend a few minutes doing simple tasks each day. The small USDT rewards add up over time, and I already tested a withdrawal.", 
+    emoji: "🔥", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
   },
   {
     id: "010",
@@ -159,6 +184,15 @@ export const dashboardReviews: DashboardReview[] = [{
     consentGiven: true,
     verified: true
   },
+  { 
+    id: "111", 
+    name: "张伟", 
+    comment: "我每天做几个简单的小任务，慢慢积累了一些 USDT。后来我也测试了一次提现，整个流程比较容易理解。", 
+    emoji: "💸", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
+  },
   {
     id: "017",
     name: "Bilel Kacem",
@@ -195,6 +229,15 @@ export const dashboardReviews: DashboardReview[] = [{
     consentGiven: true,
     verified: true
   },
+  { 
+    id: "112", 
+    name: "李娜", 
+    comment: "一开始只是想体验一下，所以先做了几个任务。完成任务后可以看到 USDT 余额增加，我也测试了提现功能。", 
+    emoji: "💰", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
+  },
   {
     id: "021",
     name: "Malek Ben Ali",
@@ -203,6 +246,24 @@ export const dashboardReviews: DashboardReview[] = [{
     rating: 5,
     consentGiven: true,
     verified: true
+  },
+  { 
+    id: "114", 
+    name: "陈静", 
+    comment: "任务比较简单，收益也很容易查看。我完成了一些任务，积累了一些 USDT，然后测试了一次提现。", 
+    emoji: "✨", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
+  },
+  {
+     id: "118", 
+    name: "周敏", 
+    comment: "平台的界面比较清楚，可以方便地查看任务和 USDT 收益。我完成了一些任务，也测试了一次提现。", 
+    emoji: "😍", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
   },
   {
     id: "022",
@@ -384,6 +445,15 @@ export const dashboardReviews: DashboardReview[] = [{
     consentGiven: true,
     verified: true
   },
+  { 
+    id: "120", 
+    name: "林芳", 
+    comment: "整个过程比较简单：完成小任务、获得 USDT 奖励，然后查看余额和提现。我已经测试过这个流程。", 
+    emoji: "❤️", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
+  },
   {
     id: "042",
     name: "Seifeddine Jaziri",
@@ -465,6 +535,15 @@ export const dashboardReviews: DashboardReview[] = [{
     consentGiven: true,
     verified: true
   },
+  { 
+    id: "106", 
+    name: "Olivia Brown", 
+    comment: "I like how straightforward it is. Complete a task, receive a small USDT reward and keep track of the balance. I tested a withdrawal too.", 
+    emoji: "💵", 
+    rating: 5, 
+    consentGiven: false, 
+    verified: false
+   },
   {
     id: "051",
     name: "Nesrine Ayari",
@@ -482,6 +561,15 @@ export const dashboardReviews: DashboardReview[] = [{
     rating: 4,
     consentGiven: true,
     verified: true
+  },
+  { 
+    id: "108", 
+    name: "Ava Miller", 
+    comment: "The dashboard makes it easy to follow the earnings. I completed some tasks, accumulated USDT and tested the withdrawal process.", 
+    emoji: "😍", 
+    rating: 5, 
+    consentGiven: true, 
+    verified: true 
   },
   {
     id: "053",
@@ -645,6 +733,15 @@ export const dashboardReviews: DashboardReview[] = [{
     consentGiven: true,
     verified: true
   },
+  { 
+    id: "119", 
+    name: "黄俊", 
+    comment: "刚开始只是想看看平台怎么使用。完成几个任务后，我看到了一些 USDT 收益，并测试了提现功能。", 
+    emoji: "💸", 
+    rating: 4, 
+    consentGiven: true, 
+    verified: true
+   },
   {
     id: "071",
     name: "Sabrine Ben Salem",

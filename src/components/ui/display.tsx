@@ -26,7 +26,7 @@ export function Panel({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
       className={cn(
-        'relative overflow-hidden rounded-card border border-espresso-border bg-espresso text-espresso-ink shadow-panel',
+        'relative overflow-hidden rounded-card border border-espresso-border bg-gradient-to-br from-espresso via-espresso to-espresso-2 text-espresso-ink shadow-panel',
         className,
       )}
       {...props}

@@ -5,7 +5,7 @@ import { getT } from '@/lib/i18n/server'
 export const metadata: Metadata = {
   title: 'How it works',
   description:
-    'How registration, deposits, VIP activation, daily tasks, rewards and withdrawals work on PropVerify, in plain language.',
+    'How registration, deposits, crypto market-analysis tasks, rewards and withdrawals work on ArbiFlow, in plain language.',
 }
 
 export default async function FaqPage() {

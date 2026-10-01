@@ -6,11 +6,11 @@ import { LocaleProvider } from '@/lib/i18n/client'
 
 export const metadata: Metadata = {
   title: {
-    default: 'PropVerify — Property verification tasks & rewards',
-    template: '%s · PropVerify',
+    default: 'ArbiFlow — Crypto market analysis',
+    template: '%s · ArbiFlow',
   },
   description:
-    'An invitation-only platform where members complete property listing verification tasks and receive internal platform rewards. Deposits are real blockchain transfers; withdrawals are settled manually by the operations team.',
+    'An invitation-only platform for crypto market-analysis exercises and configurable internal platform rewards. ArbiFlow does not execute trades or guarantee investment returns. Deposits are real blockchain transfers; withdrawals are settled manually by the operations team.',
   robots: { index: true, follow: true },
 }
 
@@ -18,19 +18,18 @@ export const viewport: Viewport = {
   width: 'device-width',
   initialScale: 1,
   themeColor: [
-    { media: '(prefers-color-scheme: light)', color: '#f2ece1' },
-    { media: '(prefers-color-scheme: dark)', color: '#17130f' },
+    { media: '(prefers-color-scheme: light)', color: '#f1f4ed' },
+    { media: '(prefers-color-scheme: dark)', color: '#0b100d' },
   ],
 }
 
 /*
  * Typography.
  *
- * Four faces across two scripts: an editorial serif and a grotesque for
- * Latin, and their Arabic counterparts. Each stack lists the Latin face
- * first and the Arabic face straight after, so the browser resolves per
- * glyph — Latin words keep Fraunces and Inter, Arabic words fall through
- * to Noto Kufi Arabic and IBM Plex Sans Arabic, inside the same sentence.
+ * Three faces across two scripts: a clean sans for Latin and Arabic
+ * counterparts, plus a mono face for figures. Each stack lists the Latin
+ * face first and the Arabic face straight after, so the browser resolves
+ * per glyph inside the same sentence.
  * No direction-specific font rule is needed.
  *
  * The faces are linked at runtime rather than pulled in by next/font, so a
@@ -39,8 +38,7 @@ export const viewport: Viewport = {
  */
 const FONT_HREF =
   'https://fonts.googleapis.com/css2' +
-  '?family=Fraunces:opsz,wght@9..144,500;9..144,600;9..144,700' +
-  '&family=Inter:wght@400;500;600' +
+  '?family=Inter:wght@400;500;600' +
   '&family=JetBrains+Mono:wght@400;500' +
   '&family=IBM+Plex+Sans+Arabic:wght@400;500;600' +
   '&family=Noto+Kufi+Arabic:wght@500;600;700' +

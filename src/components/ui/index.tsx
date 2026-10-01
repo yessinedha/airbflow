@@ -11,7 +11,7 @@ export * from '@/components/ui/display'
 export function Card({ className, ...props }: React.ComponentProps<'div'>) {
   return (
     <div
-      className={cn('rounded-card border border-border bg-surface shadow-card', className)}
+      className={cn('rounded-card border border-border bg-surface/90 shadow-card backdrop-blur-sm transition-[border-color,box-shadow] duration-200', className)}
       {...props}
     />
   )
@@ -59,7 +59,7 @@ const BUTTON_BASE =
   'disabled:cursor-not-allowed disabled:opacity-45 disabled:active:translate-y-0 select-none whitespace-nowrap'
 
 const BUTTON_VARIANTS: Record<ButtonVariant, string> = {
-  primary: 'bg-brand text-brand-ink hover:bg-brand-hover',
+  primary: 'bg-brand text-brand-ink shadow-md shadow-brand/20 hover:bg-brand-hover hover:shadow-lg hover:shadow-brand/25',
   secondary: 'border border-border-strong bg-surface text-ink hover:bg-surface-2',
   ghost: 'text-ink-muted hover:bg-surface-2 hover:text-ink',
   dark: 'bg-espresso text-espresso-ink hover:bg-espresso-2',

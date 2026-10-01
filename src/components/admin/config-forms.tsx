@@ -10,6 +10,7 @@ import {
   saveTaskAction,
   uploadTaskImageAction,
   saveVipPlanAction,
+  setVipReferralEligibilityAction,
   toggleDepositAddressAction,
 } from '@/lib/admin/actions'
 import { Button, Field, Input, Select, Textarea } from '@/components/ui'
@@ -146,6 +147,27 @@ export function VipPlanForm({ plan }: { plan?: VipPlan }) {
   )
 
   return plan ? <Disclosure label="Edit">{body}</Disclosure> : body
+}
+
+export function ReferralVipPlanForm({ plan }: { plan: VipPlan }) {
+  const [state, action, pending] = useActionState(setVipReferralEligibilityAction, null)
+  useRefreshOnSuccess(state)
+
+  return (
+    <form action={action} className="flex flex-wrap items-center gap-2">
+      <ActionFeedback state={state} />
+      <input type="hidden" name="planId" value={plan.id} />
+      <input type="hidden" name="enabled" value={String(!plan.referral_enabled)} />
+      <SubmitButton
+        pending={pending}
+        size="sm"
+        variant={plan.referral_enabled ? 'danger' : 'secondary'}
+        pendingLabel="Saving…"
+      >
+        {plan.referral_enabled ? 'Remove VIP' : 'Add VIP'}
+      </SubmitButton>
+    </form>
+  )
 }
 
 /* ------------------------------------------------------------------ */

@@ -5,7 +5,7 @@ import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = {
   title: 'Privacy policy',
-  description: 'What data the PropVerify platform collects, why, and how long it is kept.',
+  description: 'What data the ArbiFlow platform collects, why, and how long it is kept.',
 }
 
 function Section({ title, children }: { title: string; children: React.ReactNode }) {

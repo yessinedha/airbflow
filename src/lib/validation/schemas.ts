@@ -157,6 +157,22 @@ export const setUserStatusSchema = z.object({
   reason: z.string().trim().max(500).optional(),
 })
 
+export const createAdminUserSchema = z.object({
+  email: emailSchema,
+  username: usernameSchema,
+  referralCode: referralCodeSchema,
+})
+
+export const updateUserUsernameSchema = z.object({
+  userId: uuidSchema,
+  username: usernameSchema,
+})
+
+export const setVipReferralEligibilitySchema = z.object({
+  planId: uuidSchema,
+  enabled: z.preprocess((value) => value === 'true', z.boolean()),
+})
+
 export const vipPlanSchema = z.object({
   id: uuidSchema.optional(),
   name: z.string().trim().min(2).max(50),

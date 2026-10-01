@@ -1,9 +1,10 @@
 import type { Metadata } from 'next'
 import Link from 'next/link'
 import { firstParam, loadUsers, pageParam } from '@/lib/admin/queries'
-import { Badge, Card, CardBody, EmptyState, PageHeader, Table, TableWrap, Td, Th } from '@/components/ui'
+import { Badge, Card, CardBody, CardHeader, CardTitle, EmptyState, PageHeader, Table, TableWrap, Td, Th } from '@/components/ui'
 import { UserStatusBadge } from '@/components/status'
 import { FilterTabs, Pagination, SearchBox } from '@/components/admin/controls'
+import { CreateAdminUserForm } from '@/components/admin/user-forms'
 import { formatDate, formatUsdt } from '@/lib/format'
 
 export const metadata: Metadata = { title: 'Users' }
@@ -40,6 +41,15 @@ export default async function AdminUsersPage({
   return (
     <div className="space-y-5">
       <PageHeader title="Users" description="Search by email, username or referral code." />
+
+      <Card>
+        <CardHeader>
+          <CardTitle>Invite a user</CardTitle>
+        </CardHeader>
+        <CardBody className="pt-0">
+          <CreateAdminUserForm />
+        </CardBody>
+      </Card>
 
       <div className="space-y-3">
         <SearchBox basePath="/admin/users" params={params} placeholder="Email, username or code…" />

@@ -4,7 +4,7 @@ import { getT } from '@/lib/i18n/server'
 
 export const metadata: Metadata = {
   title: 'Terms of service',
-  description: 'The terms governing use of the PropVerify platform.',
+  description: 'The terms governing use of the ArbiFlow platform.',
 }
 
 function Section({ n, title, children }: { n: string; title: string; children: React.ReactNode }) {

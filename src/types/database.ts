@@ -55,6 +55,7 @@ export interface VipPlan {
   activation_amount: string
   daily_task_limit: number
   reward_rate: string
+  referral_enabled: boolean
   active: boolean
   description: string | null
   sort_order: number

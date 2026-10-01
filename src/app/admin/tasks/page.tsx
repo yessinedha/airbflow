@@ -15,7 +15,7 @@ export default async function AdminTasksPage() {
     <div className="space-y-5">
       <PageHeader
         title="Tasks"
-        description="The pool of verification tasks that daily assignments are drawn from. Deactivating a task stops it being assigned from the next UTC day; assignments already issued are untouched."
+        description="The pool of crypto market-analysis exercises used for daily assignments. Deactivating an exercise stops it being assigned from the next UTC day; assignments already issued are untouched."
       />
 
       {activeCount < 3 ? (

@@ -26,7 +26,13 @@ import {
   WithdrawalStatusBadge,
 } from '@/components/status'
 import { DetailRow, Mono } from '@/components/admin/controls'
-import { AdjustBalanceForm, DeleteUserForm, SetUserRoleForm, SetUserStatusForm } from '@/components/admin/user-forms'
+import {
+  AdjustBalanceForm,
+  DeleteUserForm,
+  SetUserRoleForm,
+  SetUserStatusForm,
+  UpdateUserUsernameForm,
+} from '@/components/admin/user-forms'
 import { formatDate, formatDateTime, formatSignedUsdt, formatUsdt, shortHash } from '@/lib/format'
 
 export const metadata: Metadata = { title: 'User' }
@@ -156,6 +162,7 @@ export default async function AdminUserDetailPage({ params }: { params: Promise<
           <p className="text-xs text-ink-subtle">Every action here is written to the audit log.</p>
         </CardHeader>
         <CardBody className="flex flex-wrap items-start gap-2 pt-0">
+          <UpdateUserUsernameForm userId={profile.id} current={profile.username} />
           <AdjustBalanceForm
             key={profile.balance_available}
             userId={profile.id}

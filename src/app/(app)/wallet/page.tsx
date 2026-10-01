@@ -44,7 +44,9 @@ export default async function WalletPage() {
           <p className="tabular mt-1 text-3xl font-semibold tracking-tight sm:text-4xl">
             {formatUsdt(profile.balance_available)}
           </p>
-          <p className="mt-2 max-w-2xl text-xs leading-relaxed text-ink-muted">{t.wallet.balanceNote}</p>
+          {t.wallet.balanceNote ? (
+            <p className="mt-2 max-w-2xl text-xs leading-relaxed text-ink-muted">{t.wallet.balanceNote}</p>
+          ) : null}
         </CardBody>
       </Card>
 

@@ -35,7 +35,7 @@ export const SETTING_GROUPS: SettingGroup[] = [
     id: 'referrals',
     title: 'Referral programme',
     description:
-      'Commission paid up the invitation tree. It fires on VIP activation only — never on a deposit, a task reward or a signup.',
+      'Commission paid up the invitation tree only when an included VIP plan is activated — never on a deposit, task reward or signup.',
   },
   {
     id: 'vip',
@@ -237,7 +237,7 @@ export const SETTINGS_CATALOG: SettingSpec[] = [
     label: 'Platform name',
     help: 'Shown in notifications and member-facing copy.',
     control: { kind: 'text' },
-    codeDefault: 'PropVerify',
+    codeDefault: 'ArbiFlow',
     readBy: 'application code',
   },
   {

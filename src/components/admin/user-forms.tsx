@@ -1,11 +1,83 @@
 'use client'
 
 import { useActionState, useState } from 'react'
-import { adjustBalanceAction, deleteUserAction, setUserRoleAction, setUserStatusAction } from '@/lib/admin/actions'
+import {
+  adjustBalanceAction,
+  createAdminUserAction,
+  deleteUserAction,
+  setUserRoleAction,
+  setUserStatusAction,
+  updateUserUsernameAction,
+} from '@/lib/admin/actions'
 import { Field, Input, Select, Textarea } from '@/components/ui'
 import { ActionFeedback, Disclosure, SubmitButton, useRefreshOnSuccess } from '@/components/admin/base'
 import { formatUsdt } from '@/lib/format'
 import type { UserRole, UserStatus } from '@/types/database'
+
+export function CreateAdminUserForm() {
+  const [state, action, pending] = useActionState(createAdminUserAction, null)
+  useRefreshOnSuccess(state)
+
+  return (
+    <form action={action} className="space-y-3">
+      <ActionFeedback state={state} />
+      <div className="grid gap-3 sm:grid-cols-3">
+        <Field label="Email" htmlFor="admin-user-email" errors={state && !state.ok ? state.fieldErrors?.email : undefined}>
+          <Input id="admin-user-email" name="email" type="email" autoComplete="email" required />
+        </Field>
+        <Field
+          label="Username"
+          htmlFor="admin-user-username"
+          errors={state && !state.ok ? state.fieldErrors?.username : undefined}
+        >
+          <Input id="admin-user-username" name="username" autoComplete="off" minLength={3} maxLength={24} required />
+        </Field>
+        <Field
+          label="Inviter code"
+          htmlFor="admin-user-referral-code"
+          errors={state && !state.ok ? state.fieldErrors?.referralCode : undefined}
+        >
+          <Input id="admin-user-referral-code" name="referralCode" autoComplete="off" minLength={6} maxLength={12} required />
+        </Field>
+      </div>
+      <p className="text-xs text-ink-subtle">The user receives an invitation email and is added under this inviter.</p>
+      <SubmitButton pending={pending} size="sm" pendingLabel="Sending invitation…">
+        Invite user
+      </SubmitButton>
+    </form>
+  )
+}
+
+export function UpdateUserUsernameForm({ userId, current }: { userId: string; current: string | null }) {
+  const [state, action, pending] = useActionState(updateUserUsernameAction, null)
+  useRefreshOnSuccess(state)
+
+  return (
+    <Disclosure label="Edit username">
+      <form action={action} className="space-y-3">
+        <ActionFeedback state={state} />
+        <input type="hidden" name="userId" value={userId} />
+        <Field
+          label="Username"
+          htmlFor={`username-${userId}`}
+          errors={state && !state.ok ? state.fieldErrors?.username : undefined}
+        >
+          <Input
+            id={`username-${userId}`}
+            name="username"
+            defaultValue={current ?? ''}
+            minLength={3}
+            maxLength={24}
+            required
+          />
+        </Field>
+        <SubmitButton pending={pending} size="sm" pendingLabel="Saving…">
+          Save username
+        </SubmitButton>
+      </form>
+    </Disclosure>
+  )
+}
 
 /**
  * Posts an ADMIN_ADJUSTMENT ledger entry. There is no way to change a

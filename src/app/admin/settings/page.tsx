@@ -6,6 +6,7 @@ import {
   DepositAddressForm,
   NetworkForm,
   NewSettingForm,
+  ReferralVipPlanForm,
   SettingRowForm,
   ToggleAddressButton,
 } from '@/components/admin/config-forms'
@@ -55,6 +56,7 @@ export default async function AdminSettingsPage() {
   const missing = [...SETTINGS_BY_KEY.values()].filter((spec) => !byKey.has(spec.key))
 
   const activePlans = plans.filter((p) => p.active).sort((a, b) => a.sort_order - b.sort_order)
+  const referralPlans = activePlans.filter((plan) => plan.referral_enabled)
 
   return (
     <div className="space-y-6">
@@ -105,9 +107,29 @@ export default async function AdminSettingsPage() {
                 enabled={referralEnabled}
                 rates={rates}
                 totalRate={totalRate}
-                plans={activePlans}
+                plans={referralPlans}
                 chargeMode={chargeMode}
               />
+            ) : null}
+
+            {group.id === 'referrals' ? (
+              <div className="mt-5 rounded-card border border-border bg-surface-2/40 p-4">
+                <p className="label-mono text-ink-subtle">VIP plans in the referral programme</p>
+                <div className="mt-3 divide-y divide-border">
+                  {[...plans].sort((a, b) => a.sort_order - b.sort_order).map((plan) => (
+                    <div key={plan.id} className="flex flex-wrap items-center justify-between gap-3 py-3 first:pt-0 last:pb-0">
+                      <div className="flex items-center gap-2">
+                        <span className="text-sm font-medium">{plan.name}</span>
+                        {!plan.active ? <Badge tone="warning">Inactive</Badge> : null}
+                        <Badge tone={plan.referral_enabled ? 'positive' : 'neutral'}>
+                          {plan.referral_enabled ? 'Included' : 'Excluded'}
+                        </Badge>
+                      </div>
+                      <ReferralVipPlanForm plan={plan} />
+                    </div>
+                  ))}
+                </div>
+              </div>
             ) : null}
 
             {group.id === 'vip' ? <UpgradeImpact chargeMode={chargeMode} plans={activePlans} totalRate={totalRate} /> : null}

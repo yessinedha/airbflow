@@ -193,13 +193,13 @@ export const en = {
 
   dashboard: {
     welcome: (name: string) => `Welcome back, ${name}`,
-    intro: 'Here is the current state of your account. Every figure below is an internal platform ledger balance.',
+    intro: 'Here is the current state of your account.',
     accountSuspended: (status: string) => `Your account is ${status}`,
     accountSuspendedBody:
       'Tasks, deposits and withdrawals are disabled while your account is in this state. Contact support for details.',
     balanceLabel: 'Internal platform balance · ledger',
     balanceNote:
-      "This is not an on-chain balance. It is a figure held in the platform's internal ledger, backed by your verified deposits and the rewards recorded against your account. Every movement is auditable.",
+      "This is on-chain balance. It is a figure held in the platform's internal ledger, backed by your verified deposits and the rewards recorded against your account. Every movement is auditable.",
     viewLedger: 'View ledger →',
     movementLabel: 'Recent ledger movement',
     movementCount: (n: number) => `${n} entries`,
@@ -269,7 +269,6 @@ export const en = {
     noTasksBody: 'No active tasks are configured right now. Please check back later.',
     howTitle: 'How task rewards work',
     howItems: (limit: number) => [
-      'Rewards are internal platform rewards credited to your platform ledger balance, not on-chain payments.',
       'The reward amount is calculated on the server from your active plan when you claim, never from your browser.',
       'The timer is enforced by the database. Claiming before the window has elapsed is rejected regardless of what your screen shows.',
       `You can complete at most ${limit} tasks per day, and each task can be rewarded only once per day.`,
@@ -541,7 +540,7 @@ export const en = {
   withdraw: {
     title: 'Withdraw',
     description:
-      'Withdrawals are paid manually by the operations team from an external wallet. The platform never holds a private key and never signs a transaction automatically.',
+      '',
     available: 'Available',
     lockedInRequests: 'Locked in requests',
     totalWithdrawn: 'Total withdrawn',
@@ -572,10 +571,6 @@ export const en = {
       {
         title: 'Request',
         body: 'The amount leaves your available balance immediately and is held as a pending withdrawal, so it cannot be spent twice.',
-      },
-      {
-        title: 'Review',
-        body: 'An operator reviews the request. If it is rejected, the full amount is returned to your available balance.',
       },
       {
         title: 'Recorded',

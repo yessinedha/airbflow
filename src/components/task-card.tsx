@@ -266,15 +266,15 @@ function MarketPreview({
         alt={`Crypto market analysis preview for ${title}`}
         loading="lazy"
         decoding="async"
-        className={`h-full w-full object-cover opacity-35 transition-[filter,transform] duration-500 ease-out ${
-          sharp ? 'scale-100 blur-0 brightness-50 saturate-50' : 'scale-[1.06] blur-[3px] brightness-50 saturate-50 group-hover:scale-100 group-hover:blur-[1px]'
+        className={`h-full w-full object-cover opacity-75 transition-[filter,transform] duration-500 ease-out ${
+          sharp ? 'scale-100 blur-0 brightness-70 saturate-75' : 'scale-[1.06] blur-[3px] brightness-70 saturate-75 group-hover:scale-100 group-hover:blur-[1px]'
         }`}
       />
 
       {/* Keeps the signal labels legible over any configured image. */}
       <span
         aria-hidden
-        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-espresso/90 via-espresso/75 to-espresso/45"
+        className="pointer-events-none absolute inset-0 bg-gradient-to-br from-espresso/35 via-espresso/25 to-espresso/15"
       />
 
       <MarketBackdrop />
@@ -292,7 +292,7 @@ function MarketPreview({
 
 function MarketBackdrop() {
   return (
-    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden">
+    <div aria-hidden className="pointer-events-none absolute inset-0 overflow-hidden opacity-20">
       <div className="absolute end-[18%] top-1/2 aspect-square w-24 -translate-y-1/2 rounded-full border border-brand/35 bg-brand/5 shadow-[0_0_36px_color-mix(in_srgb,var(--brand)_18%,transparent)] sm:w-28">
         <span className="absolute inset-[17%] rounded-full border border-brand/25" />
         <span className="absolute inset-[34%] rounded-full border border-brand/20 bg-brand/10" />

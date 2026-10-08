@@ -147,8 +147,9 @@ export function ApproveDepositProofForm({ depositId, declaredAmount }: { deposit
         <input type="hidden" name="depositId" value={depositId} />
 
         <p className="rounded-lg bg-warning-soft px-3 py-2 text-xs text-ink">
-          OCR is untrusted and does not verify a blockchain transfer. Check the private screenshot against the actual
-          funds received at the platform wallet. Only the amount entered here is credited.
+          OCR and screenshot contents are untrusted. Check the private screenshot against funds received at the platform
+          wallet; if it shows a Binance transfer reference instead of an on-chain TXID, verify that reference in Binance
+          records as well. Only the amount you independently verify and enter here is credited.
         </p>
 
         <Field

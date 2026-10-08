@@ -169,6 +169,10 @@ export interface Deposit {
     status: string
     date: string
     addressMatched: boolean
+    addressMatch?: 'exact' | 'approximate' | 'none'
+    transactionType?: 'onchain' | 'binance_transfer' | 'unknown'
+    txHash?: string | null
+    binanceTransferId?: string | null
     rawText: string
   } | null
   from_address: string | null

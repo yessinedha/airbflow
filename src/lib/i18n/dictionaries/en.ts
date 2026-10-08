@@ -528,6 +528,10 @@ export const en = {
       proofOcrComplete: 'Screenshot details detected',
       proofOcrSummary: (amount: string, network: string, status: string, date: string) =>
         `${amount} USDT · ${network} · ${status} · ${date}`,
+      proofOcrAddressApproximate:
+        'The destination looks like a close OCR match. An administrator will verify it against the screenshot.',
+      proofOcrOnchainTxId: 'Detected on-chain TXID (unverified):',
+      proofOcrBinanceTransferId: 'Binance transfer reference (not an on-chain TXID, unverified):',
       proofOcrIncomplete: 'Could not match all required details',
       proofErrors: {
         amount: 'Could not read a USDT amount.',

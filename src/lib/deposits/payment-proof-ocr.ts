@@ -4,6 +4,10 @@ export interface PaymentProofOcr {
   status: string
   date: string
   addressMatched: boolean
+  addressMatch: 'exact' | 'approximate' | 'none'
+  transactionType: 'onchain' | 'binance_transfer' | 'unknown'
+  txHash: string | null
+  binanceTransferId: string | null
   rawText: string
 }
 
@@ -54,6 +58,71 @@ function networkMatches(found: string, expectedCode: string): boolean {
   return (aliases[expected] ?? [expected]).includes(actual)
 }
 
+function minimumSubstringEditDistance(value: string, candidate: string): number {
+  let previous = Array.from({ length: candidate.length + 1 }, () => 0)
+
+  for (let row = 1; row <= value.length; row += 1) {
+    const current = Array.from({ length: candidate.length + 1 }, (_, column) =>
+      column === 0 ? row : 0,
+    )
+    for (let column = 1; column <= candidate.length; column += 1) {
+      current[column] = Math.min(
+        previous[column] + 1,
+        current[column - 1] + 1,
+        previous[column - 1] + (value[row - 1] === candidate[column - 1] ? 0 : 1),
+      )
+    }
+    previous = current
+  }
+
+  return Math.min(...previous)
+}
+
+function matchAddress(rawText: string, expectedAddress: string): PaymentProofOcr['addressMatch'] {
+  if (!expectedAddress) return 'none'
+
+  const normalizedExpected = expectedAddress.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
+  const normalizedText = normaliseText(rawText)
+  const addressLabel = /\b(?:adresse|address)\b/.exec(normalizedText)
+  if (!addressLabel) return 'none'
+
+  const afterLabel = normalizedText.slice(addressLabel.index + addressLabel[0].length)
+  const nextField = /\b(?:enregistrer|save|txid|montant|amount|date|reseau|network|frais|fee)\b/.exec(afterLabel)
+  const candidate = (nextField ? afterLabel.slice(0, nextField.index) : afterLabel)
+    .replace(/[^a-z0-9]/g, '')
+    .toUpperCase()
+  if (candidate.includes(normalizedExpected)) return 'exact'
+
+  // OCR can confuse a few glyphs or insert punctuation/noise in long addresses.
+  // This is only a submission aid; an administrator still verifies the proof.
+  return minimumSubstringEditDistance(normalizedExpected, candidate) <= 3 ? 'approximate' : 'none'
+}
+
+function extractTransactionReference(rawText: string): Pick<
+  PaymentProofOcr,
+  'transactionType' | 'txHash' | 'binanceTransferId'
+> {
+  const text = normaliseText(rawText)
+  const txidIndex = text.search(/\btxid\b/)
+  const txidSection = txidIndex >= 0 ? text.slice(txidIndex, txidIndex + 180) : text
+  const txHash = txidSection.match(/\b[a-f0-9]{64}\b/i)?.[0] ?? null
+  if (txHash) {
+    return { transactionType: 'onchain', txHash, binanceTransferId: null }
+  }
+
+  const offchainMarker = /\btransfert\s+hors\s+de\s+la\s+blockchain\b/.exec(text)
+  if (offchainMarker) {
+    const reference = text
+      .slice(offchainMarker.index + offchainMarker[0].length, offchainMarker.index + offchainMarker[0].length + 120)
+      .match(/\b\d{8,20}\b/)?.[0] ?? null
+    if (reference) {
+      return { transactionType: 'binance_transfer', txHash: null, binanceTransferId: reference }
+    }
+  }
+
+  return { transactionType: 'unknown', txHash: null, binanceTransferId: null }
+}
+
 export function parsePaymentProofOcr(
   rawText: string,
   expected: PaymentProofExpectations,
@@ -63,9 +132,9 @@ export function parsePaymentProofOcr(
   const foundNetwork = text.match(/\b(trx|tron|trc[\s-]?20|bsc|bnb|bep[\s-]?20|ethereum|eth|erc[\s-]?20)\b/i)?.[1] ?? ''
   const status = text.match(/\b(termine|complete|completed|success|successful)\b/i)?.[1] ?? ''
   const date = rawText.match(/\b\d{4}-\d{2}-\d{2}(?:[ T]\d{2}:\d{2}:\d{2})?\b/)?.[0] ?? ''
-  const addressInText = rawText.replace(/[^a-zA-Z0-9]/g, '').toUpperCase()
-  const addressMatched =
-    Boolean(expected.address) && addressInText.includes(expected.address.replace(/[^a-zA-Z0-9]/g, '').toUpperCase())
+  const addressMatch = matchAddress(rawText, expected.address)
+  const addressMatched = addressMatch !== 'none'
+  const transactionReference = extractTransactionReference(rawText)
   const issues: PaymentProofOcrIssue[] = []
 
   if (!amount) issues.push('amount')
@@ -82,6 +151,8 @@ export function parsePaymentProofOcr(
       status,
       date,
       addressMatched,
+      addressMatch,
+      ...transactionReference,
       rawText: rawText.slice(0, 10_000),
     },
     issues,

@@ -531,6 +531,10 @@ export const ar: Dictionary = {
       proofOcrComplete: 'تم التعرّف على تفاصيل لقطة الشاشة',
       proofOcrSummary: (amount: string, network: string, status: string, date: string) =>
         `${amount} USDT · ${network} · ${status} · ${date}`,
+      proofOcrAddressApproximate:
+        'تبدو الوجهة مطابقة تقريبية وفق OCR. سيتحقق المسؤول منها بمقارنتها بلقطة الشاشة.',
+      proofOcrOnchainTxId: 'معرّف معاملة على السلسلة مكتشف (غير متحقق منه):',
+      proofOcrBinanceTransferId: 'مرجع تحويل Binance (ليس معرّفاً على السلسلة، غير متحقق منه):',
       proofOcrIncomplete: 'تعذّر مطابقة كل التفاصيل المطلوبة',
       proofErrors: {
         amount: 'تعذّر قراءة مبلغ USDT.',

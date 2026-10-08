@@ -182,7 +182,6 @@ export function SubmitDepositProofForm({
       })
       console.log('[OCR] Worker initialized')
       const result = await worker.recognize(nextFile)
-      console.log('[OCR] Result:', result.data.text)
       setOcr(parsePaymentProofOcr(result.data.text, { amount, networkCode, address: toAddress }))
     } catch (error) {
       console.error('[Deposit OCR ERROR]', error)
@@ -230,7 +229,22 @@ export function SubmitDepositProofForm({
       {ocrBusy ? <p className="text-xs text-ink-muted">{t.deposit.form.proofOcrRunning}</p> : null}
       {ocr && ocr.issues.length === 0 ? (
         <Alert tone="positive" title={t.deposit.form.proofOcrComplete}>
-          {t.deposit.form.proofOcrSummary(ocr.data.amount, ocr.data.network, ocr.data.status, ocr.data.date)}
+          <div className="space-y-1">
+            <p>{t.deposit.form.proofOcrSummary(ocr.data.amount, ocr.data.network, ocr.data.status, ocr.data.date)}</p>
+            {ocr.data.addressMatch === 'approximate' ? (
+              <p>{t.deposit.form.proofOcrAddressApproximate}</p>
+            ) : null}
+            {ocr.data.txHash ? (
+              <p className="break-all">
+                {t.deposit.form.proofOcrOnchainTxId} {ocr.data.txHash}
+              </p>
+            ) : null}
+            {ocr.data.binanceTransferId ? (
+              <p>
+                {t.deposit.form.proofOcrBinanceTransferId} {ocr.data.binanceTransferId}
+              </p>
+            ) : null}
+          </div>
         </Alert>
       ) : null}
       {ocr && ocr.issues.length > 0 ? (

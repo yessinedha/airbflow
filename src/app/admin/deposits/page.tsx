@@ -132,9 +132,39 @@ export default async function AdminDepositsPage({
                           </div>
                           <div>
                             <dt className="text-ink-subtle">OCR destination matched</dt>
-                            <dd>{d.proof_ocr_data.addressMatched ? 'Yes (OCR only)' : 'No'}</dd>
+                            <dd>
+                              {d.proof_ocr_data.addressMatch === 'approximate'
+                                ? 'Approximate match (OCR only; verify screenshot)'
+                                : d.proof_ocr_data.addressMatched
+                                  ? 'Exact match (OCR only)'
+                                  : 'No match'}
+                            </dd>
                           </div>
                         </dl>
+                      ) : null}
+                      {d.proof_ocr_data?.binanceTransferId ? (
+                        <p className="break-all text-xs">
+                          <span className="text-ink-subtle">Binance transfer reference (not an on-chain TXID; unverified): </span>
+                          <Mono>{d.proof_ocr_data.binanceTransferId}</Mono>
+                        </p>
+                      ) : null}
+                      {d.proof_ocr_data?.txHash ? (
+                        <p className="break-all text-xs">
+                          <span className="text-ink-subtle">OCR on-chain TXID (unverified): </span>
+                          {explorerUrl(d.explorerTemplate, d.proof_ocr_data.txHash) ? (
+                            <a
+                              href={explorerUrl(d.explorerTemplate, d.proof_ocr_data.txHash) ?? undefined}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="font-mono text-brand hover:underline"
+                            >
+                              {d.proof_ocr_data.txHash}
+                              <IconExternal />
+                            </a>
+                          ) : (
+                            <Mono>{d.proof_ocr_data.txHash}</Mono>
+                          )}
+                        </p>
                       ) : null}
                       {d.proof_ocr_data?.rawText ? (
                         <details>

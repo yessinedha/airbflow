@@ -172,19 +172,21 @@ export function SubmitDepositProofForm({
     let worker: Awaited<ReturnType<(typeof import('tesseract.js'))['createWorker']>> | undefined
     try {
       const { createWorker } = await import('tesseract.js')
-      worker = await createWorker(['eng', 'fra'], undefined, {
-        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+      worker = await createWorker('fra', undefined, {
+        langPath: 'https://tessdata.projectnaptha.com/4.0.0_fast',
+        errorHandler: (error) => console.error('Payment proof OCR worker error:', error),
       })
       const result = await worker.recognize(nextFile)
       setOcr(parsePaymentProofOcr(result.data.text, { amount, networkCode, address: toAddress }))
-    } catch {
+    } catch (error) {
+      console.error('Payment proof OCR failed:', error)
       setOcrError(t.deposit.form.proofOcrFailed)
     } finally {
       if (worker) {
         try {
           await worker.terminate()
-        } catch {
-          setOcrError(t.deposit.form.proofOcrFailed)
+        } catch (error) {
+          console.error('Payment proof OCR worker termination failed:', error)
         }
       }
       setOcrBusy(false)

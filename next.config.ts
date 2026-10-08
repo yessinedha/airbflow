@@ -36,7 +36,7 @@ const nextConfig: NextConfig = {
               // allowed here. Narrow this
               // to your Supabase storage origin if you never use outside URLs.
               "img-src 'self' data: blob: https:",
-              "worker-src 'self' blob:",
+              "worker-src 'self' blob: https://cdn.jsdelivr.net",
               "font-src 'self' data: https://fonts.gstatic.com",
               "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tessdata.projectnaptha.com https://cdn.jsdelivr.net",
               "frame-ancestors 'none'",

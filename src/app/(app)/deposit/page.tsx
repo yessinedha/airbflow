@@ -18,7 +18,14 @@ import {
   Th,
 } from '@/components/ui'
 import { DepositStatusBadge } from '@/components/status'
-import { CancelDepositButton, CopyButton, DepositIntentForm, RecheckButton, SubmitTxForm, type NetworkOption } from '@/components/deposit-forms'
+import {
+  CancelDepositButton,
+  CopyButton,
+  DepositIntentForm,
+  RecheckButton,
+  SubmitDepositProofForm,
+  type NetworkOption,
+} from '@/components/deposit-forms'
 import { explorerUrl, formatDateTime, formatUsdt, shortHash, toNumber } from '@/lib/format'
 import { IconExternal } from '@/components/icons'
 import type { Deposit, DepositAddress, SupportedNetwork } from '@/types/database'
@@ -135,7 +142,9 @@ export default async function DepositPage() {
                     </div>
                     <div className="flex items-center gap-2">
                       <DepositStatusBadge status={deposit.status} label={t.statuses.deposit[deposit.status]} />
-                      {!deposit.tx_hash ? <CancelDepositButton depositId={deposit.id} /> : null}
+                      {!deposit.tx_hash && !deposit.payment_proof_path ? (
+                        <CancelDepositButton depositId={deposit.id} />
+                      ) : null}
                     </div>
                   </CardHeader>
 
@@ -178,14 +187,18 @@ export default async function DepositPage() {
                               <dt className="text-ink-subtle">{t.deposit.tokenContract}</dt>
                               <dd className="break-all font-mono">{deposit.token_contract ?? t.common.dash}</dd>
                             </div>
-                            <div>
-                              <dt className="text-ink-subtle">{t.deposit.confirmationsRequired}</dt>
-                              <dd className="font-medium">{deposit.required_confirmations}</dd>
-                            </div>
-                            <div>
-                              <dt className="text-ink-subtle">{t.deposit.confirmationsCurrent}</dt>
-                              <dd className="font-medium">{deposit.confirmations}</dd>
-                            </div>
+                            {deposit.tx_hash ? (
+                              <>
+                                <div>
+                                  <dt className="text-ink-subtle">{t.deposit.confirmationsRequired}</dt>
+                                  <dd className="font-medium">{deposit.required_confirmations}</dd>
+                                </div>
+                                <div>
+                                  <dt className="text-ink-subtle">{t.deposit.confirmationsCurrent}</dt>
+                                  <dd className="font-medium">{deposit.confirmations}</dd>
+                                </div>
+                              </>
+                            ) : null}
                           </dl>
                         </div>
                       </div>
@@ -202,10 +215,23 @@ export default async function DepositPage() {
                         </p>
                         <RecheckButton depositId={deposit.id} />
                       </div>
+                    ) : deposit.payment_proof_path ? (
+                      <Alert tone="info" title={t.deposit.form.proofAwaitingReviewTitle}>
+                        {t.deposit.form.proofAwaitingReview}
+                      </Alert>
                     ) : (
                       <div className="rounded-lg border border-border p-3">
                         <p className="mb-3 text-sm font-medium">{t.deposit.alreadySent}</p>
-                        <SubmitTxForm depositId={deposit.id} />
+                        {deposit.to_address ? (
+                          <SubmitDepositProofForm
+                            depositId={deposit.id}
+                            amount={String(deposit.amount)}
+                            networkCode={deposit.network_code}
+                            toAddress={deposit.to_address}
+                          />
+                        ) : (
+                          <Alert tone="warning">{t.deposit.noAddress}</Alert>
+                        )}
                       </div>
                     )}
                   </CardBody>
@@ -264,6 +290,8 @@ export default async function DepositPage() {
                             ) : (
                               <span className="font-mono text-xs">{shortHash(d.tx_hash)}</span>
                             )
+                          ) : d.payment_proof_path ? (
+                            <span className="text-xs text-ink-subtle">{t.deposit.form.proofSubmitted}</span>
                           ) : (
                             <span className="text-xs text-ink-subtle">{t.deposit.notSubmitted}</span>
                           )}

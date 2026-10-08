@@ -290,7 +290,11 @@ export async function loadUserDetail(userId: string): Promise<UserDetail | null>
 // ---------------------------------------------------------------------
 // Deposits
 // ---------------------------------------------------------------------
-export type DepositRow = Deposit & { user: ProfileRef | null; explorerTemplate: string | null }
+export type DepositRow = Deposit & {
+  user: ProfileRef | null
+  explorerTemplate: string | null
+  proofUrl: string | null
+}
 
 export async function loadDeposits({
   status,
@@ -327,12 +331,25 @@ export async function loadDeposits({
   ])
 
   const explorerByCode = new Map((networks.data ?? []).map((n) => [n.code, n.explorer_tx_url]))
+  const proofUrls = await Promise.all(
+    rows.map(async (deposit) => {
+      if (!deposit.payment_proof_path) return [deposit.id, null] as const
+      const { data, error } = await supabase.storage.from('deposit-proofs').createSignedUrl(deposit.payment_proof_path, 3600)
+      if (error) {
+        console.error('[admin-deposits] could not create screenshot URL', deposit.id, error.message)
+        return [deposit.id, null] as const
+      }
+      return [deposit.id, data.signedUrl] as const
+    }),
+  )
+  const proofUrlById = new Map(proofUrls)
 
   return paged(
     rows.map((d) => ({
       ...d,
       user: users.get(d.user_id) ?? null,
       explorerTemplate: explorerByCode.get(d.network_code) ?? null,
+      proofUrl: proofUrlById.get(d.id) ?? null,
     })),
     count ?? 0,
     page,

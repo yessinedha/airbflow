@@ -1,15 +1,18 @@
 'use client'
 
-import Image from 'next/image'
 import { useActionState, useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation'
-import txidDetailsImage from '@/app/(app)/deposit/TXID1.jpeg'
-import txidEmailImage from '@/app/(app)/deposit/TXID2.jpeg'
-import { cancelDepositAction, createDepositIntentAction, recheckDepositAction, submitDepositTxAction } from '@/lib/deposits/actions'
+import {
+  cancelDepositAction,
+  createDepositIntentAction,
+  recheckDepositAction,
+  submitDepositProofAction,
+} from '@/lib/deposits/actions'
 import { Alert, Button, Field, Input, Select } from '@/components/ui'
 import { IconCopy } from '@/components/icons'
 import { formatUsdt } from '@/lib/format'
 import { useT } from '@/lib/i18n/client'
+import { parsePaymentProofOcr } from '@/lib/deposits/payment-proof-ocr'
 
 export interface NetworkOption {
   code: string
@@ -79,7 +82,7 @@ export function DepositIntentForm({ networks }: { networks: NetworkOption[] }) {
         errors={state && !state.ok ? state.fieldErrors?.amount : undefined}
         hint={
           network
-            ? t.deposit.form.amountHint(formatUsdt(network.minDeposit), network.requiredConfirmations)
+            ? t.deposit.form.amountHint(formatUsdt(network.minDeposit))
             : undefined
         }
       >
@@ -128,75 +131,114 @@ export function CopyButton({ value, label }: { value: string; label?: string }) 
   )
 }
 
-export function SubmitTxForm({ depositId }: { depositId: string }) {
+export function SubmitDepositProofForm({
+  depositId,
+  amount,
+  networkCode,
+  toAddress,
+}: {
+  depositId: string
+  amount: string
+  networkCode: string
+  toAddress: string
+}) {
   const t = useT()
   const router = useRouter()
-  const [state, action, pending] = useActionState(submitDepositTxAction, null)
+  const [state, action, pending] = useActionState(submitDepositProofAction, null)
+  const [file, setFile] = useState<File | null>(null)
+  const [ocr, setOcr] = useState<ReturnType<typeof parsePaymentProofOcr> | null>(null)
+  const [ocrBusy, setOcrBusy] = useState(false)
+  const [ocrError, setOcrError] = useState('')
 
   useEffect(() => {
     if (state?.ok) router.refresh()
   }, [state, router])
 
+  async function readScreenshot(nextFile: File | undefined) {
+    setFile(nextFile ?? null)
+    setOcr(null)
+    setOcrError('')
+    if (!nextFile) return
+    if (nextFile.size > 3 * 1024 * 1024) {
+      setOcrError(t.deposit.form.proofFileTooLarge)
+      return
+    }
+    if (!['image/jpeg', 'image/png', 'image/webp'].includes(nextFile.type)) {
+      setOcrError(t.deposit.form.proofInvalidFile)
+      return
+    }
+
+    setOcrBusy(true)
+    let worker: Awaited<ReturnType<(typeof import('tesseract.js'))['createWorker']>> | undefined
+    try {
+      const { createWorker } = await import('tesseract.js')
+      worker = await createWorker(['eng', 'fra'], undefined, {
+        langPath: 'https://tessdata.projectnaptha.com/4.0.0',
+      })
+      const result = await worker.recognize(nextFile)
+      setOcr(parsePaymentProofOcr(result.data.text, { amount, networkCode, address: toAddress }))
+    } catch {
+      setOcrError(t.deposit.form.proofOcrFailed)
+    } finally {
+      if (worker) {
+        try {
+          await worker.terminate()
+        } catch {
+          setOcrError(t.deposit.form.proofOcrFailed)
+        }
+      }
+      setOcrBusy(false)
+    }
+  }
+
+  const canSubmit = Boolean(file && ocr && ocr.issues.length === 0 && !ocrBusy && !pending)
+
   return (
     <form action={action} className="space-y-3">
       <input type="hidden" name="depositId" value={depositId} />
+      <input type="hidden" name="ocrAmount" value={ocr?.data.amount ?? ''} />
+      <input type="hidden" name="ocrNetwork" value={ocr?.data.network ?? ''} />
+      <input type="hidden" name="ocrStatus" value={ocr?.data.status ?? ''} />
+      <input type="hidden" name="ocrDate" value={ocr?.data.date ?? ''} />
+      <input type="hidden" name="ocrAddressMatched" value={ocr?.data.addressMatched ? 'true' : 'false'} />
+      <input type="hidden" name="ocrText" value={ocr?.data.rawText ?? ''} />
 
-      {state ? (
-        <Alert tone={state.ok ? (state.data.outcome === 'CREDITED' ? 'positive' : 'info') : 'negative'}>
-          {state.ok ? state.message : state.error}
-        </Alert>
-      ) : null}
+      {state && !state.ok ? <Alert tone="negative">{state.error}</Alert> : null}
+      {ocrError ? <Alert tone="negative">{ocrError}</Alert> : null}
 
-      <Field
-        label={t.deposit.form.txId}
-        htmlFor={`txHash-${depositId}`}
-        errors={state && !state.ok ? state.fieldErrors?.txHash : undefined}
-      >
+      <p className="text-xs text-ink-muted">{t.deposit.form.proofInstructions}</p>
+      <Field label={t.deposit.form.proofScreenshot} htmlFor={`proof-${depositId}`}>
         <Input
-          id={`txHash-${depositId}`}
-          name="txHash"
-          placeholder="Enter your TXID"
-          autoComplete="off"
-          spellCheck={false}
-          className="font-mono text-xs"
+          id={`proof-${depositId}`}
+          name="screenshot"
+          type="file"
+          accept="image/jpeg,image/png,image/webp"
           required
+          className="h-auto py-2 file:me-3 file:rounded-md file:border-0 file:bg-brand-soft file:px-3 file:py-1.5 file:text-xs file:font-medium file:text-brand"
+          onChange={(event) => void readScreenshot(event.currentTarget.files?.[0])}
         />
       </Field>
 
-      <div className="space-y-3 rounded-lg border border-border bg-surface-2 p-3">
-        <div>
-          <p className="text-sm font-medium text-ink">{t.deposit.form.txIdGuideTitle}</p>
-          <p className="mt-1 text-xs leading-relaxed text-ink-muted">{t.deposit.form.txIdGuideBody}</p>
-        </div>
-        <div className="grid gap-3 sm:grid-cols-2">
-          <figure className="overflow-hidden rounded-lg border border-border bg-surface">
-            <Image
-              src={txidDetailsImage}
-              alt={t.deposit.form.txIdDetailsImageAlt}
-              className="h-44 w-full object-contain object-top"
-              placeholder="blur"
-            />
-            <figcaption className="px-2 py-1.5 text-center text-[11px] text-ink-subtle">
-              {t.deposit.form.txIdDetailsCaption}
-            </figcaption>
-          </figure>
-          <figure className="overflow-hidden rounded-lg border border-border bg-surface">
-            <Image
-              src={txidEmailImage}
-              alt={t.deposit.form.txIdEmailImageAlt}
-              className="h-44 w-full object-contain object-top"
-              placeholder="blur"
-            />
-            <figcaption className="px-2 py-1.5 text-center text-[11px] text-ink-subtle">
-              {t.deposit.form.txIdEmailCaption}
-            </figcaption>
-          </figure>
-        </div>
-      </div>
+      {ocrBusy ? <p className="text-xs text-ink-muted">{t.deposit.form.proofOcrRunning}</p> : null}
+      {ocr && ocr.issues.length === 0 ? (
+        <Alert tone="positive" title={t.deposit.form.proofOcrComplete}>
+          {t.deposit.form.proofOcrSummary(ocr.data.amount, ocr.data.network, ocr.data.status, ocr.data.date)}
+        </Alert>
+      ) : null}
+      {ocr && ocr.issues.length > 0 ? (
+        <Alert tone="negative" title={t.deposit.form.proofOcrIncomplete}>
+          <ul className="list-disc space-y-1 ps-5">
+            {ocr.issues.map((issue) => (
+              <li key={issue}>{t.deposit.form.proofErrors[issue]}</li>
+            ))}
+          </ul>
+        </Alert>
+      ) : null}
 
-      <Button type="submit" disabled={pending} className="w-full">
-        {pending ? t.deposit.form.verifying : t.deposit.form.submitTx}
+      <Button type="submit" disabled={!canSubmit} className="w-full">
+        {pending ? t.deposit.form.proofSubmitting : t.deposit.form.proofSubmit}
       </Button>
+      <p className="text-xs text-ink-subtle">{t.deposit.form.proofPrivacy}</p>
     </form>
   )
 }

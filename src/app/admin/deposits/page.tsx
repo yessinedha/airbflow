@@ -4,7 +4,12 @@ import { firstParam, loadDeposits, pageParam } from '@/lib/admin/queries'
 import { Alert, Card, CardBody, EmptyState, PageHeader } from '@/components/ui'
 import { DepositStatusBadge } from '@/components/status'
 import { FilterTabs, Mono, Pagination, SearchBox } from '@/components/admin/controls'
-import { ConfirmDepositForm, RecheckDepositButton, RejectDepositForm } from '@/components/admin/money-forms'
+import {
+  ApproveDepositProofForm,
+  ConfirmDepositForm,
+  RecheckDepositButton,
+  RejectDepositForm,
+} from '@/components/admin/money-forms'
 import { explorerUrl, formatDateTime, formatUsdt, shortHash } from '@/lib/format'
 import { IconExternal } from '@/components/icons'
 
@@ -35,7 +40,7 @@ export default async function AdminDepositsPage({
     <div className="space-y-5">
       <PageHeader
         title="Deposits"
-        description="Deposits are credited only by on-chain verification. Manual confirmation is an audited exception path."
+        description="Deposits are credited after on-chain verification or documented manual review of a payment screenshot."
       />
 
       <div className="flex flex-wrap items-center justify-between gap-3">
@@ -74,7 +79,11 @@ export default async function AdminDepositsPage({
                       </div>
                       <p className="mt-0.5 text-xs text-ink-subtle">
                         Created {formatDateTime(d.created_at)} · reference <Mono>{d.reference_code}</Mono>
-                        {d.verified_amount ? ' · amount taken from the chain' : ' · amount declared by the user'}
+                        {d.verified_amount
+                          ? d.payment_proof_path
+                            ? ' · amount verified during manual review'
+                            : ' · amount taken from the chain'
+                          : ' · amount declared by the user'}
                       </p>
                     </div>
 
@@ -90,10 +99,60 @@ export default async function AdminDepositsPage({
                     </div>
                   </div>
 
+                  {d.payment_proof_path ? (
+                    <div className="space-y-2 rounded-lg border border-border bg-surface-2 px-3 py-3">
+                      <div className="flex flex-wrap items-center justify-between gap-2">
+                        <p className="text-sm font-medium">Uploaded payment proof</p>
+                        {d.proofUrl ? (
+                          <a
+                            href={d.proofUrl}
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="text-sm font-medium text-brand hover:underline"
+                          >
+                            View screenshot
+                          </a>
+                        ) : (
+                          <span className="text-xs text-negative">Screenshot unavailable — check private Storage setup.</span>
+                        )}
+                      </div>
+                      {d.proof_ocr_data ? (
+                        <dl className="grid gap-x-4 gap-y-1 text-xs sm:grid-cols-2">
+                          <div>
+                            <dt className="text-ink-subtle">OCR amount (unverified)</dt>
+                            <dd>{d.proof_ocr_data.amount} {d.currency}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-ink-subtle">OCR network / status</dt>
+                            <dd>{d.proof_ocr_data.network} · {d.proof_ocr_data.status}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-ink-subtle">OCR date</dt>
+                            <dd>{d.proof_ocr_data.date}</dd>
+                          </div>
+                          <div>
+                            <dt className="text-ink-subtle">OCR destination matched</dt>
+                            <dd>{d.proof_ocr_data.addressMatched ? 'Yes (OCR only)' : 'No'}</dd>
+                          </div>
+                        </dl>
+                      ) : null}
+                      {d.proof_ocr_data?.rawText ? (
+                        <details>
+                          <summary className="cursor-pointer text-xs text-ink-muted">Untrusted OCR text</summary>
+                          <pre className="mt-2 max-h-48 overflow-auto whitespace-pre-wrap break-words rounded bg-surface px-2 py-2 text-xs">
+                            {d.proof_ocr_data.rawText}
+                          </pre>
+                        </details>
+                      ) : null}
+                    </div>
+                  ) : null}
+
                   {amountDiffers ? (
                     <Alert tone="warning" title="Verified amount differs from the declared amount">
-                      Declared {formatUsdt(d.amount)}, credited {formatUsdt(d.verified_amount)}. The chain is
-                      authoritative, so the credited figure is what the user received.
+                      Declared {formatUsdt(d.amount)}, credited {formatUsdt(d.verified_amount)}.{' '}
+                      {d.payment_proof_path
+                        ? 'The manually verified amount is what the user received.'
+                        : 'The chain is authoritative, so the credited figure is what the user received.'}
                     </Alert>
                   ) : null}
 
@@ -148,7 +207,15 @@ export default async function AdminDepositsPage({
                   {d.status === 'PENDING' ? (
                     <div className="flex flex-wrap items-start gap-2 border-t border-border pt-3">
                       {d.tx_hash ? <RecheckDepositButton depositId={d.id} /> : null}
-                      <ConfirmDepositForm depositId={d.id} declaredAmount={String(d.amount)} />
+                      {d.payment_proof_path ? (
+                        d.proofUrl ? (
+                          <ApproveDepositProofForm depositId={d.id} declaredAmount={String(d.amount)} />
+                        ) : (
+                          <Alert tone="negative">Approval disabled because the private screenshot could not be opened.</Alert>
+                        )
+                      ) : (
+                        <ConfirmDepositForm depositId={d.id} declaredAmount={String(d.amount)} />
+                      )}
                       <RejectDepositForm depositId={d.id} />
                     </div>
                   ) : null}

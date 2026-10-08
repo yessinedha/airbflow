@@ -46,6 +46,8 @@ const MESSAGES: Record<string, string> = {
   DEPOSIT_NOT_FOUND: 'Deposit not found.',
   DEPOSIT_NOT_PENDING: 'This deposit is no longer pending.',
   DEPOSIT_TX_ALREADY_SUBMITTED: 'This deposit already has a TXID and cannot be cancelled.',
+  DEPOSIT_PROOF_ALREADY_SUBMITTED: 'A payment screenshot has already been submitted for this deposit.',
+  DEPOSIT_PROOF_REQUIRED: 'A payment screenshot is required before manual approval.',
   DEPOSIT_HAS_NO_TX_HASH: 'Submit the transaction hash before verification can run.',
   INVALID_TX_HASH: 'That does not look like a valid transaction hash.',
   TX_HASH_ALREADY_SUBMITTED: 'That transaction hash has already been submitted.',

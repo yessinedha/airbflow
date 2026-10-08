@@ -2,6 +2,7 @@
 
 import { useActionState, useState } from 'react'
 import {
+  adminApproveDepositProofAction,
   adminConfirmDepositAction,
   adminRecheckDepositAction,
   adminRejectDepositAction,
@@ -131,6 +132,74 @@ export function RecheckDepositButton({ depositId }: { depositId: string }) {
         </p>
       ) : null}
     </form>
+  )
+}
+
+export function ApproveDepositProofForm({ depositId, declaredAmount }: { depositId: string; declaredAmount: string }) {
+  const [state, action, pending] = useActionState(adminApproveDepositProofAction, null)
+  const [verified, setVerified] = useState(false)
+  useRefreshOnSuccess(state)
+
+  return (
+    <Disclosure label="Review proof and approve" tone="success">
+      <form action={action} className="space-y-3">
+        <ActionFeedback state={state} />
+        <input type="hidden" name="depositId" value={depositId} />
+
+        <p className="rounded-lg bg-warning-soft px-3 py-2 text-xs text-ink">
+          OCR is untrusted and does not verify a blockchain transfer. Check the private screenshot against the actual
+          funds received at the platform wallet. Only the amount entered here is credited.
+        </p>
+
+        <Field
+          label="Amount verified at the receiving wallet (USDT)"
+          htmlFor={`proof-amount-${depositId}`}
+          errors={state && !state.ok ? state.fieldErrors?.amount : undefined}
+          hint={`The user declared ${declaredAmount} USDT. Enter the amount you independently verified.`}
+        >
+          <Input
+            id={`proof-amount-${depositId}`}
+            name="amount"
+            type="number"
+            step="0.00000001"
+            min="0.00000001"
+            required
+            defaultValue={declaredAmount}
+          />
+        </Field>
+
+        <Field
+          label="Review note"
+          htmlFor={`proof-reason-${depositId}`}
+          errors={state && !state.ok ? state.fieldErrors?.reason : undefined}
+        >
+          <Textarea
+            id={`proof-reason-${depositId}`}
+            name="reason"
+            required
+            minLength={5}
+            maxLength={500}
+            placeholder="How you confirmed the received amount at the platform wallet."
+          />
+        </Field>
+
+        <label className="flex items-start gap-2 text-xs text-ink-muted">
+          <input
+            type="checkbox"
+            name="verifiedReceipt"
+            value="on"
+            checked={verified}
+            onChange={(event) => setVerified(event.target.checked)}
+            className="mt-0.5"
+          />
+          I independently verified that the funds reached the platform wallet.
+        </label>
+
+        <SubmitButton pending={pending} variant="success" size="sm" disabled={pending || !verified} pendingLabel="Approving…">
+          Approve and credit verified amount
+        </SubmitButton>
+      </form>
+    </Disclosure>
   )
 }
 

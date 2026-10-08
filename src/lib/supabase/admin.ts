@@ -13,6 +13,7 @@ let cached: SupabaseClient | null = null
  *   2. the scheduled verification job
  *   3. registration pre-checks that must read across users
  *   4. admin user invitations through Supabase Auth
+ *   5. storing user-submitted deposit proof images after session validation
  *
  * It must never be imported into a Client Component. The `server-only`
  * import above turns any such attempt into a build error.

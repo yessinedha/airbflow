@@ -114,6 +114,16 @@ export const submitDepositTxSchema = z.object({
   txHash: txHashSchema,
 })
 
+export const submitDepositProofSchema = z.object({
+  depositId: uuidSchema,
+  ocrAmount: amountSchema,
+  ocrNetwork: z.string().trim().min(2).max(32),
+  ocrStatus: z.string().trim().min(2).max(40),
+  ocrDate: z.string().trim().min(10).max(40),
+  ocrAddressMatched: z.literal('true'),
+  ocrText: z.string().trim().min(20).max(10_000),
+})
+
 // ---------------------------------------------------------------------
 // Withdrawals
 // ---------------------------------------------------------------------
@@ -129,6 +139,13 @@ export const withdrawalIdSchema = z.object({ withdrawalId: uuidSchema })
 // Admin
 // ---------------------------------------------------------------------
 export const adminReasonSchema = z.string().trim().min(5, 'Provide a reason of at least 5 characters').max(500)
+
+export const approveDepositProofSchema = z.object({
+  depositId: uuidSchema,
+  amount: amountSchema,
+  reason: adminReasonSchema,
+  verifiedReceipt: z.literal('on'),
+})
 
 export const markPaidSchema = z.object({
   withdrawalId: uuidSchema,

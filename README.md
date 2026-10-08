@@ -202,12 +202,17 @@ than showing an address that would send funds nowhere.
 In `/admin/settings`:
 
 1. Check the network rows (TRC20, BEP20, ERC20 are seeded) — token contract,
-   decimals, required confirmations, minimums and fees.
+   decimals, required confirmations, minimums and fees. The screenshot-proof
+   workflow uses the selected network and the deposit address saved with each
+   request.
 2. Add a deposit address for each network you want to enable. The address is
    validated against that network's format rule before it is saved.
-3. Confirm the page reports that on-chain verification is configured for the
-   chain. If it warns that the provider is missing, set the matching RPC or API
-   variable from `.env.example`.
+3. Users upload a complete screenshot of their completed withdrawal. Tesseract
+   reads it in their browser; the private screenshot and untrusted OCR text are
+   saved for admin review. OCR never credits a balance. An administrator must
+   confirm the actual funds arrived at the receiving wallet, enter the verified
+   amount, and approve the deposit. Apply the migration with `supabase db push`
+   (or regenerate and run `supabase/full-setup.sql`) before enabling this flow.
 
 ---
 

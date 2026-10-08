@@ -7,6 +7,7 @@ import { getAdminActionSession } from '@/lib/auth/session'
 import { siteUrl } from '@/lib/env'
 import {
   adjustBalanceSchema,
+  approveDepositProofSchema,
   createAdminUserSchema,
   depositAddressSchema,
   fieldErrorsOf,
@@ -174,6 +175,38 @@ export async function adminConfirmDepositAction(
 
   revalidateAdmin('/admin/deposits', '/admin/ledger')
   return actionOk(data, 'Deposit confirmed manually. The action is recorded in the audit log.')
+}
+
+export async function adminApproveDepositProofAction(
+  _prev: ActionResult<unknown> | null,
+  formData: FormData,
+): Promise<ActionResult<unknown>> {
+  const parsed = approveDepositProofSchema.safeParse({
+    depositId: formData.get('depositId'),
+    amount: formData.get('amount'),
+    reason: formData.get('reason'),
+    verifiedReceipt: formData.get('verifiedReceipt'),
+  })
+  if (!parsed.success) {
+    return actionError('Please verify the payment and correct the highlighted fields.', fieldErrorsOf(parsed.error))
+  }
+
+  const auth = await adminGuard()
+  if (!auth.ok) return actionError(auth.error)
+
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.rpc('admin_approve_deposit_proof', {
+    p_deposit_id: parsed.data.depositId,
+    p_amount: parsed.data.amount,
+    p_reason: parsed.data.reason,
+  })
+  if (error) return actionError(mapDbError(error))
+
+  revalidateAdmin('/admin/deposits', '/admin/ledger')
+  revalidatePath('/deposit')
+  revalidatePath('/wallet')
+  revalidatePath('/dashboard')
+  return actionOk(data, 'Payment proof approved and the verified amount credited.')
 }
 
 export async function adminRejectDepositAction(

@@ -162,6 +162,15 @@ export interface Deposit {
   network_code: string
   token_contract: string | null
   tx_hash: string | null
+  payment_proof_path: string | null
+  proof_ocr_data: {
+    amount: string
+    network: string
+    status: string
+    date: string
+    addressMatched: boolean
+    rawText: string
+  } | null
   from_address: string | null
   to_address: string | null
   confirmations: number

@@ -24,18 +24,21 @@ const nextConfig: NextConfig = {
             key: 'Content-Security-Policy',
             value: [
               "default-src 'self'",
-              "script-src 'self' 'unsafe-inline'" + (process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''),
+              "script-src 'self' 'unsafe-inline' 'wasm-unsafe-eval' https://cdn.jsdelivr.net" +
+                (process.env.NODE_ENV === 'development' ? " 'unsafe-eval'" : ''),
               // Google Fonts serves the stylesheet from fonts.googleapis.com
               // and the font files themselves from fonts.gstatic.com. Drop
               // both hosts here if you self-host the faces instead.
               "style-src 'self' 'unsafe-inline' https://fonts.googleapis.com",
+              // Tesseract's worker and core are served from jsDelivr; image data stays client-side.
               // Images only. An operator can point a task illustration at any
               // host, and an <img> cannot execute anything, so https: is
-              // allowed here while scripts stay locked to 'self'. Narrow this
+              // allowed here. Narrow this
               // to your Supabase storage origin if you never use outside URLs.
               "img-src 'self' data: blob: https:",
+              "worker-src 'self' blob:",
               "font-src 'self' data: https://fonts.gstatic.com",
-              "connect-src 'self' https://*.supabase.co wss://*.supabase.co",
+              "connect-src 'self' https://*.supabase.co wss://*.supabase.co https://tessdata.projectnaptha.com https://cdn.jsdelivr.net",
               "frame-ancestors 'none'",
               "base-uri 'self'",
               "form-action 'self'",

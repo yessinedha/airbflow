@@ -190,6 +190,15 @@ export const setVipReferralEligibilitySchema = z.object({
   enabled: z.preprocess((value) => value === 'true', z.boolean()),
 })
 
+export const vipWithdrawalFeeSchema = z.object({
+  planId: uuidSchema,
+  fee: z
+    .union([z.string().trim().min(1).transform(Number), z.number()])
+    .refine((value) => Number.isFinite(value) && value >= 0, 'Enter a valid non-negative fee')
+    .refine((value) => value <= 1_000_000_000, 'Fee is too large')
+    .refine((value) => Number(value.toFixed(8)) === value, 'Fee has too many decimal places'),
+})
+
 export const vipPlanSchema = z.object({
   id: uuidSchema.optional(),
   name: z.string().trim().min(2).max(50),

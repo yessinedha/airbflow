@@ -54,6 +54,7 @@ export interface VipPlan {
   level: number
   activation_amount: string
   daily_task_limit: number
+  withdrawal_fee: string
   reward_rate: string
   referral_enabled: boolean
   active: boolean

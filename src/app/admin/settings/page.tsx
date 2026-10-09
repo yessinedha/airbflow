@@ -9,6 +9,7 @@ import {
   ReferralVipPlanForm,
   SettingRowForm,
   ToggleAddressButton,
+  VipWithdrawalFeeForm,
 } from '@/components/admin/config-forms'
 import { Mono } from '@/components/admin/controls'
 import { ReferralImpact, TaskRewardImpact, UpgradeImpact } from '@/components/admin/settings-impact'
@@ -138,6 +139,32 @@ export default async function AdminSettingsPage() {
           </CardBody>
         </Card>
       ))}
+
+      <Card>
+        <CardHeader>
+          <div>
+            <CardTitle>Withdrawal fees by VIP</CardTitle>
+            <p className="mt-1 max-w-2xl text-sm text-ink-muted">
+              The ArbiFlow fee is added to the selected network fee and deducted from the requested amount. VIP levels
+              above 7 have no ArbiFlow fee; network fees still apply.
+            </p>
+          </div>
+        </CardHeader>
+        <CardBody className="space-y-4 pt-0">
+          {[...plans].sort((a, b) => a.level - b.level).map((plan) => (
+            <div key={plan.id} className="flex flex-wrap items-center justify-between gap-4 border-b border-border pb-4 last:border-0 last:pb-0">
+              <div>
+                <p className="font-medium">{plan.name}</p>
+                <p className="text-xs text-ink-subtle">
+                  VIP {plan.level}{!plan.active ? ' · Inactive' : ''}
+                </p>
+              </div>
+              <VipWithdrawalFeeForm plan={plan} />
+            </div>
+          ))}
+          {plans.length === 0 ? <EmptyState title="No VIP plans" description="Create a VIP plan first." /> : null}
+        </CardBody>
+      </Card>
 
       {/* ============================================================= */}
       {/* Raw keys                                                       */}
@@ -320,4 +347,3 @@ function SettingRow({ setting }: { setting: PlatformSetting }) {
     </li>
   )
 }
-

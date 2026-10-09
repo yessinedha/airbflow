@@ -611,9 +611,9 @@ export const ar: Dictionary = {
       requestReceived: 'تم استلام الطلب',
       requestRejected: 'تم رفض الطلب',
       amount: 'المبلغ',
-      amountHint: (available: string, minimum?: string, fee?: string) =>
-        minimum && fee
-          ? `المتاح: ${available} · الحد الأدنى: ${minimum} · رسوم الشبكة: ${fee}`
+      amountHint: (available: string, minimum?: string, fee?: string, platformFee?: string) =>
+        minimum && fee && platformFee !== undefined
+          ? `المتاح: ${available} · الحد الأدنى: ${minimum} · رسوم ArbiFlow: ${platformFee} · رسوم الشبكة: ${fee}`
           : `المتاح: ${available}`,
       network: 'الشبكة',
       disabledSuffix: ' — معطّلة',
@@ -621,6 +621,8 @@ export const ar: Dictionary = {
       destinationHint: 'تحقّق منه مرتين: المدفوعات اليدوية لا يمكن التراجع عنها.',
       youReceive: 'ستستلم',
       deducted: 'يُخصَم من الرصيد',
+      platformFee: 'رسوم ArbiFlow',
+      networkFee: 'رسوم الشبكة',
       submitting: 'جارٍ الإرسال…',
       submit: 'طلب السحب',
       note: 'عند الإرسال يُحجَز المبلغ فوراً ويُخصَم من رصيدك المتاح. يُنفَّذ الدفع يدوياً من طرف فريق العمليات عبر محفظة خارجية؛ ويظهر معرّف المعاملة هنا بمجرد إرسالها.',

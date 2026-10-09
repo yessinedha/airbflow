@@ -60,6 +60,9 @@ export default async function WithdrawPage() {
     enabled: n.withdrawal_enabled,
     addressHint: t.withdraw.form.destinationHint,
   }))
+  const vipWithdrawalFee = session.vipPlan && session.vipPlan.level <= 7
+    ? toNumber(session.vipPlan.withdrawal_fee)
+    : 0
 
   const openWithdrawal = (withdrawals ?? []).find((w) => w.status === 'PENDING' || w.status === 'PROCESSING')
   const reason = eligibility?.reason ?? null
@@ -132,6 +135,7 @@ export default async function WithdrawPage() {
             <WithdrawForm
               networks={options}
               available={toNumber(session.profile.balance_available)}
+              platformFee={vipWithdrawalFee}
               disabledReason={
                 blocked && reason
                   ? `${reasonTitle(reason, eligibility!, t)} ${reasonCopy[reason] ?? ''}`.trim()

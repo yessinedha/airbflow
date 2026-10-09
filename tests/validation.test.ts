@@ -16,6 +16,7 @@ import {
   txHashSchema,
   usernameSchema,
   vipPlanSchema,
+  vipWithdrawalFeeSchema,
   walletAddressSchema,
 } from '@/lib/validation/schemas'
 
@@ -126,6 +127,20 @@ describe('amountSchema', () => {
     ['too many decimals', '1.123456789'],
   ])('rejects %s', (_label, value) => {
     expect(amountSchema.safeParse(value).success).toBe(false)
+  })
+})
+
+describe('vipWithdrawalFeeSchema', () => {
+  const planId = '4abf39d3-2868-4f87-9b38-301557189288'
+
+  it('accepts zero and positive fees up to eight decimal places', () => {
+    expect(vipWithdrawalFeeSchema.parse({ planId, fee: '0.00000000' }).fee).toBe(0)
+    expect(vipWithdrawalFeeSchema.parse({ planId, fee: '24' }).fee).toBe(24)
+    expect(vipWithdrawalFeeSchema.parse({ planId, fee: '0.12345678' }).fee).toBe(0.12345678)
+  })
+
+  it.each(['', '-1', '0.123456789', '1000000001'])('rejects invalid VIP fees: %s', (fee) => {
+    expect(vipWithdrawalFeeSchema.safeParse({ planId, fee }).success).toBe(false)
   })
 })
 

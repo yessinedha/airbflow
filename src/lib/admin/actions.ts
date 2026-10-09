@@ -23,6 +23,7 @@ import {
   taskSchema,
   updateUserUsernameSchema,
   uuidSchema,
+  vipWithdrawalFeeSchema,
   vipPlanSchema,
 } from '@/lib/validation/schemas'
 import { actionError, actionOk, mapDbError, type ActionResult } from '@/lib/security/errors'
@@ -454,15 +455,51 @@ export async function saveVipPlanAction(
 
   const { id, ...values } = parsed.data
   const supabase = await createSupabaseServerClient()
+  const planValues = parsed.data.level > 7 ? { ...values, withdrawal_fee: 0 } : values
 
   const { error } = id
-    ? await supabase.from('vip_plans').update(values).eq('id', id)
-    : await supabase.from('vip_plans').insert(values)
+    ? await supabase.from('vip_plans').update(planValues).eq('id', id)
+    : await supabase.from('vip_plans').insert(planValues)
 
   if (error) return actionError(mapDbError(error))
 
   revalidateAdmin('/admin/vip', '/vip')
   return actionOk(null, id ? 'Plan updated.' : 'Plan created.')
+}
+
+export async function saveVipWithdrawalFeeAction(
+  _prev: ActionResult<unknown> | null,
+  formData: FormData,
+): Promise<ActionResult<unknown>> {
+  const parsed = vipWithdrawalFeeSchema.safeParse({
+    planId: formData.get('planId'),
+    fee: formData.get('fee'),
+  })
+  if (!parsed.success) return actionError('Enter a valid VIP withdrawal fee.', fieldErrorsOf(parsed.error))
+
+  const auth = await adminGuard()
+  if (!auth.ok) return actionError(auth.error)
+
+  const supabase = await createSupabaseServerClient()
+  const { data: plan, error: lookupError } = await supabase
+    .from('vip_plans')
+    .select('id, level')
+    .eq('id', parsed.data.planId)
+    .maybeSingle()
+  if (lookupError) return actionError(mapDbError(lookupError))
+  if (!plan) return actionError('VIP plan not found.')
+  if (plan.level > 7 && parsed.data.fee !== 0) {
+    return actionError('ArbiFlow withdrawal fees are free for VIP levels above 7.')
+  }
+
+  const { error } = await supabase
+    .from('vip_plans')
+    .update({ withdrawal_fee: parsed.data.fee })
+    .eq('id', plan.id)
+  if (error) return actionError(mapDbError(error))
+
+  revalidateAdmin('/admin/settings', '/withdraw')
+  return actionOk(null, 'VIP withdrawal fee saved.')
 }
 
 export async function setVipReferralEligibilityAction(

@@ -19,10 +19,12 @@ export interface WithdrawNetworkOption {
 export function WithdrawForm({
   networks,
   available,
+  platformFee,
   disabledReason,
 }: {
   networks: WithdrawNetworkOption[]
   available: number
+  platformFee: number
   disabledReason?: string | null
 }) {
   const t = useT()
@@ -41,8 +43,8 @@ export function WithdrawForm({
   const numericAmount = Number(amount.replace(',', '.'))
   const net = useMemo(() => {
     if (!network || !Number.isFinite(numericAmount)) return null
-    return numericAmount - network.fee
-  }, [network, numericAmount])
+    return numericAmount - network.fee - platformFee
+  }, [network, numericAmount, platformFee])
 
   if (disabledReason) {
     return (
@@ -71,6 +73,7 @@ export function WithdrawForm({
           formatUsdt(available),
           network ? formatUsdt(network.minWithdrawal) : undefined,
           network ? formatUsdt(network.fee) : undefined,
+          formatUsdt(platformFee),
         )}
       >
         <Input
@@ -120,15 +123,23 @@ export function WithdrawForm({
         />
       </Field>
 
-      {net !== null && Number.isFinite(net) && net > 0 ? (
+      {net !== null && Number.isFinite(net) && net > 0 && network ? (
         <div className="rounded-lg bg-surface-2 px-3 py-2.5 text-sm">
           <div className="flex justify-between">
             <span className="text-ink-muted">{t.withdraw.form.youReceive}</span>
             <span className="tabular font-semibold">{formatUsdt(net)}</span>
           </div>
-          <div className="mt-0.5 flex justify-between text-xs text-ink-subtle">
+          <div className="mt-1 flex justify-between text-xs text-ink-subtle">
             <span>{t.withdraw.form.deducted}</span>
             <span className="tabular">{formatUsdt(numericAmount)}</span>
+          </div>
+          <div className="mt-0.5 flex justify-between text-xs text-ink-subtle">
+            <span>{t.withdraw.form.platformFee}</span>
+            <span className="tabular">{formatUsdt(platformFee)}</span>
+          </div>
+          <div className="mt-0.5 flex justify-between text-xs text-ink-subtle">
+            <span>{t.withdraw.form.networkFee}</span>
+            <span className="tabular">{formatUsdt(network.fee)}</span>
           </div>
         </div>
       ) : null}

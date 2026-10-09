@@ -10,6 +10,7 @@ import {
   saveTaskAction,
   uploadTaskImageAction,
   saveVipPlanAction,
+  saveVipWithdrawalFeeAction,
   setVipReferralEligibilityAction,
   toggleDepositAddressAction,
 } from '@/lib/admin/actions'
@@ -166,6 +167,43 @@ export function ReferralVipPlanForm({ plan }: { plan: VipPlan }) {
       >
         {plan.referral_enabled ? 'Remove VIP' : 'Add VIP'}
       </SubmitButton>
+    </form>
+  )
+}
+
+export function VipWithdrawalFeeForm({ plan }: { plan: VipPlan }) {
+  const [state, action, pending] = useActionState(saveVipWithdrawalFeeAction, null)
+  useRefreshOnSuccess(state)
+  const forcedFree = plan.level > 7
+
+  return (
+    <form action={action} className="flex flex-wrap items-end gap-2">
+      <input type="hidden" name="planId" value={plan.id} />
+      <Field
+        label="ArbiFlow withdrawal fee (USDT)"
+        htmlFor={`vip-withdrawal-fee-${plan.id}`}
+        errors={state && !state.ok ? state.fieldErrors?.fee : undefined}
+        hint={forcedFree ? 'Automatically free for VIP levels above 7. Network fees still apply.' : 'Added to the selected network fee.'}
+      >
+        <Input
+          id={`vip-withdrawal-fee-${plan.id}`}
+          name="fee"
+          type="number"
+          min="0"
+          step="0.00000001"
+          defaultValue={forcedFree ? '0' : plan.withdrawal_fee}
+          disabled={forcedFree}
+          required
+        />
+      </Field>
+      {forcedFree ? (
+        <p className="pb-2 text-sm font-medium text-positive">Free</p>
+      ) : (
+        <SubmitButton pending={pending} size="sm" pendingLabel="Saving…">
+          Save fee
+        </SubmitButton>
+      )}
+      <ActionFeedback state={state} />
     </form>
   )
 }

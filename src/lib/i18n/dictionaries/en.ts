@@ -608,9 +608,9 @@ export const en = {
       requestReceived: 'Request received',
       requestRejected: 'Request rejected',
       amount: 'Amount',
-      amountHint: (available: string, minimum?: string, fee?: string) =>
-        minimum && fee
-          ? `Available: ${available} · Minimum: ${minimum} · Network fee: ${fee}`
+      amountHint: (available: string, minimum?: string, fee?: string, platformFee?: string) =>
+        minimum && fee && platformFee !== undefined
+          ? `Available: ${available} · Minimum: ${minimum} · ArbiFlow fee: ${platformFee} · Network fee: ${fee}`
           : `Available: ${available}`,
       network: 'Network',
       disabledSuffix: ' — disabled',
@@ -618,6 +618,8 @@ export const en = {
       destinationHint: 'Double-check it: manual payments cannot be reversed.',
       youReceive: 'You receive',
       deducted: 'Deducted from balance',
+      platformFee: 'ArbiFlow fee',
+      networkFee: 'Network fee',
       submitting: 'Submitting…',
       submit: 'Request withdrawal',
       note: 'On submission the amount is locked immediately and removed from your available balance. Payment is executed manually by the operations team from an external wallet; the transaction hash appears here once it has been sent.',

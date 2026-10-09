@@ -598,6 +598,10 @@ export const en = {
         title: 'Recorded',
         body: 'The resulting transaction hash is recorded against your withdrawal and shown to you here, and the ledger is closed with a WITHDRAWAL_COMPLETED entry.',
       },
+      {
+        title: 'tasks',
+        body: 'After submitting a withdrawal request, your tasks will be paused for 48 hours. You can resume completing tasks once this period has ended.',
+      },
     ],
     fee: 'Fee',
     requested: 'Requested',

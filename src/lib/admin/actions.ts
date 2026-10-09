@@ -95,13 +95,15 @@ export async function markWithdrawalPaidAction(
   const supabase = await createSupabaseServerClient()
   const { data, error } = await supabase.rpc('admin_mark_withdrawal_paid', {
     p_withdrawal_id: parsed.data.withdrawalId,
-    p_tx_hash: parsed.data.txHash,
+    p_tx_hash: parsed.data.txHash ?? null,
     p_note: parsed.data.note ?? null,
   })
   if (error) return actionError(mapDbError(error))
 
   revalidateAdmin('/admin/withdrawals', '/admin/ledger')
-  return actionOk(data, 'Withdrawal marked as paid and the transaction hash is now visible to the user.')
+  return actionOk(data, parsed.data.txHash
+    ? 'Withdrawal marked as paid and the transaction hash is now visible to the user.'
+    : 'Withdrawal marked as paid without a transaction hash.')
 }
 
 export async function rejectWithdrawalAction(

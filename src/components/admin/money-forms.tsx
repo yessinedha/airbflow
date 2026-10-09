@@ -33,10 +33,7 @@ export function ApproveWithdrawalButton({ withdrawalId }: { withdrawalId: string
   )
 }
 
-/**
- * Records the hash of a payment the operator already sent from an external
- * wallet. The platform never signs or broadcasts anything itself.
- */
+/** Records a manually completed payment; the hash and internal note are optional. */
 export function MarkPaidForm({ withdrawalId, amount }: { withdrawalId: string; amount: string }) {
   const [state, action, pending] = useActionState(markWithdrawalPaidAction, null)
   useRefreshOnSuccess(state)
@@ -48,20 +45,18 @@ export function MarkPaidForm({ withdrawalId, amount }: { withdrawalId: string; a
         <input type="hidden" name="withdrawalId" value={withdrawalId} />
 
         <p className="rounded-lg bg-surface px-3 py-2 text-xs text-ink-muted">
-          Send {amount} from the external payout wallet first, wait for the transaction to appear on chain, then paste
-          its hash here. This does not move any funds; it records what you already sent and makes the hash visible to
-          the user.
+          Confirm that {amount} has been sent from the external payout wallet. The platform does not move funds. Add
+          the transaction hash if available; it is optional.
         </p>
 
         <Field
-          label="Transaction hash"
+          label="Transaction hash (optional)"
           htmlFor={`txHash-${withdrawalId}`}
           errors={state && !state.ok ? state.fieldErrors?.txHash : undefined}
         >
           <Input
             id={`txHash-${withdrawalId}`}
             name="txHash"
-            required
             autoComplete="off"
             spellCheck={false}
             className="font-mono text-xs"

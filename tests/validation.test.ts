@@ -229,10 +229,12 @@ describe('admin schemas', () => {
     if (result.success) expect(result.data.amount).toBe(-25.5)
   })
 
-  it('requires a real transaction hash before a withdrawal can be marked paid', () => {
+  it('allows a withdrawal to be marked paid with or without a valid transaction hash', () => {
     const base = { withdrawalId: '00000000-0000-4000-8000-000000000000' }
     expect(markPaidSchema.safeParse({ ...base, txHash: 'paid' }).success).toBe(false)
     expect(markPaidSchema.safeParse({ ...base, txHash: `0x${'a'.repeat(64)}` }).success).toBe(true)
+    expect(markPaidSchema.safeParse(base).success).toBe(true)
+    expect(markPaidSchema.safeParse({ ...base, txHash: '' }).success).toBe(true)
   })
 
   it('rejects a non-uuid identifier', () => {

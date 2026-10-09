@@ -149,7 +149,7 @@ export const approveDepositProofSchema = z.object({
 
 export const markPaidSchema = z.object({
   withdrawalId: uuidSchema,
-  txHash: txHashSchema,
+  txHash: z.preprocess((value) => (value === '' || value === null ? undefined : value), txHashSchema.optional()),
   note: z.string().trim().max(500).optional(),
 })
 

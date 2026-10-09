@@ -265,6 +265,9 @@ export const ar: Dictionary = {
     requiresPlan: 'يتطلّب باقة نشطة',
     disabledTitle: 'المهام معطّلة',
     disabledBody: (status: string) => `حسابك في حالة: ${status}. تواصل مع الدعم للتفاصيل.`,
+    withdrawalLockTitle: 'المهام متوقفة بعد طلب السحب',
+    withdrawalLockBody: (unlockAt: string) => `تم إيقاف الوصول إلى المهام حتى ${unlockAt} بعد طلب السحب.`,
+    withdrawalLockUnknown: 'تم إيقاف الوصول إلى المهام بعد طلب السحب. حدّث الصفحة بعد قليل لمعرفة موعد إعادة فتحها.',
     needPlanTitle: 'فعّل باقة VIP لتتمكّن من استلام المكافآت',
     needPlanBody:
       'يمكنك الاطّلاع على مهام اليوم، لكن لا يمكن استلام المكافآت إلا بباقة نشطة. يُشتَقّ مبلغ المكافأة من معايير المكافأة المضبوطة في باقتك.',
@@ -298,6 +301,7 @@ export const ar: Dictionary = {
       starting: 'جارٍ البدء…',
       start: '← ابدأ التحليل',
       needPlan: 'يلزم وجود باقة VIP نشطة قبل إمكانية استلام أي مكافأة.',
+      withdrawalLocked: 'إجراءات المهام متوقفة ما دام قفل السحب سارياً.',
       recorded: 'مُقيَّدة في سجلّك.',
       windowNote: (seconds: number) => `نافذة مدتها ${seconds} ثانية يقيسها الخادم.`,
     },

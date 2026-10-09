@@ -55,6 +55,7 @@ export async function requestWithdrawalAction(
   if (error) return actionError(mapDbError(error))
 
   revalidatePath('/withdraw')
+  revalidatePath('/tasks')
   revalidatePath('/wallet')
   revalidatePath('/dashboard')
 

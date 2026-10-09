@@ -262,6 +262,9 @@ export const en = {
     requiresPlan: 'Requires an active plan',
     disabledTitle: 'Tasks are disabled',
     disabledBody: (status: string) => `Your account is ${status}. Contact support for details.`,
+    withdrawalLockTitle: 'Tasks paused after withdrawal',
+    withdrawalLockBody: (unlockAt: string) => `Your task access is paused until ${unlockAt} after your withdrawal request.`,
+    withdrawalLockUnknown: 'Your task access is paused after a withdrawal request. Refresh the page shortly to check when tasks reopen.',
     needPlanTitle: 'Activate a VIP plan to claim rewards',
     needPlanBody:
       "You can view today's tasks, but rewards can only be claimed with an active plan. The reward amount is derived from your plan's configured task reward parameters.",
@@ -295,6 +298,7 @@ export const en = {
       starting: 'Starting…',
       start: 'Start analysis →',
       needPlan: 'An active VIP plan is required before a reward can be claimed.',
+      withdrawalLocked: 'Task actions are paused while your withdrawal lock is active.',
       recorded: 'Recorded in your ledger.',
       windowNote: (seconds: number) => `Window of ${seconds}s measured on the server.`,
     },

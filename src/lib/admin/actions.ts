@@ -845,6 +845,13 @@ export async function saveSettingAction(
     return actionError('Please correct the highlighted fields.', fieldErrorsOf(parsed.error))
   }
 
+  if (
+    parsed.data.key === 'withdrawal_task_lock_hours' &&
+    (!/^\d+$/.test(parsed.data.value) || Number(parsed.data.value) > 720)
+  ) {
+    return actionError('Task lock duration must be a whole number of hours from 0 to 720.')
+  }
+
   const auth = await adminGuard()
   if (!auth.ok) return actionError(auth.error)
 

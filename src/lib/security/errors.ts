@@ -33,6 +33,7 @@ const MESSAGES: Record<string, string> = {
   NO_ACTIVE_VIP_PLAN: 'Activate a VIP plan before claiming task rewards.',
   VIP_PLAN_INACTIVE: 'Your VIP plan is no longer active.',
   REWARD_NOT_CONFIGURED: 'No reward is configured for this task. Contact support.',
+  TASKS_LOCKED_AFTER_WITHDRAWAL: 'Tasks are paused after your withdrawal request. Refresh the page for the current unlock time.',
 
   VIP_PLAN_NOT_FOUND: 'That plan does not exist.',
   VIP_PLAN_ALREADY_ACTIVE: 'That plan is already active on your account.',

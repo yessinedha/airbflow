@@ -4,7 +4,7 @@ import { createSupabaseServerClient } from '@/lib/supabase/server'
 import { serverClockMs, utcToday } from '@/lib/dashboard/queries'
 import { Alert, ButtonLink, Card, CardBody, EmptyState, PageHeader, Stat } from '@/components/ui'
 import { TaskCard, type TaskCardData } from '@/components/task-card'
-import { formatUsdt } from '@/lib/format'
+import { formatDateTime, formatUsdt } from '@/lib/format'
 import type { AssignmentStatus, TaskAssignment, TaskDifficulty } from '@/types/database'
 import { getT } from '@/lib/i18n/server'
 
@@ -27,10 +27,17 @@ export default async function TasksPage() {
   const session = await requireSession('/tasks')
   const supabase = await createSupabaseServerClient()
   const today = utcToday()
+  const { data: taskLockData, error: taskLockError } = await supabase.rpc('current_user_task_lock_status')
+  if (taskLockError) console.error('[tasks] withdrawal lock status failed', taskLockError.message)
+  const taskLock = taskLockData as { locked: boolean; locked_until: string | null; duration_hours: number } | null
+  const withdrawalLocked = taskLockError ? true : Boolean(taskLock?.locked)
 
   // Idempotent: creates today's assignments the first time the page is
   // opened each UTC day, and tops them up after a VIP upgrade.
-  await supabase.rpc('ensure_daily_assignments')
+  if (!withdrawalLocked) {
+    const { error } = await supabase.rpc('ensure_daily_assignments')
+    if (error) console.error('[tasks] daily assignment creation failed', error.message)
+  }
 
   const { data: assignments } = await supabase
     .from('task_assignments')
@@ -60,8 +67,9 @@ export default async function TasksPage() {
   const dailyLimit = session.vipPlan?.daily_task_limit ?? rows.length
   const earnedToday = completed.reduce((sum, r) => sum + Number(r.reward_amount), 0)
   const potentialToday = previews.reduce((sum, p) => sum + p, 0)
-  const canWork = session.profile.status === 'ACTIVE' && Boolean(session.vipPlan)
   const t = await getT()
+  const canWork = session.profile.status === 'ACTIVE' && Boolean(session.vipPlan) && !withdrawalLocked
+  const workDisabledReason = withdrawalLocked ? t.tasks.card.withdrawalLocked : undefined
 
   const cards: TaskCardData[] = rows.map((row, index) => ({
     assignmentId: row.id,
@@ -116,6 +124,14 @@ export default async function TasksPage() {
         </Alert>
       ) : null}
 
+      {withdrawalLocked ? (
+        <Alert tone="warning" title={t.tasks.withdrawalLockTitle}>
+          {taskLock?.locked_until
+            ? t.tasks.withdrawalLockBody(formatDateTime(taskLock.locked_until))
+            : t.tasks.withdrawalLockUnknown}
+        </Alert>
+      ) : null}
+
       {cards.length === 0 ? (
         <EmptyState
           title={t.tasks.noTasksTitle}
@@ -124,7 +140,13 @@ export default async function TasksPage() {
       ) : (
         <div className="grid gap-4 lg:grid-cols-2">
           {cards.map((card) => (
-            <TaskCard key={card.assignmentId} task={card} serverNowMs={serverNowMs} canWork={canWork} />
+            <TaskCard
+              key={card.assignmentId}
+              task={card}
+              serverNowMs={serverNowMs}
+              canWork={canWork}
+              disabledReason={workDisabledReason}
+            />
           ))}
         </div>
       )}

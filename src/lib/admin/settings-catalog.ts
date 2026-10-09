@@ -96,6 +96,16 @@ export const SETTINGS_CATALOG: SettingSpec[] = [
     readBy: 'withdrawal_eligibility()',
   },
   {
+    key: 'withdrawal_task_lock_hours',
+    group: 'withdrawals',
+    label: 'Pause tasks after a withdrawal request',
+    help: 'How many hours tasks are blocked after a member submits a withdrawal request. The timer starts immediately when the request is created.',
+    effect: 'Applies to all members and active requests. Set to 0 to disable the task pause.',
+    control: { kind: 'number', unit: 'hours (0 disables)', min: 0, max: 720, integer: true },
+    codeDefault: '48',
+    readBy: 'task_withdrawal_lock_status() and task assignment guard',
+  },
+  {
     key: 'first_withdrawal_anchor',
     group: 'withdrawals',
     label: 'What starts the waiting period',

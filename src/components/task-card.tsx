@@ -36,7 +36,17 @@ const DIFFICULTY_TONE = { EASY: 'positive', MEDIUM: 'warning', HARD: 'negative' 
  * device time cannot shorten the wait. The claim is refused by
  * `claim_task()` anyway until `now() >= started_at + duration_seconds`.
  */
-export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; serverNowMs: number; canWork: boolean }) {
+export function TaskCard({
+  task,
+  serverNowMs,
+  canWork,
+  disabledReason,
+}: {
+  task: TaskCardData
+  serverNowMs: number
+  canWork: boolean
+  disabledReason?: string
+}) {
   const t = useT()
   const router = useRouter()
   const [startState, startAction, startPending] = useActionState(startTaskAction, null)
@@ -168,7 +178,7 @@ export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; s
           ) : started ? (
             <form action={claimAction}>
               <input type="hidden" name="assignmentId" value={task.assignmentId} />
-              <Button type="submit" variant="success" className="w-full" disabled={!claimable || claimPending}>
+              <Button type="submit" variant="success" className="w-full" disabled={!claimable || !canWork || claimPending}>
                 {claimPending
                   ? t.tasks.card.claiming
                   : claimable
@@ -187,7 +197,7 @@ export function TaskCard({ task, serverNowMs, canWork }: { task: TaskCardData; s
 
           <p className="mt-2 text-center text-xs text-ink-subtle">
             {!canWork && !completed
-              ? t.tasks.card.needPlan
+              ? (disabledReason ?? t.tasks.card.needPlan)
               : completed
                 ? t.tasks.card.recorded
                 : t.tasks.card.windowNote(task.durationSeconds)}

@@ -57,6 +57,7 @@ export const ar: Dictionary = {
     withdraw: 'سحب',
     notifications: 'الإشعارات',
     profile: 'الملف الشخصي',
+    supportTelegram: 'الدعم عبر Telegram',
     admin: 'الإدارة',
     sectionAccount: 'الحساب',
     sectionOperations: 'العمليات',
@@ -78,6 +79,7 @@ export const ar: Dictionary = {
     privacy: 'الخصوصية',
     termsOfService: 'شروط الخدمة',
     privacyPolicy: 'سياسة الخصوصية',
+    supportTelegram: 'الدعم عبر Telegram',
     signIn: 'تسجيل الدخول',
     register: 'إنشاء حساب',
     footerBlurb:
@@ -228,7 +230,7 @@ export const ar: Dictionary = {
     depositUsdt: 'إيداع USDT',
     firstWithdrawalTitle: 'السحب الأول غير متاح بعد',
     firstWithdrawalBody: (days: number, waitDays: number, cooldown: number) =>
-      `يُفتَح سحبك الأول بعد ${days} يوماً من الآن، أي بعد ${waitDays} يوماً من تفعيل باقتك. بعد ذلك يمكنك السحب مرة واحدة كل ${cooldown} أيام.`,
+      `يُفتَح سحبك الأول بعد ${days} يوماً من الآن، أي بعد ${waitDays} يوماً من تفعيل باقتك. بعد ذلك تكون فترة التهدئة ${cooldown} أيام عمل (من الاثنين إلى الجمعة).`,
     unreadNotifications: 'إشعارات غير مقروءة',
     communityReviewsTitle: 'آراء المجتمع',
     communityReviewsDescription:
@@ -574,7 +576,7 @@ export const ar: Dictionary = {
     firstWithdrawal: 'السحب الأول',
     daysAfterActivation: (days: number) => `بعد ${days} يوماً من التفعيل`,
     then: 'ثم',
-    onceEvery: (days: number) => `مرة كل ${days} أيام`,
+    onceEvery: (days: number) => `كل ${days} أيام عمل`,
     unlocksOn: 'يُفتَح في',
     nextWindow: 'النافذة القادمة',
     notStarted: 'لم يبدأ',
@@ -744,7 +746,7 @@ export const ar: Dictionary = {
             },
             {
               q: 'وبعد ذلك؟',
-              a: 'سحب واحد كل عشرة أيام، تُحتسب من آخر سحب مكتمل. ومدة الانتظار وفترة التهدئة كلتاهما قابلة للضبط من المشغّل، والقيم السارية معروضة لك في صفحة السحب.',
+              a: 'سحب واحد كل عشرة أيام عمل (من الاثنين إلى الجمعة)، تُحتسب من آخر سحب مكتمل، ولا تُحتسب عطلة نهاية الأسبوع. ومدة الانتظار وفترة التهدئة كلتاهما قابلة للضبط من المشغّل، والقيم السارية معروضة لك في صفحة السحب.',
             },
             {
               q: 'ماذا يحدث للمبلغ أثناء وجود طلب مفتوح؟',

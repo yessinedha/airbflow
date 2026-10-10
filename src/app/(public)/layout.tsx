@@ -62,6 +62,14 @@ export default async function PublicLayout({ children }: { children: React.React
               <Link href="/privacy" className="hover:text-ink">
                 {t.publicSite.privacyPolicy}
               </Link>
+              <a
+                href="https://t.me/Arbiflowsupport_bot"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="hover:text-ink"
+              >
+                {t.publicSite.supportTelegram}
+              </a>
             </nav>
           </div>
 

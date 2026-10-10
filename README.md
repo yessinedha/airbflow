@@ -342,6 +342,22 @@ git push -u origin main
    pressing a button. Confirm it appears under **Settings → Cron Jobs**.
    Without `CRON_SECRET` the endpoint returns 401 by design.
 
+### Telegram support bot
+
+The site links to `@Arbiflowsupport_bot`. Add `TELEGRAM_BOT_TOKEN`,
+`TELEGRAM_ADMIN_CHAT_ID` and a random `TELEGRAM_WEBHOOK_SECRET` (at least 32
+characters, using letters, digits, `_` or `-`) to Vercel's server-side
+environment variables, then redeploy. Do not use a `NEXT_PUBLIC_` prefix for
+these values.
+
+Register `https://your-domain.com/api/telegram/webhook` with Telegram's
+`setWebhook` API and pass the same `TELEGRAM_WEBHOOK_SECRET` as its
+`secret_token`. Do not share the bot token or include it in source control.
+Users open the bot link and press **Start** before the bot can message them.
+Messages they send privately are delivered to the configured admin chat;
+reply to a delivered message in Telegram to send the response back to that
+user. No message history is stored in the ArbiFlow database.
+
 ### 3. Verify the deployment end to end
 
 Do this on the real deployment before inviting anyone.

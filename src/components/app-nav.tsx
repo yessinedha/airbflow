@@ -11,6 +11,7 @@ import {
   IconDeposit,
   IconHistory,
   IconLogout,
+  IconMessage,
   IconMenu,
   IconShield,
   IconTasks,
@@ -151,6 +152,16 @@ export function AppSidebar({ user }: { user: NavUser }) {
           <Icon />
         </NavLink>
       ))}
+
+      <a
+        href="https://t.me/Arbiflowsupport_bot"
+        target="_blank"
+        rel="noopener noreferrer"
+        className="relative flex items-center gap-3 rounded-control px-3 py-2 text-sm text-ink-muted transition-colors hover:bg-surface-2/60 hover:text-ink"
+      >
+        <IconMessage />
+        <span className="flex-1">{t.nav.supportTelegram}</span>
+      </a>
 
       {isAdmin ? (
         <>

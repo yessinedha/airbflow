@@ -54,6 +54,7 @@ export const en = {
     withdraw: 'Withdraw',
     notifications: 'Notifications',
     profile: 'Profile',
+    supportTelegram: 'Telegram support',
     admin: 'Admin',
     sectionAccount: 'Account',
     sectionOperations: 'Operations',
@@ -75,6 +76,7 @@ export const en = {
     privacy: 'Privacy',
     termsOfService: 'Terms of service',
     privacyPolicy: 'Privacy policy',
+    supportTelegram: 'Support on Telegram',
     signIn: 'Sign in',
     register: 'Register',
     footerBlurb:
@@ -225,7 +227,7 @@ export const en = {
     depositUsdt: 'Deposit USDT',
     firstWithdrawalTitle: 'First withdrawal not available yet',
     firstWithdrawalBody: (days: number, waitDays: number, cooldown: number) =>
-      `Your first withdrawal unlocks ${days} day${days === 1 ? '' : 's'} from now, ${waitDays} days after your plan activation. After that you may withdraw once every ${cooldown} days.`,
+      `Your first withdrawal unlocks ${days} day${days === 1 ? '' : 's'} from now, ${waitDays} days after your plan activation. After that, the cooldown is ${cooldown} business days (Monday to Friday).`,
     unreadNotifications: 'Unread notifications',
     communityReviewsTitle: 'Community feedback',
     communityReviewsDescription:
@@ -572,7 +574,7 @@ export const en = {
     firstWithdrawal: 'First withdrawal',
     daysAfterActivation: (days: number) => `${days} days after activation`,
     then: 'Then',
-    onceEvery: (days: number) => `once every ${days} days`,
+    onceEvery: (days: number) => `every ${days} business days`,
     unlocksOn: 'Unlocks on',
     nextWindow: 'Next window',
     notStarted: 'Not started',
@@ -741,7 +743,7 @@ export const en = {
             },
             {
               q: 'And afterwards?',
-              a: 'One withdrawal every ten days, counted from your last completed withdrawal. Both the waiting period and the cooldown are configurable by the operator, and the values in force are shown to you on the withdrawal page.',
+              a: 'One withdrawal every ten business days (Monday to Friday), counted from your last completed withdrawal. Weekends do not count. Both the waiting period and the cooldown are configurable by the operator, and the values in force are shown to you on the withdrawal page.',
             },
             {
               q: 'What happens to the money while a request is open?',

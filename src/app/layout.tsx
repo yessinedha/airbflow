@@ -1,4 +1,5 @@
 import type { Metadata, Viewport } from 'next'
+import { Analytics } from '@vercel/analytics/next'
 import './globals.css'
 import { dirOf } from '@/lib/i18n/config'
 import { getLocale } from '@/lib/i18n/server'
@@ -56,6 +57,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
       </head>
       <body className="min-h-dvh antialiased">
         <LocaleProvider locale={locale}>{children}</LocaleProvider>
+        <Analytics />
       </body>
     </html>
   )

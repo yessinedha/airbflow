@@ -11,7 +11,7 @@
  * until every key is translated.
  */
 
-export const LOCALES = ['en', 'ar'] as const
+export const LOCALES = ['en', 'ar', 'fr'] as const
 export type Locale = (typeof LOCALES)[number]
 
 export const DEFAULT_LOCALE: Locale = 'en'
@@ -25,6 +25,7 @@ export const LOCALE_COOKIE_MAX_AGE = 60 * 60 * 24 * 365
 export const LOCALE_META: Record<Locale, { label: string; nativeLabel: string; dir: 'ltr' | 'rtl' }> = {
   en: { label: 'English', nativeLabel: 'English', dir: 'ltr' },
   ar: { label: 'Arabic', nativeLabel: 'العربية', dir: 'rtl' },
+  fr: { label: 'French', nativeLabel: 'Français', dir: 'ltr' },
 }
 
 export function isLocale(value: unknown): value is Locale {
@@ -39,7 +40,7 @@ export function dirOf(locale: Locale): 'ltr' | 'rtl' {
  * Picks the best locale from an Accept-Language header.
  *
  * Only used when the visitor has no cookie yet. Quality values are ignored:
- * the first supported tag wins, which is accurate enough for two languages.
+ * the first supported tag wins.
  */
 export function matchLocale(acceptLanguage: string | null | undefined): Locale {
   if (!acceptLanguage) return DEFAULT_LOCALE

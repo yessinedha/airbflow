@@ -4,12 +4,24 @@ import { loadAdminOverview } from '@/lib/admin/queries'
 import { Alert, Badge, Card, CardBody, CardHeader, CardTitle, PageHeader, Stat } from '@/components/ui'
 import { DepositStatusBadge, WithdrawalStatusBadge } from '@/components/status'
 import { formatDateTime, formatRelative, formatUsdt, maskAddress } from '@/lib/format'
+import { createSupabaseServerClient } from '@/lib/supabase/server'
+import { SitePresenceControl } from '@/components/admin/site-presence-control'
 
 export const metadata: Metadata = { title: 'Dashboard' }
 export const dynamic = 'force-dynamic'
 
 export default async function AdminDashboardPage() {
   const { stats, pendingWithdrawals, pendingDeposits, recentUsers, recentActions } = await loadAdminOverview()
+
+  const supabase = await createSupabaseServerClient()
+  const { error: presenceCheckError } = await supabase.rpc('check_site_presence_switch')
+  const { data: presence, error: presenceReadError } = await supabase
+    .from('site_presence_switch')
+    .select('is_closed, confirmed_at')
+    .eq('singleton', true)
+    .maybeSingle<{ is_closed: boolean; confirmed_at: string | null }>()
+
+  const presenceError = presenceCheckError?.message ?? presenceReadError?.message
 
   if (!stats) {
     return (
@@ -45,6 +57,19 @@ export default async function AdminDashboardPage() {
           />
           <Stat label="Suspended / banned" value={stats.suspended_users} />
         </div>
+      </section>
+
+      <section>
+        <h2 className="mb-2 text-sm font-semibold text-ink-muted">Daily site check-in</h2>
+        <Card>
+          <CardBody>
+            <SitePresenceControl
+              isClosed={presence ? presence.is_closed : null}
+              confirmedAt={presence?.confirmed_at ?? null}
+              statusError={presenceError}
+            />
+          </CardBody>
+        </Card>
       </section>
 
       <section>

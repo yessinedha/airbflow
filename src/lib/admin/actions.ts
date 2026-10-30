@@ -212,6 +212,22 @@ export async function adminApproveDepositProofAction(
   return actionOk(data, 'Payment proof approved and the verified amount credited.')
 }
 
+export async function confirmSitePresenceAction(
+  _prev: ActionResult<unknown> | null,
+  _formData: FormData,
+): Promise<ActionResult<unknown>> {
+  const auth = await adminGuard()
+  if (!auth.ok) return actionError(auth.error)
+
+  const supabase = await createSupabaseServerClient()
+  const { data, error } = await supabase.rpc('admin_confirm_site_presence')
+  if (error) return actionError(mapDbError(error))
+
+  revalidateAdmin()
+  revalidatePath('/site-closed')
+  return actionOk(data, 'Presence confirmed. The public site is available until the next deadline.')
+}
+
 export async function adminRejectDepositAction(
   _prev: ActionResult<unknown> | null,
   formData: FormData,

@@ -25,7 +25,7 @@ const AUTH_ROUTES = ['/login', '/register']
  * every server action, route handler and RLS policy; middleware alone is
  * never treated as a security boundary.
  */
-export async function middleware(request: NextRequest) {
+export async function proxy(request: NextRequest) {
   let response = NextResponse.next({ request })
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL
@@ -63,6 +63,35 @@ export async function middleware(request: NextRequest) {
     url.pathname = '/dashboard'
     url.search = ''
     return NextResponse.redirect(url)
+  }
+
+  const availableDuringShutdown =
+    path === '/site-closed' ||
+    path === '/login' ||
+    path === '/auth/callback' ||
+    path === '/admin' ||
+    path.startsWith('/admin/') ||
+    path === '/api/cron/verify-deposits' ||
+    path === '/api/telegram/webhook'
+
+  if (!availableDuringShutdown) {
+    const { data: isClosed, error } = await supabase.rpc('check_site_presence_switch')
+    if (error) {
+      console.error('[site-presence] status check failed', error.message)
+      return new NextResponse('The site is temporarily unavailable.', {
+        status: 503,
+        headers: { 'Cache-Control': 'no-store' },
+      })
+    }
+
+    if (isClosed) {
+      const url = request.nextUrl.clone()
+      url.pathname = '/site-closed'
+      url.search = ''
+      return NextResponse.rewrite(url, {
+        headers: { 'Cache-Control': 'no-store' },
+      })
+    }
   }
 
   return response

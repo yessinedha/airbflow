@@ -455,7 +455,7 @@ export const ar: Dictionary = {
     invitationCode: 'رمز الدعوة',
     invitationLink: 'رابط الدعوة',
     copyCode: 'نسخ الرمز',
-    copyLink: 'نسخ الرابط',    npx supabase db push
+    copyLink: 'نسخ الرابط',    
     totalTeam: 'إجمالي الفريق',
     acrossLevels: 'عبر المستويات الثلاثة',
     levelDirect: 'المستوى 1 - الداعي المباشر',
